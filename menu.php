@@ -2,35 +2,25 @@
 	session_start(); 
 ?>
 <html>
-<body>
-<?php
-	if (isset($_POST['connect'])) {
-		echo "<br/>Setting session variables!<br/>";
-		// collect value of input field
-		$sqlUser = $_POST['user'];
-		$sqlPass = $_POST['pass'];
-	
-		if (empty($sqlUser)) echo "Username is empty!<br/>";
-		if (empty($sqlPass)) echo "Password is empty!<br/>";
-		// We implemented these two checks in index.php
 
-		if (!(empty($sqlUser) || empty($sqlPass))) {
-			// Set session variables
-			$_SESSION["serverName"] = "mssql.cs.ucy.ac.cy";
-			$_SESSION["connectionOptions"] = array(
-				"Database" => "cseas002",
-				"Uid" => "cseas002",
-				"PWD" => "hedX8eVtLW" 
-			);
-		} else {
-			session_unset();
-			session_destroy();
-			echo "<br/>Cannot setup the session variables! Redirecting back in 5 seconds<br/>";
-			die('<meta http-equiv="refresh" content="5; url=index.php" />');
-		}
-	}
-?>
 <body>
+<?php 
+	session_start(); 
+	// Get the DB connection info from the session
+	if(isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset($_SESSION["userID"]) && isset($_SESSION["userType"])) { 
+		$serverName = $_SESSION["serverName"];
+		$connectionOptions = $_SESSION["connectionOptions"];
+		$userID = $_SESSION["userID"];
+		$userType = $_SESSION["userType"];
+	} else {
+		session_unset();
+		session_destroy();
+		echo "Session is not correctly set! Clossing session and redirecting to start page in 3 seconds<br/>";
+		die('<meta http-equiv="refresh" content="3; url=index.php" />');
+	} 	
+	//Establishes the connection
+	$conn = sqlsrv_connect($serverName, $connectionOptions);
+?>
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
 		<td vAlign=top width=170><img height=91 alt=UCY src="images/ucy.jpg" width=94>
@@ -60,6 +50,7 @@
 			die('<meta http-equiv="refresh" content="2; url=index.php" />');
 		} 
 	?> 
+
 	
 	<form method="post"> 
 		<input type="submit" name="disconnect" value="Disconnect"/> 

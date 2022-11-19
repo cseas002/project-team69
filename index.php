@@ -3,7 +3,61 @@
     <title>PHP login system</title>   
     <link rel = "stylesheet" type = "text/css" href = "style.css">   
 </head>  
+
+
 <body>  
+<?php
+	session_start(); 
+	if($_SESSION['userID']!=""){
+		echo '<meta http-equiv="refresh" content="0; url=menu.php" />';
+	}
+	else if (!empty($_POST)) {
+		$sqlUser = $_POST['user'];
+		$sqlPass = $_POST['pass'];
+				
+		$_SESSION["serverName"] = "mssql.cs.ucy.ac.cy";
+		$_SESSION["connectionOptions"] = array(
+			"Database" => "cseas002",
+			"Uid" => "cseas002",
+			"PWD" => "hdX8VtLW",
+			"CharacterSet"=>"UTF-8"
+		);
+
+		$serverName = $_SESSION["serverName"];
+		$connectionOptions = $_SESSION["connectionOptions"];
+		$strSQL = "EXEC dbo.UserLogin @Username='".$sqlUser."', @UPassword='".$sqlPass."';"; 
+		$conn = sqlsrv_connect($serverName, $connectionOptions);
+		$objQuery = sqlsrv_query($conn, $strSQL);
+		$objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC);
+		if(!$objQuery)
+		{  
+			$_POST = array();
+			?>
+			<script>
+			alert("Error Connecting. Try again.");
+			</script>
+			
+			<?php
+			echo '<meta http-equiv="refresh" content="0; url=index.php" />';
+		}  
+		else if(!$objResult){
+			$_POST = array();
+			?>
+			<script>
+			alert("Wrong credentials.");
+			</script>
+			<?php
+			echo '<meta http-equiv="refresh" content="0; url=index.php" />';
+			
+		}
+		else{
+			$_SESSION["userID"] = $objResult["UserID"];
+			$_SESSION["userType"] = $objResult["UserType"];
+			$_POST = array();
+			echo '<meta http-equiv="refresh" content="0; url=menu.php" />';
+		}	
+	}
+	?>
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
 		<td vAlign=top width=170><img height=91 alt=UCY src="images/ucy.jpg" width=94>
@@ -19,7 +73,7 @@
     </table>
     <div id = "frm">  
         <h1>Login</h1>  
-        <form name="f1" action = "connect.php" onsubmit = "return validation()" method = "POST">  
+        <form name="f1" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" onsubmit="return validation()"  method = "POST">  
             <p>  
                 <label> UserName: </label>  <br/> 
                 <input type = "text" id ="user" name  = "user" />  
@@ -37,7 +91,7 @@
 		function validation()  
 		{  
 			var id=document.f1.user.value;  
-			var ps=document.f1.pass.value;  
+			var ps=document.f1.pass.value;
 			if(id.length=="" && ps.length=="") {  
 				alert("User Name and Password fields are empty");  
 				return false;  
@@ -50,9 +104,11 @@
 				}   
 				if (ps.length=="") {  
 				alert("Password field is empty");  
-				return false;  
+					return false;  
 				}  
-			}                             
+				
+			}	
+	
 		}  
     </script>  
 </body>     

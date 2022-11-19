@@ -1,9 +1,21 @@
 <?php 
 	session_start(); 
 	// Get the DB connection info from the session
-	if(isset($_SESSION["serverName"]) && isset($_SESSION["connectionOptions"])) { 
+	if(isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset($_SESSION["userID"]) && isset($_SESSION["userType"])) { 
 		$serverName = $_SESSION["serverName"];
 		$connectionOptions = $_SESSION["connectionOptions"];
+		$userID = $_SESSION["userID"];
+		$userType = $_SESSION["userType"];
+
+		if($userType == '2'){
+			?>
+			<script>
+			alert("Simple users can't insert/modify/delete types.");
+			</script>
+			<meta http-equiv="refresh" content="0; url=menu.php" />
+			<?php
+		}
+
 	} else {
 		session_unset();
 		session_destroy();
@@ -33,7 +45,7 @@
 				<a href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 			</h5>
 		</td>
-		<td vAlign=center align=middle><h2>Insert / Add / Delete</h2></td>
+		<td vAlign=center align=middle><h2>Insert / Edit / Delete Types</h2></td>
 	</tr>
     </table>
 	<hr>
@@ -58,12 +70,12 @@
 							<label> Model: </label>  
 						</td>
 						<td>
-							<input type = "text" name = "model" />  
+							<input maxlength="40" type = "text" name = "model" />  
 						</td>
 					</tr> 
 					<tr>
 						<td>
-							<input type =  "submit" id = "btn" value = "Insert" name = "insert" /> 
+							<input maxlength="30" type =  "submit" id = "btn" value = "Insert" name = "insert" /> 
 						</td>
 					</tr> 
 				</tbody>
@@ -73,7 +85,7 @@
     </div> 
 
 	<div>
-	<form name="frmMain" method="post" action="<?=$_SERVER["PHP_SELF"];?>">  
+	<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">  
 		<input type="hidden" name="hdnCmd" value="">  
 		<table width="100%" border="1">  
 		<tr>  
@@ -83,7 +95,7 @@
 		<th width = "40%" colspan = "2"> <div align="center">Actions</div></th>  
 		</tr>  
 		<?php 
-		$tsql="SELECT * FROM TYPES ORDER BY TypeID ASC;";
+		$tsql="EXEC dbo.Q2_Select";
 		$objQuery = sqlsrv_query($conn, $tsql);
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))  
@@ -98,8 +110,8 @@
 		<td><div align="center"><?=$objResult["TypeID"];?></div>
 		<input type="hidden" name="hdnEditTypeID" value="<?=$objResult["TypeID"];?>">
 		</td> 
-		<td><input type="text" name="txtEditTitle" value="<?=$objResult["Title"];?>"></td>  
-		<td><input type="text" name="txtEditModel" value="<?=$objResult["Model"];?>"></td>  
+		<td align="center"><input style="text-align:center; width:100%;" maxlength="40" type="text" name="txtEditTitle" value="<?=$objResult["Title"];?>"></td>  
+		<td align="center"><input style="text-align:center; width:100%;" maxlength="30" type="text" name="txtEditModel" value="<?=$objResult["Model"];?>"></td>  
 		<td colspan="2" align="right"><div align="center">  
 		<input name="btnAdd" type="button" id="btnUpdate" value="Update" OnClick="frmMain.hdnCmd.value='Update';frmMain.submit();">  
 		<input name="btnAdd" type="button" id="btnCancel" value="Cancel" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>';">  
@@ -112,10 +124,10 @@
 		?>  
 		<tr>  
 		<td><div align="center"><?=$objResult["TypeID"];?></div></td>  
-		<td><?=$objResult["Title"];?></td>  
-		<td><?=$objResult["Model"];?></td>  
-		<td align="center"><a href="<?=$_SERVER["PHP_SELF"];?>?Action=Edit&id=<?=$objResult["TypeID"];?>">Edit</a></td>  
-		<td align="center"><a href="JavaScript:if(confirm('Confirm Delete?')==true){window.location='<?=$_SERVER["PHP_SELF"];?>?Action=Del&id=<?=$objResult["TypeID"];?>';}">Delete</a></td>  
+		<td align="center"><?=$objResult["Title"];?></td>  
+		<td align="center"><?=$objResult["Model"];?></td>  
+		<td align="center" width="20%"><a href="<?=$_SERVER["PHP_SELF"];?>?Action=Edit&id=<?=$objResult["TypeID"];?>">Edit</a></td>  
+		<td align="center" width="20%"><a href="JavaScript:if(confirm('Confirm Delete?')==true){window.location='<?=$_SERVER["PHP_SELF"];?>?Action=Del&id=<?=$objResult["TypeID"];?>';}">Delete</a></td>  
 		</tr>  
 		<?php 
 		}  
@@ -133,41 +145,74 @@
 	//*** Update Condition ***//  
 	if($_POST["hdnCmd"] == "Update")  
 	{  
-	$strSQL = "UPDATE dbo.TYPES SET Title = '" . $_POST["txtEditTitle"] . "', Model = '" . $_POST["txtEditModel"] . "' ";  
-	$strSQL .="WHERE TypeID = '" . $_POST["hdnEditTypeID"] . "' ";  
-	$objQuery = sqlsrv_query($conn, $strSQL);
-	if(!$objQuery)  
-	{  
-		echo "Error Update [" . sqlsrv_errors() . "]"; 
-	}  
-	else{
-		echo "<meta http-equiv='refresh' content='0'>";
-	}
+	$strSQL = "{call dbo.Q2_Update(?, ?, ?, ?)}";  
+	$params = array(  
+		array($_POST["txtEditTitle"], SQLSRV_PARAM_IN),
+		array($_POST["txtEditModel"], SQLSRV_PARAM_IN),
+		array($_POST["hdnEditTypeID"], SQLSRV_PARAM_IN),
+		array($_SESSION["userType"], SQLSRV_PARAM_IN)
+	   ); 
+	$objQuery = sqlsrv_query($conn, $strSQL, $params);
+		$objRow = sqlsrv_fetch_array($objQuery);
+		if (!$objQuery)
+		{
+			echo "Error Update [" . sqlsrv_errors() . "]";
+		}
+		else if($objRow[0]=='0'){ //Simple user
+			?>
+			<script>
+				alert("Simple users cannot update types.");
+			</script>
+			<?php
+		}
+		else echo "<meta http-equiv='refresh' content='0'>";
 	}  
 	
 	//*** Delete Condition ***//  
 	if($_GET["Action"] == "Del")  
 	{  
-	$strSQL = "DELETE FROM dbo.TYPES WHERE TypeID = '" . $_GET["id"] . "' ";  
-	$objQuery = sqlsrv_query($conn, $strSQL);  
-	if(!$objQuery)  
-	{  
-		echo "Error Delete [" . sqlsrv_errors() . "]"; 
-	} 
-		else{
-			echo "<meta http-equiv='refresh' content='0;url=q2.php'>";
-			// header("Location: https://www.cs.ucy.ac.cy/~cseas002/q2.php");
-		} 
+		$strSQL = "{call dbo.Q2_Delete(?, ?)}";  
+	$params = array(  
+		array($_GET["id"], SQLSRV_PARAM_IN),
+		array($_SESSION["userType"], SQLSRV_PARAM_IN)
+	   ); 
+	$objQuery = sqlsrv_query($conn, $strSQL, $params);
+		$objRow = sqlsrv_fetch_array($objQuery);
+		if (!$objQuery)
+		{
+			echo "Error Delete [" . sqlsrv_errors() . "]";
+		}
+		else if($objRow[0]=='0'){ //Simple user
+			?>
+			<script>
+				alert("Simple users cannot delete types.");
+			</script>
+			<?php
+		}
+		echo "<meta http-equiv='refresh' content='0;url=q2.php'>";
 	}
 
 	if ($_POST["insert"] == "Insert") {
-		$tsql2 = "INSERT INTO dbo.TYPES (Title, Model) VALUES ('" . $_POST["title"] . "', '" . $_POST["model"] . "');";
-		$objQuery = sqlsrv_query($conn, $tsql2);
+		$strSQL = "{call dbo.Q2_Insert(?, ?, ?)}";  
+		$params = array(  
+			array($_POST["title"], SQLSRV_PARAM_IN),
+			array($_POST["model"], SQLSRV_PARAM_IN),
+			array($_SESSION["userType"], SQLSRV_PARAM_IN)
+		); 
+		$objQuery = sqlsrv_query($conn, $strSQL, $params);
+		$objRow = sqlsrv_fetch_array($objQuery);
 		if (!$objQuery)
 		{
 			echo "Error Insert [" . sqlsrv_errors() . "]";
 		}
-		echo "<meta http-equiv='refresh' content='0'>";
+		else if($objRow[0]=='0'){ //Simple user
+			?>
+			<script>
+				alert("Simple users cannot insert new types.");
+			</script>
+			<?php
+		}
+		else echo "<meta http-equiv='refresh' content='0'>";
 	}
 
 	// $time_end = microtime(true);
