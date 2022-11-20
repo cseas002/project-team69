@@ -121,6 +121,7 @@
     </div> 
 
 	<div>
+	<h2>List of all types</h2>
 	<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">  
 		<input type="hidden" name="hdnCmd" value="">  
 		<table width="100%" border="1">  
@@ -257,8 +258,10 @@
 
 	// $time_end = microtime(true);
 
+	$userTypes=array("System Admin", "Functions Admin", "Simple User");
 	echo "Connecting to SQL server (" . $serverName . ")<br/>";
 	echo "Database: " . $connectionOptions[Database] . ", SQL User: " . $connectionOptions[Uid] . "<br/>";
+	echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]] . "<br/>";
 
 	/* Free connection resources. */  
 	sqlsrv_close( $conn); 
@@ -277,11 +280,6 @@
 			die('<meta http-equiv="refresh" content="1; url=index.php" />');
 		} 
 	?>  
-	
-	<form method="post"> 
-		<input type="submit" name="disconnect" value="Disconnect"/> 
-		<input type="submit" value="Menu" formaction="connect.php">
-	</form> 
 	</div>
 </body>
 </html>

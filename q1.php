@@ -321,28 +321,28 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				<input type="hidden" name="passwordpass" value="">
 				<table width="100%" border="1">
 					<tr>
-						<th width="12%">
+						<th width="9%">
 							<div align="center">UserID </div>
 						</th>
-						<th width="12%">
+						<th width="11%">
 							<div align="center">Username</div>
 						</th>
-						<th width="12%">
+						<th width="18%">
 							<div align="center">User Type</div>
 						</th>
-						<th width="12%">
+						<th width="13%">
 							<div align="center">First Name</div>
 						</th>
-						<th width="12%">
+						<th width="13%">
 							<div align="center">Last Name</div>
 						</th>
-						<th width="12%">
+						<th width="13%">
 							<div align="center">Date of Birth</div>
 						</th>
-						<th width="12%">
+						<th width="9%">
 							<div align="center">Gender</div>
 						</th>
-						<th width="16%" colspan="2">
+						<th width="14%" colspan="2">
 							<div align="center">Actions</div>
 						</th>
 					</tr>
@@ -454,13 +454,21 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 							<?= $objResult["Date_of_Birth"]; ?>
 						</td>
 						<td align="center">
-							<?= $objResult["Gender"]; ?>
+							<?php
+								$gender="";
+								if ($objResult["Gender"]=='M')
+									$gender="Male";
+								else if ($objResult["Gender"]=='F')
+									$gender="Female";
+								else $gender="Other";
+							?>
+							<?= $gender; ?>
 						</td>
-						<td align="center" width="8%">
+						<td align="center" width="7%">
 							
 								<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>?Action=Edit&id=<?= $objResult["UserID"]; ?>#row<?= $objResult["UserID"]; ?>';"> 
 						</td>
-						<td align="center" width="8%">
+						<td align="center" width="7%">
 							<input class="textbtn danger" name="btnChange" type="submit" id="btnChange" value="Change password"
 								OnClick="changePass(<?= $objResult["UserID"]; ?>);frmMain.hdnCmd.value='ChangePass';frmMain.submit();">
 						</td>
