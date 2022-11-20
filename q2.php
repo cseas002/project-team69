@@ -75,12 +75,12 @@
 
 
 	<div>  
-        <div style="text-align:center; background-color: #cccccc; margin-right:60%; min-width: fit-content;">
+        <div style="text-align:center; background-color: #cccccc; margin-right:65%; min-width: fit-content;">
 		<br/>
 		<h2>Insert new type</h2>
 		
         <form name="f1" method = "POST">  
-			<table style="text-align:left;" cellspacing="0" cellpadding="0" align="center">
+			<table style="text-align:left; padding-left:30px; padding-right: 30px;" cellspacing="0" cellpadding="0" align="center">
 				<tbody>
 					<tr style = "background-color:transparent">
 						<td  style="width:110px;">
@@ -146,8 +146,8 @@
 		<td><div id='row<?= $objResult["TypeID"]; ?>' align="center"><?=$objResult["TypeID"];?></div>
 		<input type="hidden" name="hdnEditTypeID" value="<?=$objResult["TypeID"];?>">
 		</td> 
-		<td align="center"><input style="text-align:center; width:100%;" maxlength="40" type="text" name="txtEditTitle" value="<?=$objResult["Title"];?>"></td>  
-		<td align="center"><input style="text-align:center; width:100%;" maxlength="30" type="text" name="txtEditModel" value="<?=$objResult["Model"];?>"></td>  
+		<td align="center" style="height:40px;"><input style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text" name="txtEditTitle" value="<?=$objResult["Title"];?>"></td>  
+		<td align="center" style="height:40px;"><input style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text" name="txtEditModel" value="<?=$objResult["Model"];?>"></td>  
 		<td colspan="2" align="right"><div align="center">  
 		<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update" OnClick="frmMain.hdnCmd.value='Update';frmMain.submit();">  
 		<input class="textbtn danger" name="btnAdd" type="button" id="btnCancel" value="Cancel" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>';">  
