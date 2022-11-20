@@ -52,17 +52,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 <body>
 	<div class="sidenav">
-		<img height=91 alt=UCY src="images/logo_en.jpg" width=94 align="center">
+		<a href="http://www.ucy.ac.cy/"><img width="160px" alt=UCY src="images/logo_en.png"></a>
 		<h5>
-			<a href="http://www.ucy.ac.cy/">University of Cyprus</a><BR />
-			<a href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
+			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<a href="#about">About</a>
-		<a href="#services">Services</a>
-		<a href="#clients">Clients</a>
-		<a href="#contact">Contact</a>
+		<a href="q1.php">Query 1</a>
+		<a href="q2.php">Query 2</a>
+		<a href="q3.php">Query 3</a>
+		<a href="q4.php">Query 4</a>
 		<div class="disconnectForm">
-		<?php
+			<?php
         if (isset($_POST['disconnect'])) {
 	        echo "Clossing session and redirecting to start page";
 	        session_unset();
@@ -70,12 +69,13 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	        die('<meta http-equiv="refresh" content="1; url=index.php" />');
         }
         ?>
-		
-		<form method="post">
-			<input class="disconnectBtn" type="submit" value="Menu" formaction="connect.php" style="margin-top:20px;"><br/><br/>
-			<input class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br/>
-		</form>
-	</div>
+
+			<form method="post">
+				<input class="disconnectBtn" type="submit" value="Menu" formaction="connect.php"
+					style="margin-top:20px;"><br /><br />
+				<input class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br />
+			</form>
+		</div>
 	</div>
 	<div class="main">
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
@@ -89,19 +89,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<hr>
 		<form name="frmUp" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
 			<input type="hidden" name="hdnCmd1" value="">
-			<table style="width:100%; background-color:transparent">
+			<table style="width:100%; background-color:transparent;" cellspacing="0" cellpadding="0">
 				<tbody>
 					<tr style="width:100%; background-color:transparent">
-						<td style="width:10%">
-							<p> </p>
-						</td>
-						<td style="width:33.3%">
-
-							<h1 style="font-family: Arial, Helvetica, sans-serif;">Insert new user</h1>
-							<table>
+						<td style="background-color: #cccccc;text-align:center;width:35%;">
+							<br />
+							<h3 style="font-family: Arial, Helvetica, sans-serif;">Insert new user</h3>
+							<table cellspacing="0" cellpadding="0" align="center">
 								<tbody>
 									<tr style="background-color:transparent">
-										<td>
+										<td style="width:130px;">
 											<label> Username: </label>
 										</td>
 										<td>
@@ -166,26 +163,33 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 											</select>
 										</td>
 									</tr>
-									<tr>
-										<td>
-											<input name="btnInsert" type="button" class="btn" value="Insert"
-												OnClick="frmUp.hdnCmd1.value='insert';frmUp.submit();">
-
-										</td>
-
-									</tr>
-
 								</tbody>
 							</table>
-
-						</td>
-						<td style="width:33.3%">
-
-							<h1>Advanced Search</h1>
-							<table>
+							<table cellspacing="0" cellpadding="0" align="center">
 								<tbody>
 									<tr style="background-color:transparent">
 										<td>
+											<br />
+											<input name="btnInsert" type="button" class="btnUpForm" value="Insert"
+												OnClick="frmUp.hdnCmd1.value='insert';frmUp.submit();">
+										</td>
+										<td style="padding-left:30px;">
+											<br />
+											<a href="<?= $_SERVER["PHP_SELF"]; ?>">Reset</a>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<br />
+							<br />
+						</td>
+						<td style="width:30px; text-align:center; padding-left:5%">
+
+							<h3>Advanced Search</h3>
+							<table cellspacing="0" cellpadding="0" align="center">
+								<tbody>
+									<tr style="background-color:transparent">
+										<td style="width:130px;">
 											<label> User ID: </label>
 										</td>
 										<td>
@@ -251,57 +255,66 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 											</select>
 										</td>
 									</tr>
-									<tr>
+								</tbody>
+							</table>
+							<table cellspacing="0" cellpadding="0" align="center">
+								<tbody>
+									<tr style="background-color:transparent">
 										<td>
-											<input name="btnAdvSearch" type="button" class="btn" value="Search"
+											<br />
+											<input name="btnAdvSearch" type="button" class="btnUpForm" value="Search"
 												OnClick="frmUp.hdnCmd1.value='advSearch';frmUp.submit();">
 										</td>
-										<td>
+										<td style="padding-left:30px;">
+											<br />
 											<a href="<?= $_SERVER["PHP_SELF"]; ?>">Reset</a>
 										</td>
 									</tr>
-
 								</tbody>
 							</table>
 
 
 
 						</td>
-						<td style="width:33.4%">
+						<td style="width:30%; text-align:center;">
 
-							<h1>Search</h1>
-							<table>
+							<h3>Search</h3>
+							<table cellspacing="0" cellpadding="0" align="center">
 								<tbody>
 									<tr style="background-color:transparent">
-										<td>
+										<td style="width:100px;">
 											<label> Keyword: </label>
 										</td>
 										<td>
 											<input maxlength="40" type="text" name="keyword" />
 										</td>
 									</tr>
-
-									<tr>
+								</tbody>
+							</table>
+							<table cellspacing="0" cellpadding="0" align="center">
+								<tbody>
+									<tr style="background-color:transparent">
 										<td>
-											<input name="btnSimpleSearch" type="button" class="btn" value="Search"
+											<br />
+											<input name="btnSimpleSearch" type="button" class="btnUpForm" value="Search"
 												OnClick="frmUp.hdnCmd1.value='simpleSearch';frmUp.submit();">
 										</td>
-										<td>
+										<td style="padding-left:30px;">
+											<br />
 											<a href="<?= $_SERVER["PHP_SELF"]; ?>">Reset</a>
 										</td>
 									</tr>
-
 								</tbody>
 							</table>
-
-
 						</td>
 					</tr>
 					</tbdoy>
 			</table>
 		</form>
+		<hr />
 
 		<div>
+			<h2>List of all users</h2>
 			<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
 				<input type="hidden" name="hdnCmd" value="">
 				<input type="hidden" name="userIDpass" value="">
@@ -367,38 +380,38 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	                    if ($objResult["UserID"] == $_GET["id"] and $_GET["Action"] == "Edit") {
                     ?>
 					<tr>
-						<td>
-							<div align="center">
+						<td style="height:50px;">
+							<div id='row<?= $objResult["UserID"]; ?>' align="center">
 								<?= $objResult["UserID"]; ?>
 							</div>
 							<input type="hidden" name="hdnEditUserID" value="<?= $objResult["UserID"]; ?>">
 						</td>
-						<td align="center"><input style="text-align:center; width:100%;" maxlength="40" type="text"
+						<td style="height:50px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="40" type="text"
 								name="txtEditUsername" value="<?= $objResult["Username"]; ?>"></td>
-						<td align="center"><select name="txtEditUserType" id="txtEditUserType"
+						<td style="height:50px;" align="center"><select style="text-align:center; width:100%; height:100%;" name="txtEditUserType" id="txtEditUserType"
 								value="<?= $objResult["UserType"]; ?>">
 								<option value="0">Διαχειριστής Συστήματος</option>
 								<option value="1">Διαχειριστής Λειτουργιών</option>
 								<option value="2">Απλός χρήστης</option>
 							</select></td>
-						<td align="center"><input style="text-align:center; width:100%;" maxlength="30" type="text"
+						<td style="height:50px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
 								name="txtEditFName" value="<?= $objResult["FName"]; ?>"></td>
-						<td align="center"><input style="text-align:center; width:100%;" maxlength="30" type="text"
+						<td style="height:50px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
 								name="txtEditLName" value="<?= $objResult["LName"]; ?>"></td>
-						<td align="center"><input style="text-align:center; width:100%;" type="date" name="txtEditDOB"
+						<td style="height:50px;" align="center"><input style="text-align:center; width:100%; height:100%;" type="date" name="txtEditDOB"
 								value="<?= $objResult["Date_of_Birth"]; ?>"></td>
-						<td align="center"><select name="txtEditGender" id="txtEditGender"
+						<td style="height:50px;" align="center"><select style="text-align:center; width:100%; height:100%;" name="txtEditGender" id="txtEditGender"
 								value="<?= $objResult["Gender"]; ?>">
 								<option value="M">Male</option>
 								<option value="F">Female</option>
 								<option value="O">Other</option>
 							</select></td>
 
-						<td colspan="2" align="right">
+						<td style="height:50px;" colspan="2" align="right">
 							<div align="center">
-								<input name="btnAdd" type="button" id="btnUpdate" value="Update"
+								<input class="textbtn success" name="btnUpdate" type="button" id="btnUpdate" value="Update"
 									OnClick="frmMain.hdnCmd.value='Update';frmMain.submit();">
-								<input name="btnAdd" type="button" id="btnCancel" value="Cancel"
+								<input class="textbtn danger" name="btnCancel" type="button" id="btnCancel" value="Cancel"
 									OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>';">
 							</div>
 						</td>
@@ -421,7 +434,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
                     ?>
 					<tr>
 						<td>
-							<div align="center">
+							<div id='row<?= $objResult["UserID"]; ?>' align="center">
 								<?= $objResult["UserID"]; ?>
 							</div>
 						</td>
@@ -443,11 +456,12 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						<td align="center">
 							<?= $objResult["Gender"]; ?>
 						</td>
-						<td align="center" width="8%"><a
-								href="<?= $_SERVER["PHP_SELF"]; ?>?Action=Edit&id=<?= $objResult["UserID"]; ?>">Edit</a>
+						<td align="center" width="8%">
+							
+								<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>?Action=Edit&id=<?= $objResult["UserID"]; ?>#row<?= $objResult["UserID"]; ?>';"> 
 						</td>
 						<td align="center" width="8%">
-							<input name="btnChange" type="submit" id="btnChange" value="Change password"
+							<input class="textbtn danger" name="btnChange" type="submit" id="btnChange" value="Change password"
 								OnClick="changePass(<?= $objResult["UserID"]; ?>);frmMain.hdnCmd.value='ChangePass';frmMain.submit();">
 						</td>
 					</tr>
@@ -547,9 +561,10 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 
         // $time_end = microtime(true);
-        
+        $userTypes=array("System Admin", "Functions Admin", "Simple User");
         echo "Connecting to SQL server (" . $serverName . ")<br/>";
         echo "Database: " . $connectionOptions[Database] . ", SQL User: " . $connectionOptions[Uid] . "<br/>";
+		echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]] . "<br/>";
 
         /* Free connection resources. */
         sqlsrv_close($conn);
@@ -583,7 +598,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			}
 		</script>
 
-		
+
 
 
 	</div>

@@ -1,5 +1,6 @@
 body{   
     background: #eee;  
+    font-family: Arial, Helvetica, sans-serif;
 }  
 .frm{  
     text-align: center;
@@ -16,11 +17,18 @@ body{
     padding: 7px;  
     cursor: pointer;
 }  
+.btnUpForm{  
+    color: #fff;  
+    background: #337ab7;  
+    padding: 7px;  
+    cursor: pointer;
+    width: 100px;
+} 
 .disconnectForm { 
     height: 100px; 
     position: fixed; 
     bottom:0%;
-    width:160px; 
+    width:170px; 
     background-color: #6e6e6e; 
     opacity: 1;
 }
@@ -30,37 +38,53 @@ body{
 }
 .sidenav {
     height: 100%;
-    width: 160px;
+    width: 170px;
     position: fixed;
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: rgb(133, 133, 133);
+    background-color: rgb(210, 210, 210);
     overflow-x: hidden;
     padding-top: 20px;
 }
 .sidenav a {
     padding: 6px 8px 6px 16px;
     text-decoration: none;
-    font-size: 25px;
-    color: #e6e6e6;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: #2f2f2f;
     display: block;
 }
 .sidenav a:hover {
-    color: #f1f1f1;
+    color: #525252;
 }
 .main {
-    margin-left: 160px;
+    margin-left: 170px;
     /* Same as the width of the sidenav */
-    font-size: 28px;
-    /* Increased text to enable scrolling */
     padding: 0px 10px;
 }
 @media screen and (max-height: 450px) {
     .sidenav {
-        padding-top: 15px;
+        padding-top: 12px;
     }
     .sidenav a {
-        font-size: 18px;
+        font-size: 14px;
     }
 }
+.textbtn {
+    border: none;
+    background-color: inherit;
+    padding: 14px 28px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-block;
+  }
+  
+  /* On mouse-over */
+  .textbtn:hover {background: #eee;}
+  
+  .success {color: green;}
+  .info {color: dodgerblue;}
+  .warning {color: orange;}
+  .danger {color: red;}
+  .default {color: black;}
