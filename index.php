@@ -59,23 +59,24 @@
 	}
 	?>
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
+		
 	<tr>
-		<td vAlign=top width=170><img height=91 alt=UCY src="images/ucy.jpg" width=94>
-			<h5>
-				<a href="http://www.ucy.ac.cy/">University of Cyprus</a><BR/>
-				<a href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
-			</h5>
+		<td vAlign=top width=170>
+		<a href="http://www.ucy.ac.cy/"><img width="220px" alt=UCY src="images/logo_en.png"></a>
+		<h4>
+			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
+		</h4>
 		</td>
 	</tr>
 	<tr>
 		<td vAlign=center align=middle><h2>Spatial Data Management System</h2></td>
 	</tr>
     </table>
-    <div id = "frm">  
+    <div class = "frm">  
         <h1>Login</h1>  
         <form name="f1" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" onsubmit="return validation()"  method = "POST">  
             <p>  
-                <label> UserName: </label>  <br/> 
+                <label> Username: </label>  <br/> 
                 <input type = "text" id ="user" name  = "user" />  
             </p>  
             <p>  
@@ -83,7 +84,7 @@
                 <input type = "password" id ="pass" name  = "pass" />  
             </p>  
             <p>     
-                <input type =  "submit" id = "btn" value = "Login" name = "connect"/>  
+                <input type =  "submit" class = "btnUpForm" value = "Login" name = "connect"/>  
             </p>  
         </form>  
     </div>   

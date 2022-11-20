@@ -380,34 +380,34 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	                    if ($objResult["UserID"] == $_GET["id"] and $_GET["Action"] == "Edit") {
                     ?>
 					<tr>
-						<td style="height:50px;">
+						<td style="height:40px;">
 							<div id='row<?= $objResult["UserID"]; ?>' align="center">
 								<?= $objResult["UserID"]; ?>
 							</div>
 							<input type="hidden" name="hdnEditUserID" value="<?= $objResult["UserID"]; ?>">
 						</td>
-						<td style="height:50px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="40" type="text"
+						<td style="height:40px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="40" type="text"
 								name="txtEditUsername" value="<?= $objResult["Username"]; ?>"></td>
-						<td style="height:50px;" align="center"><select style="text-align:center; width:100%; height:100%;" name="txtEditUserType" id="txtEditUserType"
+						<td style="height:40px;" align="center"><select style="text-align:center; width:100%; height:100%;" name="txtEditUserType" id="txtEditUserType"
 								value="<?= $objResult["UserType"]; ?>">
 								<option value="0">Διαχειριστής Συστήματος</option>
 								<option value="1">Διαχειριστής Λειτουργιών</option>
 								<option value="2">Απλός χρήστης</option>
 							</select></td>
-						<td style="height:50px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
+						<td style="height:40px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
 								name="txtEditFName" value="<?= $objResult["FName"]; ?>"></td>
-						<td style="height:50px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
+						<td style="height:40px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
 								name="txtEditLName" value="<?= $objResult["LName"]; ?>"></td>
-						<td style="height:50px;" align="center"><input style="text-align:center; width:100%; height:100%;" type="date" name="txtEditDOB"
+						<td style="height:40px;" align="center"><input style="text-align:center; width:100%; height:100%;" type="date" name="txtEditDOB"
 								value="<?= $objResult["Date_of_Birth"]; ?>"></td>
-						<td style="height:50px;" align="center"><select style="text-align:center; width:100%; height:100%;" name="txtEditGender" id="txtEditGender"
+						<td style="height:40px;" align="center"><select style="text-align:center; width:100%; height:100%;" name="txtEditGender" id="txtEditGender"
 								value="<?= $objResult["Gender"]; ?>">
 								<option value="M">Male</option>
 								<option value="F">Female</option>
 								<option value="O">Other</option>
 							</select></td>
 
-						<td style="height:50px;" colspan="2" align="right">
+						<td style="height:40px;" colspan="2" align="right">
 							<div align="center">
 								<input class="textbtn success" name="btnUpdate" type="button" id="btnUpdate" value="Update"
 									OnClick="frmMain.hdnCmd.value='Update';frmMain.submit();">

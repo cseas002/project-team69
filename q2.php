@@ -37,14 +37,37 @@
 	</style>
 </head>
 <body>
+
+<div class="sidenav">
+		<a href="http://www.ucy.ac.cy/"><img width="160px" alt=UCY src="images/logo_en.png"></a>
+		<h5>
+			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
+		</h5>
+		<a href="q1.php">Query 1</a>
+		<a href="q2.php">Query 2</a>
+		<a href="q3.php">Query 3</a>
+		<a href="q4.php">Query 4</a>
+		<div class="disconnectForm">
+			<?php
+        if (isset($_POST['disconnect'])) {
+	        echo "Clossing session and redirecting to start page";
+	        session_unset();
+	        session_destroy();
+	        die('<meta http-equiv="refresh" content="1; url=index.php" />');
+        }
+        ?>
+
+			<form method="post">
+				<input class="disconnectBtn" type="submit" value="Menu" formaction="connect.php"
+					style="margin-top:20px;"><br /><br />
+				<input class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br />
+			</form>
+		</div>
+	</div>
+	<div class="main">
+
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=top width=170><img height=91 alt=UCY src="images/ucy.jpg" width=94>
-			<h5>
-				<a href="http://www.ucy.ac.cy/">University of Cyprus</a><BR/>
-				<a href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
-			</h5>
-		</td>
 		<td vAlign=center align=middle><h2>Insert / Edit / Delete Types</h2></td>
 	</tr>
     </table>
@@ -52,13 +75,15 @@
 
 
 	<div>  
-        <h1>Insert new type</h1>  
+        <div style="text-align:center; background-color: #cccccc; margin-right:60%; min-width: fit-content;">
+		<br/>
+		<h2>Insert new type</h2>
 		
         <form name="f1" method = "POST">  
-			<table>
+			<table style="text-align:left;" cellspacing="0" cellpadding="0" align="center">
 				<tbody>
 					<tr style = "background-color:transparent">
-						<td>
+						<td  style="width:110px;">
 							<label> Title: </label>  
 						</td>
 						<td>
@@ -67,19 +92,30 @@
 					</tr> 
 					<tr style = "background-color:transparent">
 						<td>
+						<br/>
 							<label> Model: </label>  
 						</td>
 						<td>
+							<br/>
 							<input maxlength="40" type = "text" name = "model" />  
-						</td>
-					</tr> 
-					<tr>
-						<td>
-							<input maxlength="30" type =  "submit" id = "btn" value = "Insert" name = "insert" /> 
 						</td>
 					</tr> 
 				</tbody>
 			</table>
+			<br/>
+			<table style="text-align:center" cellspacing="0" cellpadding="0" align="center">
+				<tbody>
+				<tr>
+						<td>
+							<input maxlength="30" type =  "submit" class = "btnUpForm" value = "Insert" name = "insert" /> 
+						</td>
+					</tr> 
+	</tbody>
+
+	</table>
+	<br/>
+	<br/>
+	</div>
 			<hr/>
         </form>  
     </div> 
@@ -90,9 +126,9 @@
 		<table width="100%" border="1">  
 		<tr>  
 		<th width = "20%"> <div align="center">TypeID </div></th>  
-		<th width = "20%"> <div align="center">Title</div></th>  
-		<th width = "20%"> <div align="center">Model</div></th>  
-		<th width = "40%" colspan = "2"> <div align="center">Actions</div></th>  
+		<th width = "25%"> <div align="center">Title</div></th>  
+		<th width = "25%"> <div align="center">Model</div></th>  
+		<th width = "30%" colspan = "2"> <div align="center">Actions</div></th>  
 		</tr>  
 		<?php 
 		$tsql="EXEC dbo.Q2_Select";
@@ -107,14 +143,14 @@
 		{  
 		?>  
 		<tr>  
-		<td><div align="center"><?=$objResult["TypeID"];?></div>
+		<td><div id='row<?= $objResult["TypeID"]; ?>' align="center"><?=$objResult["TypeID"];?></div>
 		<input type="hidden" name="hdnEditTypeID" value="<?=$objResult["TypeID"];?>">
 		</td> 
 		<td align="center"><input style="text-align:center; width:100%;" maxlength="40" type="text" name="txtEditTitle" value="<?=$objResult["Title"];?>"></td>  
 		<td align="center"><input style="text-align:center; width:100%;" maxlength="30" type="text" name="txtEditModel" value="<?=$objResult["Model"];?>"></td>  
 		<td colspan="2" align="right"><div align="center">  
-		<input name="btnAdd" type="button" id="btnUpdate" value="Update" OnClick="frmMain.hdnCmd.value='Update';frmMain.submit();">  
-		<input name="btnAdd" type="button" id="btnCancel" value="Cancel" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>';">  
+		<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update" OnClick="frmMain.hdnCmd.value='Update';frmMain.submit();">  
+		<input class="textbtn danger" name="btnAdd" type="button" id="btnCancel" value="Cancel" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>';">  
 		</div></td>  
 		</tr>  
 		<?php 
@@ -123,11 +159,15 @@
 		{  
 		?>  
 		<tr>  
-		<td><div align="center"><?=$objResult["TypeID"];?></div></td>  
+		<td><div id='row<?= $objResult["TypeID"]; ?>' align="center"><?=$objResult["TypeID"];?></div></td>  
 		<td align="center"><?=$objResult["Title"];?></td>  
 		<td align="center"><?=$objResult["Model"];?></td>  
-		<td align="center" width="20%"><a href="<?=$_SERVER["PHP_SELF"];?>?Action=Edit&id=<?=$objResult["TypeID"];?>">Edit</a></td>  
-		<td align="center" width="20%"><a href="JavaScript:if(confirm('Confirm Delete?')==true){window.location='<?=$_SERVER["PHP_SELF"];?>?Action=Del&id=<?=$objResult["TypeID"];?>';}">Delete</a></td>  
+		<td align="center" width="15%">
+			<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>?Action=Edit&id=<?= $objResult["TypeID"]; ?>#row<?= $objResult["TypeID"]; ?>';"> 
+		</td>  
+		<td align="center" width="15%">
+		<input class="textbtn danger" name="btnDelete" type="button" id="btnChange" value="Delete"
+								OnClick="if(confirm('Confirm Delete?')==true){window.location='<?=$_SERVER["PHP_SELF"];?>?Action=Del&id=<?=$objResult["TypeID"];?>';}"></td>  
 		</tr>  
 		<?php 
 		}  
@@ -242,5 +282,6 @@
 		<input type="submit" name="disconnect" value="Disconnect"/> 
 		<input type="submit" value="Menu" formaction="connect.php">
 	</form> 
+	</div>
 </body>
 </html>
