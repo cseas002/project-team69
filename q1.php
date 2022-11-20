@@ -51,8 +51,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 </head>
 
 <body>
-	<div id="sidenav">
-		<img height=91 alt=UCY src="images/ucy.jpg" width=94>
+	<div class="sidenav">
+		<img height=91 alt=UCY src="images/logo_en.jpg" width=94 align="center">
 		<h5>
 			<a href="http://www.ucy.ac.cy/">University of Cyprus</a><BR />
 			<a href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
@@ -61,7 +61,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<a href="#services">Services</a>
 		<a href="#clients">Clients</a>
 		<a href="#contact">Contact</a>
-		<hr>
+		<div class="disconnectForm">
 		<?php
         if (isset($_POST['disconnect'])) {
 	        echo "Clossing session and redirecting to start page";
@@ -70,14 +70,14 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	        die('<meta http-equiv="refresh" content="1; url=index.php" />');
         }
         ?>
-		<div id="disconnectForm">
+		
 		<form method="post">
-			<input type="submit" value="Menu" formaction="connect.php"><br/><br/>
-			<input type="submit" name="disconnect" value="Disconnect" /><br/>
+			<input class="disconnectBtn" type="submit" value="Menu" formaction="connect.php" style="margin-top:20px;"><br/><br/>
+			<input class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br/>
 		</form>
 	</div>
 	</div>
-	<div id="main">
+	<div class="main">
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
 
@@ -168,7 +168,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 									</tr>
 									<tr>
 										<td>
-											<input name="btnInsert" type="button" id="btn" value="Insert"
+											<input name="btnInsert" type="button" class="btn" value="Insert"
 												OnClick="frmUp.hdnCmd1.value='insert';frmUp.submit();">
 
 										</td>
@@ -205,7 +205,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 											<label> User Type: </label>
 										</td>
 										<td>
-											<select name="UserType2" id="UserType">
+											<select name="UserType2" id="UserType2">
 												<option value=""> </option>
 												<option value="0">Διαχειριστής Συστήματος</option>
 												<option value="1">Διαχειριστής Λειτουργιών</option>
@@ -243,7 +243,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 											<label> Gender: </label>
 										</td>
 										<td>
-											<select name="Gender2" id="Gender">
+											<select name="Gender2" id="Gender2">
 												<option value=""> </option>
 												<option value="M">Male</option>
 												<option value="F">Female</option>
@@ -253,7 +253,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 									</tr>
 									<tr>
 										<td>
-											<input name="btnAdvSearch" type="button" id="btn" value="Search"
+											<input name="btnAdvSearch" type="button" class="btn" value="Search"
 												OnClick="frmUp.hdnCmd1.value='advSearch';frmUp.submit();">
 										</td>
 										<td>
@@ -283,7 +283,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 									<tr>
 										<td>
-											<input name="btnSimpleSearch" type="button" id="btn" value="Search"
+											<input name="btnSimpleSearch" type="button" class="btn" value="Search"
 												OnClick="frmUp.hdnCmd1.value='simpleSearch';frmUp.submit();">
 										</td>
 										<td>

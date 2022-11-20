@@ -1,7 +1,7 @@
 body{   
     background: #eee;  
 }  
-#frm{  
+.frm{  
     text-align: center;
     border: solid gray 1px;  
     width:25%;  
@@ -10,42 +10,46 @@ body{
     background: white;  
     padding: 50px;  
 }  
-#btn{  
+.btn{  
     color: #fff;  
     background: #337ab7;  
     padding: 7px;  
     cursor: pointer;
 }  
-#disconnectForm { 
-    height: 40px; 
+.disconnectForm { 
+    height: 100px; 
     position: fixed; 
     bottom:0%;
-    width:100%; 
-    background-color: #393838; 
+    width:160px; 
+    background-color: #6e6e6e; 
     opacity: 1;
 }
-#sidenav {
+.disconnectBtn{
+    margin-left: 20px;
+    width: 120px;
+}
+.sidenav {
     height: 100%;
     width: 160px;
     position: fixed;
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: rgb(124, 175, 247);
+    background-color: rgb(133, 133, 133);
     overflow-x: hidden;
     padding-top: 20px;
 }
-#sidenav a {
+.sidenav a {
     padding: 6px 8px 6px 16px;
     text-decoration: none;
     font-size: 25px;
-    color: #818181;
+    color: #e6e6e6;
     display: block;
 }
-#sidenav a:hover {
+.sidenav a:hover {
     color: #f1f1f1;
 }
-#main {
+.main {
     margin-left: 160px;
     /* Same as the width of the sidenav */
     font-size: 28px;
@@ -53,10 +57,10 @@ body{
     padding: 0px 10px;
 }
 @media screen and (max-height: 450px) {
-    #sidenav {
+    .sidenav {
         padding-top: 15px;
     }
-    #sidenav a {
+    .sidenav a {
         font-size: 18px;
     }
 }
