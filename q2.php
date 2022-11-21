@@ -12,8 +12,9 @@
 			<script>
 			alert("Simple users can't insert/modify/delete types.");
 			</script>
-			<meta http-equiv="refresh" content="0; url=menu.php" />
 			<?php
+			die('<meta http-equiv="refresh" content="0; url=menu.php" />');
+			
 		}
 
 	} else {
@@ -58,7 +59,7 @@
         ?>
 
 			<form method="post">
-				<input class="disconnectBtn" type="submit" value="Menu" formaction="connect.php"
+				<input class="disconnectBtn" type="submit" value="Menu" formaction="menu.php"
 					style="margin-top:20px;"><br /><br />
 				<input class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br />
 			</form>
@@ -73,54 +74,25 @@
     </table>
 	<hr>
 
+	<button class="btnUpForm" onclick="document.getElementById('myForm').style.display = 'block';">Insert Type</button>
 
-	<div>  
-        <div style="text-align:center; background-color: #cccccc; margin-right:65%; min-width: fit-content;">
-		<br/>
-		<h2>Insert new type</h2>
-		
-        <form name="f1" method = "POST">  
-			<table style="text-align:left; padding-left:30px; padding-right: 30px;" cellspacing="0" cellpadding="0" align="center">
-				<tbody>
-					<tr style = "background-color:transparent">
-						<td  style="width:110px;">
-							<label> Title: </label>  
-						</td>
-						<td>
-							<input type = "text" name = "title" />  
-						</td>
-					</tr> 
-					<tr style = "background-color:transparent">
-						<td>
-						<br/>
-							<label> Model: </label>  
-						</td>
-						<td>
-							<br/>
-							<input maxlength="40" type = "text" name = "model" />  
-						</td>
-					</tr> 
-				</tbody>
-			</table>
-			<br/>
-			<table style="text-align:center" cellspacing="0" cellpadding="0" align="center">
-				<tbody>
-				<tr>
-						<td>
-							<input maxlength="30" type =  "submit" class = "btnUpForm" value = "Insert" name = "insert" /> 
-						</td>
-					</tr> 
-	</tbody>
-
-	</table>
-	<br/>
-	<br/>
-	</div>
-			<hr/>
+	<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">  
+        <form name="f1" method = "POST" class="form-container">  
+			<input type="hidden" name="hdnCmd" value=""> 
+			<h2 style="text-align:center;">Insert new type</h2>
+			<label> Title: </label>  
+			<input type = "text" name = "title" />  
+			<label> Model: </label>  
+			<input maxlength="40" type = "text" name = "model" />  
+			<input type ="button" class = "btn" value="Insert" onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" /> 
+			<button type ="button" class = "btn cancel" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>';">Cancel</button> 
         </form>  
     </div> 
 
-	<div>
+	<br/>
+	<br/>
+	<hr/>
+	<div onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
 	<h2>List of all types</h2>
 	<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">  
 		<input type="hidden" name="hdnCmd" value="">  
@@ -150,7 +122,7 @@
 		<td align="center" style="height:40px;"><input style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text" name="txtEditTitle" value="<?=$objResult["Title"];?>"></td>  
 		<td align="center" style="height:40px;"><input style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text" name="txtEditModel" value="<?=$objResult["Model"];?>"></td>  
 		<td colspan="2" align="right"><div align="center">  
-		<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update" OnClick="frmMain.hdnCmd.value='Update';frmMain.submit();">  
+		<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update" onclick="if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}">  
 		<input class="textbtn danger" name="btnAdd" type="button" id="btnCancel" value="Cancel" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>';">  
 		</div></td>  
 		</tr>  
@@ -190,23 +162,14 @@
 	$params = array(  
 		array($_POST["txtEditTitle"], SQLSRV_PARAM_IN),
 		array($_POST["txtEditModel"], SQLSRV_PARAM_IN),
-		array($_POST["hdnEditTypeID"], SQLSRV_PARAM_IN),
-		array($_SESSION["userType"], SQLSRV_PARAM_IN)
+		array($_POST["hdnEditTypeID"], SQLSRV_PARAM_IN)
 	   ); 
 	$objQuery = sqlsrv_query($conn, $strSQL, $params);
 		$objRow = sqlsrv_fetch_array($objQuery);
 		if (!$objQuery)
 		{
 			echo "Error Update [" . sqlsrv_errors() . "]";
-		}
-		else if($objRow[0]=='0'){ //Simple user
-			?>
-			<script>
-				alert("Simple users cannot update types.");
-			</script>
-			<?php
-		}
-		else echo "<meta http-equiv='refresh' content='0'>";
+		} else echo "<meta http-equiv='refresh' content='0'>";
 	}  
 	
 	//*** Delete Condition ***//  
@@ -214,8 +177,7 @@
 	{  
 		$strSQL = "{call dbo.Q2_Delete(?, ?)}";  
 	$params = array(  
-		array($_GET["id"], SQLSRV_PARAM_IN),
-		array($_SESSION["userType"], SQLSRV_PARAM_IN)
+		array($_GET["id"], SQLSRV_PARAM_IN)
 	   ); 
 	$objQuery = sqlsrv_query($conn, $strSQL, $params);
 		$objRow = sqlsrv_fetch_array($objQuery);
@@ -223,35 +185,20 @@
 		{
 			echo "Error Delete [" . sqlsrv_errors() . "]";
 		}
-		else if($objRow[0]=='0'){ //Simple user
-			?>
-			<script>
-				alert("Simple users cannot delete types.");
-			</script>
-			<?php
-		}
-		echo "<meta http-equiv='refresh' content='0;url=q2.php'>";
+		else echo "<meta http-equiv='refresh' content='0;url=q2.php'>";
 	}
 
-	if ($_POST["insert"] == "Insert") {
-		$strSQL = "{call dbo.Q2_Insert(?, ?, ?)}";  
+	if ($_POST["hdnCmd"] == "Insert") {
+		$strSQL = "{call dbo.Q2_Insert(?, ?)}";  
 		$params = array(  
 			array($_POST["title"], SQLSRV_PARAM_IN),
-			array($_POST["model"], SQLSRV_PARAM_IN),
-			array($_SESSION["userType"], SQLSRV_PARAM_IN)
+			array($_POST["model"], SQLSRV_PARAM_IN)
 		); 
 		$objQuery = sqlsrv_query($conn, $strSQL, $params);
 		$objRow = sqlsrv_fetch_array($objQuery);
 		if (!$objQuery)
 		{
 			echo "Error Insert [" . sqlsrv_errors() . "]";
-		}
-		else if($objRow[0]=='0'){ //Simple user
-			?>
-			<script>
-				alert("Simple users cannot insert new types.");
-			</script>
-			<?php
 		}
 		else echo "<meta http-equiv='refresh' content='0'>";
 	}
@@ -281,5 +228,39 @@
 		} 
 	?>  
 	</div>
+
+	<script>
+		function insertValidation()  {  
+			var title=f1.title.value;  
+			var model=f1.model.value; 
+			
+			if(title.length>0 && model.length>0){
+				return true;
+			}
+			var str="";
+			if(title.length==0)
+				str+="Title is empty\n"; 
+			if(model.length==0) 
+				str+="Model is empty\n";    
+			alert(str);
+			return false;
+		}  
+		function updateValidation()  {  
+			var title=frmMain.txtEditTitle.value;  
+			var model=frmMain.txtEditModel.value; 
+			
+			if(title.length>0 && model.length>0){
+				return true;
+			}
+			var str="";
+			if(title.length==0)
+				str+="Title is empty\n"; 
+			if(model.length==0) 
+				str+="Model is empty\n";    
+			alert(str);
+			return false;
+		}  
+	</script>
+
 </body>
 </html>

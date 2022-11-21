@@ -1,6 +1,8 @@
 <?php
 session_start();
 // Get the DB connection info from the session
+
+
 if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset($_SESSION["userID"]) && isset($_SESSION["userType"])) {
 	$serverName = $_SESSION["serverName"];
 	$connectionOptions = $_SESSION["connectionOptions"];
@@ -10,10 +12,10 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	if ($userType == '2') {
 ?>
 <script>
-	alert("Simple users can't insert/modify/delete types.");
+	alert("Simple users can't add/edit users.");
 </script>
-<meta http-equiv="refresh" content="0; url=menu.php" />
 <?php
+		die('<meta http-equiv="refresh" content="0; url=menu.php" />');
 	}
 
 
@@ -62,16 +64,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<a href="q4.php">Query 4</a>
 		<div class="disconnectForm">
 			<?php
-        if (isset($_POST['disconnect'])) {
-	        echo "Clossing session and redirecting to start page";
-	        session_unset();
-	        session_destroy();
-	        die('<meta http-equiv="refresh" content="1; url=index.php" />');
-        }
-        ?>
+            if (isset($_POST['disconnect'])) {
+	            echo "Clossing session and redirecting to start page";
+	            session_unset();
+	            session_destroy();
+	            die('<meta http-equiv="refresh" content="1; url=index.php" />');
+            }
+            ?>
 
 			<form method="post">
-				<input class="disconnectBtn" type="submit" value="Menu" formaction="connect.php"
+				<input class="disconnectBtn" type="submit" value="Menu" formaction="menu.php"
 					style="margin-top:20px;"><br /><br />
 				<input class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br />
 			</form>
@@ -80,242 +82,126 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	<div class="main">
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
-
-				<td vAlign=center align=middle>
-					<h2>Insert / Edit Users</h2>
-				</td>
+				<td vAlign=center align=middle><h2>Insert / Edit / Delete Types</h2></td>
 			</tr>
 		</table>
 		<hr>
-		<form name="frmUp" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-			<input type="hidden" name="hdnCmd1" value="">
-			<table style="width:100%; background-color:transparent;" cellspacing="0" cellpadding="0">
-				<tbody>
-					<tr style="width:100%; background-color:transparent">
-						<td style="background-color: #cccccc;text-align:center;width:35%;">
-							<br />
-							<h3 style="font-family: Arial, Helvetica, sans-serif;">Insert new user</h3>
-							<table cellspacing="0" cellpadding="0" align="center">
-								<tbody>
-									<tr style="background-color:transparent">
-										<td style="width:130px;">
-											<label> Username: </label>
-										</td>
-										<td>
-											<input maxlength="40" type="text" name="Username" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> User Type: </label>
-										</td>
-										<td>
-											<select name="UserType" id="UserType">
-												<option value=""> </option>
-												<option value="0">Διαχειριστής Συστήματος</option>
-												<option value="1">Διαχειριστής Λειτουργιών</option>
-												<option value="2">Απλός χρήστης</option>
-											</select>
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> Password: </label>
-										</td>
-										<td>
-											<input maxlength="30" type="password" name="Password" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> First Name: </label>
-										</td>
-										<td>
-											<input maxlength="30" type="text" name="FName" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> Last Name: </label>
-										</td>
-										<td>
-											<input maxlength="30" type="text" name="LName" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> Date of Birth: </label>
-										</td>
-										<td>
-											<input type="date" name="Date_of_Birth" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> Gender: </label>
-										</td>
-										<td>
-											<select name="Gender" id="Gender">
-												<option value=""> </option>
-												<option value="M">Male</option>
-												<option value="F">Female</option>
-												<option value="O">Other</option>
-											</select>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-							<table cellspacing="0" cellpadding="0" align="center">
-								<tbody>
-									<tr style="background-color:transparent">
-										<td>
-											<br />
-											<input name="btnInsert" type="button" class="btnUpForm" value="Insert"
-												OnClick="frmUp.hdnCmd1.value='insert';frmUp.submit();">
-										</td>
-										<td style="padding-left:30px;">
-											<br />
-											<a href="<?= $_SERVER["PHP_SELF"]; ?>">Reset</a>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-							<br />
-							<br />
-						</td>
-						<td style="width:30px; text-align:center; padding-left:5%">
-
-							<h3>Advanced Search</h3>
-							<table cellspacing="0" cellpadding="0" align="center">
-								<tbody>
-									<tr style="background-color:transparent">
-										<td style="width:130px;">
-											<label> User ID: </label>
-										</td>
-										<td>
-											<input maxlength="40" type="text" name="UserID2" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> Username: </label>
-										</td>
-										<td>
-											<input maxlength="40" type="text" name="Username2" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> User Type: </label>
-										</td>
-										<td>
-											<select name="UserType2" id="UserType2">
-												<option value=""> </option>
-												<option value="0">Διαχειριστής Συστήματος</option>
-												<option value="1">Διαχειριστής Λειτουργιών</option>
-												<option value="2">Απλός χρήστης</option>
-											</select>
-										</td>
-									</tr>
-
-									<tr style="background-color:transparent">
-										<td>
-											<label> First Name: </label>
-										</td>
-										<td>
-											<input maxlength="30" type="text" name="FName2" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> Last Name: </label>
-										</td>
-										<td>
-											<input maxlength="30" type="text" name="LName2" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> Date of Birth: </label>
-										</td>
-										<td>
-											<input type="date" name="Date_of_Birth2" />
-										</td>
-									</tr>
-									<tr style="background-color:transparent">
-										<td>
-											<label> Gender: </label>
-										</td>
-										<td>
-											<select name="Gender2" id="Gender2">
-												<option value=""> </option>
-												<option value="M">Male</option>
-												<option value="F">Female</option>
-												<option value="O">Other</option>
-											</select>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-							<table cellspacing="0" cellpadding="0" align="center">
-								<tbody>
-									<tr style="background-color:transparent">
-										<td>
-											<br />
-											<input name="btnAdvSearch" type="button" class="btnUpForm" value="Search"
-												OnClick="frmUp.hdnCmd1.value='advSearch';frmUp.submit();">
-										</td>
-										<td style="padding-left:30px;">
-											<br />
-											<a href="<?= $_SERVER["PHP_SELF"]; ?>">Reset</a>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-
-
-
-						</td>
-						<td style="width:30%; text-align:center;">
-
-							<h3>Search</h3>
-							<table cellspacing="0" cellpadding="0" align="center">
-								<tbody>
-									<tr style="background-color:transparent">
-										<td style="width:100px;">
-											<label> Keyword: </label>
-										</td>
-										<td>
-											<input maxlength="40" type="text" name="keyword" />
-										</td>
-									</tr>
-								</tbody>
-							</table>
-							<table cellspacing="0" cellpadding="0" align="center">
-								<tbody>
-									<tr style="background-color:transparent">
-										<td>
-											<br />
-											<input name="btnSimpleSearch" type="button" class="btnUpForm" value="Search"
-												OnClick="frmUp.hdnCmd1.value='simpleSearch';frmUp.submit();">
-										</td>
-										<td style="padding-left:30px;">
-											<br />
-											<a href="<?= $_SERVER["PHP_SELF"]; ?>">Reset</a>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</td>
-					</tr>
-					</tbdoy>
-			</table>
+		<button id="btnInsertForm" class="btnUpForm" onclick="document.getElementById('myForm').style.display = 'block';">Insert Type</button>
+		<button id="btnAdvSearchForm" class="btnUpForm" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
+		<button id="btnSearchForm" class="btnUpForm" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
+		<button class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>			
+		
+		<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.hdnCmdInsert.value='insert';frmInsert.submit();}}"> 
+		<form name="frmInsert" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+			<input type="hidden" name="hdnCmdInsert" value="">
+			<h3>Insert new user</h3>
+			<label> Username: </label>
+			<input maxlength="40" type="text" name="Username" /><br/>
+			<label> User Type: </label>
+			<select name="UserType" id="UserType"><br/>
+				<option value=""> </option>
+				<option value="0">Διαχειριστής Συστήματος</option>
+				<option value="1">Διαχειριστής Λειτουργιών</option>
+				<option value="2">Απλός χρήστης</option>
+			</select>
+			<label> Password: </label>
+			<input maxlength="30" type="password" name="Password" /><br/>
+			<label> First Name: </label>
+			<input maxlength="30" type="text" name="FName" /><br/>
+			<label> Last Name: </label>
+			<input maxlength="30" type="text" name="LName" /><br/>
+			<label> Date of Birth: </label>
+			<input type="date" name="Date_of_Birth" /><br/>
+			<label> Gender: </label>
+			<select name="Gender" id="Gender"><br/>
+				<option value=""> </option>
+				<option value="M">Male</option>
+				<option value="F">Female</option>
+				<option value="O">Other</option>
+			</select>
+			<input name="btnInsert" type="button" class="btn" value="Insert" onclick="if(insertValidation()){frmInsert.hdnCmdInsert.value='insert';frmInsert.submit();}">
+			<button type ="button" class = "btn cancel" onclick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 		</form>
+		</div>			
+		<div class="form-popup" id="myForm1"> 
+		<form name="frmAdvSearch" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+		<input type="hidden" name="hdnCmdAdvSearch" value="">					
+		<h3>Advanced Search</h3>
+		<label> User ID: </label>
+		<input maxlength="40" type="text" name="UserID2" value="<?=$_POST["UserID2"];?>"/><br/>
+		<label> Username: </label>
+		<input maxlength="40" type="text" name="Username2" value="<?=$_POST["Username2"];?>"/><br/>
+		<label> User Type: </label>
+		<select name="UserType2" id="UserType2"><br/>
+		<?php
+			if ($_POST["UserType2"] == "") {
+				echo '<option value="" selected="selected"> </option>';
+			} else
+				echo '<option value=""> </option>';
+			if ($_POST["UserType2"] == "0") {
+				echo '<option value="0" selected="selected">Διαχειριστής Συστήματος</option>';
+			} else
+				echo '<option value="0">Διαχειριστής Συστήματος</option>';
+			if ($_POST["UserType2"] == "1") {
+				echo '<option value="1" selected="selected">Διαχειριστής Λειτουργιών</option>';
+			} else
+				echo '<option value="1">Διαχειριστής Λειτουργιών</option>';
+			if ($_POST["UserType2"] == "2") {
+				echo '<option value="2" selected="selected">Απλός χρήστης</option>';
+			} else
+				echo '<option value="2">Απλός χρήστης</option>';
+				?>
+		</select>
+		<label> First Name: </label>
+		<input maxlength="30" type="text" name="FName2" value="<?=$_POST["FName2"];?>"/><br/>
+		<label> Last Name: </label>
+		<input maxlength="30" type="text" name="LName2" value="<?=$_POST["LName2"];?>"/><br/>
+		<label> Date of Birth: </label>
+		<input type="date" name="Date_of_Birth2" value="<?=$_POST["Date_of_Birth2"];?>"/><br/>
+		<label> Gender: </label>
+		<select name="Gender2" id="Gender2"><br/>
+		<?php
+			if ($_POST["Gender2"] == '') {
+				echo '<option value="" selected="selected"> </option>';
+			} else
+				echo '<option value=""> </option>';
+			if ($_POST["Gender2"] == 'M') {
+				echo '<option value="M" selected="selected">Male</option>';
+			} else
+				echo '<option value="M">Male</option>';
+			if ($_POST["Gender2"] == 'F') {
+				echo '<option value="F" selected="selected">Female</option>';
+			} else
+				echo '<option value="F">Female</option>';
+			if ($_POST["Gender2"] == 'O') {
+				echo '<option value="O" selected="selected">Other</option>';
+			} else
+				echo '<option value="O">Other</option>';
+		?>
+		</select>
+		<input name="btnAdvSearch" type="submit" class="btn" value="Search" onclick="frmAdvSearch.hdnCmdAdvSearch.value='advSearch';frmAdvSearch.submit();">
+		<button type ="button" class = "btn cancel" onclick="document.getElementById('myForm1').style.display = 'none';">Cancel</button>
+		</form>
+		</div>
+		<div class="form-popup" id="myForm2" onkeypress="if(event.keyCode==13){frmSearch.hdnCmdSearch.value='simpleSearch';frmSearch.submit();}"> 
+		<form name="frmSearch" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+		<input type="hidden" name="hdnCmdSearch" value="">	
+		<h3>Search</h3>
+		<label> Keyword: </label>
+		<input maxlength="40" type="text" name="keyword" value="<?=$_POST["keyword"];?>"/>
+		<input name="btnSimpleSearch" type="button" class="btn" value="Search"
+												onclick="frmSearch.hdnCmdSearch.value='simpleSearch';frmSearch.submit();">
+										
+		<button type ="button" class = "btn cancel" onclick="document.getElementById('myForm2').style.display = 'none';">Cancel</button>
+		
+		</form>
+		</div>	
 		<hr />
 
-		<div>
+		<div onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
 			<h2>List of all users</h2>
 			<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+				
 				<input type="hidden" name="hdnCmd" value="">
 				<input type="hidden" name="userIDpass" value="">
 				<input type="hidden" name="passwordpass" value="">
@@ -347,13 +233,23 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						</th>
 					</tr>
 					<?php
-                    if ($_POST["hdnCmd1"] == "simpleSearch") {
+                    if ($_POST["hdnCmdSearch"] == "simpleSearch") {
+						?>
+							<script>
+									document.getElementById("btnSearchForm").classList.add("warningb");
+								</script>
+						<?php
 	                    $strSQL = "{call dbo.Q1_Simple_Select(?)}";
 	                    $params = array(
 	                    	array($_POST["keyword"], SQLSRV_PARAM_IN),
 	                    );
 	                    $objQuery = sqlsrv_query($conn, $strSQL, $params);
-                    } else if ($_POST["hdnCmd1"] == "advSearch") {
+                    } else if ($_POST["hdnCmdAdvSearch"] == "advSearch") {
+						?>
+							<script>
+									document.getElementById("btnAdvSearchForm").classList.add("warningb");
+								</script>
+						<?php
 	                    $strSQL = "{call dbo.Q1_Advanced_Select(?, ?, ?, ?, ?, ?, ?)}";
 	                    $params = array(
 	                    	array($_POST["FName2"], SQLSRV_PARAM_IN),
@@ -386,33 +282,62 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 							</div>
 							<input type="hidden" name="hdnEditUserID" value="<?= $objResult["UserID"]; ?>">
 						</td>
-						<td style="height:40px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="40" type="text"
+						<td style="height:40px;" align="center"><input
+								style="text-align:center; width:100%; height:100%;" maxlength="40" type="text"
 								name="txtEditUsername" value="<?= $objResult["Username"]; ?>"></td>
-						<td style="height:40px;" align="center"><select style="text-align:center; width:100%; height:100%;" name="txtEditUserType" id="txtEditUserType"
-								value="<?= $objResult["UserType"]; ?>">
-								<option value="0">Διαχειριστής Συστήματος</option>
-								<option value="1">Διαχειριστής Λειτουργιών</option>
-								<option value="2">Απλός χρήστης</option>
+						<td style="height:40px;" align="center"><select
+								style="text-align:center; width:100%; height:100%;" name="txtEditUserType"
+								id="txtEditUserType">
+								<?php
+		                    if ($objResult["UserType"] == "0") {
+			                    echo '<option value="0" selected="selected">Διαχειριστής Συστήματος</option>';
+		                    } else
+			                    echo '<option value="0">Διαχειριστής Συστήματος</option>';
+		                    if ($objResult["UserType"] == "1") {
+			                    echo '<option value="1" selected="selected">Διαχειριστής Λειτουργιών</option>';
+		                    } else
+			                    echo '<option value="1">Διαχειριστής Λειτουργιών</option>';
+		                    if ($objResult["UserType"] == "2") {
+			                    echo '<option value="2" selected="selected">Απλός χρήστης</option>';
+		                    } else
+			                    echo '<option value="2">Απλός χρήστης</option>';
+                                ?>
 							</select></td>
-						<td style="height:40px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
+						<td style="height:40px;" align="center"><input
+								style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
 								name="txtEditFName" value="<?= $objResult["FName"]; ?>"></td>
-						<td style="height:40px;" align="center"><input style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
+						<td style="height:40px;" align="center"><input
+								style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
 								name="txtEditLName" value="<?= $objResult["LName"]; ?>"></td>
-						<td style="height:40px;" align="center"><input style="text-align:center; width:100%; height:100%;" type="date" name="txtEditDOB"
+						<td style="height:40px;" align="center"><input
+								style="text-align:center; width:100%; height:100%;" type="date" name="txtEditDOB"
 								value="<?= $objResult["Date_of_Birth"]; ?>"></td>
-						<td style="height:40px;" align="center"><select style="text-align:center; width:100%; height:100%;" name="txtEditGender" id="txtEditGender"
-								value="<?= $objResult["Gender"]; ?>">
-								<option value="M">Male</option>
-								<option value="F">Female</option>
-								<option value="O">Other</option>
-							</select></td>
+						<td style="height:40px;" align="center">
+							<select style="text-align:center; width:100%; height:100%;" name="txtEditGender"
+								id="txtEditGender">
+								<?php
+		                    if ($objResult["Gender"] == 'M') {
+			                    echo '<option value="M" selected="selected">Male</option>';
+		                    } else
+			                    echo '<option value="M">Male</option>';
+		                    if ($objResult["Gender"] == 'F') {
+			                    echo '<option value="F" selected="selected">Female</option>';
+		                    } else
+			                    echo '<option value="F">Female</option>';
+		                    if ($objResult["Gender"] == 'O') {
+			                    echo '<option value="O" selected="selected">Other</option>';
+		                    } else
+			                    echo '<option value="O">Other</option>';
+                        ?>
+							</select>
+						</td>
 
 						<td style="height:40px;" colspan="2" align="right">
 							<div align="center">
-								<input class="textbtn success" name="btnUpdate" type="button" id="btnUpdate" value="Update"
-									OnClick="frmMain.hdnCmd.value='Update';frmMain.submit();">
-								<input class="textbtn danger" name="btnCancel" type="button" id="btnCancel" value="Cancel"
-									OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>';">
+								<input class="textbtn success" name="btnUpdate" type="button" id="btnUpdate"
+									value="Update" onclick="if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}">
+								<input class="textbtn danger" name="btnCancel" type="button" id="btnCancel"
+									value="Cancel" OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>';">
 							</div>
 						</td>
 					</tr>
@@ -455,21 +380,24 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						</td>
 						<td align="center">
 							<?php
-								$gender="";
-								if ($objResult["Gender"]=='M')
-									$gender="Male";
-								else if ($objResult["Gender"]=='F')
-									$gender="Female";
-								else $gender="Other";
-							?>
+		                    $gender = "";
+		                    if ($objResult["Gender"] == 'M')
+			                    $gender = "Male";
+		                    else if ($objResult["Gender"] == 'F')
+			                    $gender = "Female";
+		                    else if ($objResult["Gender"] == 'O')
+			                    $gender = "Other";
+                            ?>
 							<?= $gender; ?>
 						</td>
 						<td align="center" width="7%">
-							
-								<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>?Action=Edit&id=<?= $objResult["UserID"]; ?>#row<?= $objResult["UserID"]; ?>';"> 
+
+							<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit"
+								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?Action=Edit&id=<?= $objResult["UserID"]; ?>#row<?= $objResult["UserID"]; ?>';">
 						</td>
 						<td align="center" width="7%">
-							<input class="textbtn danger" name="btnChange" type="submit" id="btnChange" value="Change password"
+							<input class="textbtn danger" name="btnChange" type="button" id="btnChange"
+								value="Change password"
 								OnClick="changePass(<?= $objResult["UserID"]; ?>);frmMain.hdnCmd.value='ChangePass';frmMain.submit();">
 						</td>
 					</tr>
@@ -502,14 +430,6 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	        $objRow = sqlsrv_fetch_array($objQuery);
 	        if (!$objQuery) {
 		        echo "Error Update [" . sqlsrv_errors() . "]";
-	        } else if ($objRow[0] == '0') { //Simple user
-        		$_POST = array();
-		        $_POST["hdnCmd"] = "";
-        ?>
-		<script>
-			alert("Simple users cannot update types.");
-		</script>
-		<?php
 	        } else
 		        echo "<meta http-equiv='refresh' content='0'>";
         }
@@ -526,20 +446,12 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	        $objRow = sqlsrv_fetch_array($objQuery);
 	        if (!$objQuery) {
 		        echo "Error Update [" . sqlsrv_errors() . "]";
-	        } else if ($objRow[0] == '0') { //Simple user
-        		$_POST = array();
-		        $_POST["hdnCmd"] = "";
-        ?>
-		<script>
-			alert("Simple users cannot update types.");
-		</script>
-		<?php
 	        } else
 		        echo "<meta http-equiv='refresh' content='0'>";
         }
 
 
-        if ($_POST["hdnCmd1"] == "insert") {
+        if ($_POST["hdnCmdInsert"] == "insert") {
 	        $strSQL = "{call dbo.Q1_Insert_User(?, ?, ?, ?, ?, ?, ?)}";
 	        $params = array(
 	        	array($_POST["FName"], SQLSRV_PARAM_IN),
@@ -554,14 +466,6 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	        $objRow = sqlsrv_fetch_array($objQuery);
 	        if (!$objQuery) {
 		        echo "Error Insert [" . sqlsrv_errors() . "]";
-	        } else if ($objRow["Result"] == '0') { //Simple user
-        		$_POST = array();
-		        $_POST["hdnCmd1"] = "";
-        ?>
-		<script>
-			alert("All fields are required.");
-		</script>
-		<?php
 	        } else
 		        echo "<meta http-equiv='refresh' content='0'>";
         }
@@ -569,10 +473,10 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 
         // $time_end = microtime(true);
-        $userTypes=array("System Admin", "Functions Admin", "Simple User");
+        $userTypes = array("System Admin", "Functions Admin", "Simple User");
         echo "Connecting to SQL server (" . $serverName . ")<br/>";
         echo "Database: " . $connectionOptions[Database] . ", SQL User: " . $connectionOptions[Uid] . "<br/>";
-		echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]] . "<br/>";
+        echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]] . "<br/>";
 
         /* Free connection resources. */
         sqlsrv_close($conn);
@@ -604,6 +508,63 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				}
 				return false;
 			}
+			function insertValidation()  {  
+				var username=frmInsert.Username.value;  
+				var userType=frmInsert.UserType.value;  
+				var password=frmInsert.Password.value;  
+				var fname=frmInsert.FName.value;  
+				var lname=frmInsert.LName.value;  
+				var dob=frmInsert.Date_of_Birth.value;  
+				var gender=frmInsert.Gender.value;  
+				
+				if(username.length>0 && userType.length>0 && password.length>0 && fname.length>0 && lname.length>0 && dob.length>0 && gender.length>0){
+					return true;
+				}
+				var str="";
+				if(username.length==0)
+					str+="User Name is empty\n"; 
+				if(userType.length==0) 
+					str+="User Type is empty\n";    
+				if(password.length==0) 
+					str+="Password is empty\n"; 
+				if(fname.length==0) 
+					str+="First Name is empty\n";
+				if(lname.length==0) 
+					str+="Last Name is empty\n";
+				if(dob.length==0) 
+					str+="Date of Birth is empty\n";	
+				if(gender.length==0) 
+					str+="Gender is empty\n";	 	
+				alert(str);
+				return false;
+			}  
+			function updateValidation()  {  
+				var username=frmMain.txtEditUsername.value;  
+				var userType=frmMain.txtEditUserType.value;  
+				var fname=frmMain.txtEditFName.value;  
+				var lname=frmMain.txtEditLName.value;  
+				var dob=frmMain.txtEditDOB.value;  
+				var gender=frmMain.txtEditGender.value;  
+				
+				if(username.length>0 && userType.length>0 && fname.length>0 && lname.length>0 && dob.length>0 && gender.length>0){
+					return true;
+				}
+				var str="";
+				if(username.length==0)
+					str+="User Name is empty\n"; 
+				if(userType.length==0) 
+					str+="User Type is empty\n";   
+				if(fname.length==0) 
+					str+="First Name is empty\n";
+				if(lname.length==0) 
+					str+="Last Name is empty\n";
+				if(dob.length==0) 
+					str+="Date of Birth is empty\n";	
+				if(gender.length==0) 
+					str+="Gender is empty\n";	 	
+				alert(str);
+				return false;
+			}  
 		</script>
 
 

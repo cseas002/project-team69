@@ -2,6 +2,10 @@
 	session_start(); 
 ?>
 <html>
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<meta charset="UTF-8" />
+</head>
 
 <body>
 <?php 
@@ -21,24 +25,40 @@
 	//Establishes the connection
 	$conn = sqlsrv_connect($serverName, $connectionOptions);
 ?>
+<div class="sidenav">
+		<a href="http://www.ucy.ac.cy/"><img width="160px" alt=UCY src="images/logo_en.png"></a>
+		<h5>
+			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
+		</h5>
+		<div class="disconnectForm" style="height:70px;">
+			<?php
+        if (isset($_POST['disconnect'])) {
+	        echo "Clossing session and redirecting to start page";
+	        session_unset();
+	        session_destroy();
+	        die('<meta http-equiv="refresh" content="1; url=index.php" />');
+        }
+        ?>
+
+			<form method="post">
+				<input style="margin-top:20px;" class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br />
+			</form>
+		</div>
+	</div>
+	<div class="main">
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=top width=170><img height=91 alt=UCY src="images/ucy.jpg" width=94>
-			<h5>
-				<a href="http://www.ucy.ac.cy/">University of Cyprus</a><BR/>
-				<a href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
-			</h5>
-		</td>
 		<td vAlign=center align=middle><h2>Welcome to the EPL342 project test page</h2></td>
 	</tr>
     </table>
 	<hr>
-	<a href="q1.php">Query 1 (Simple SQL statement)</a><br>
-	<a href="q2.php">Query 2 (Calling a stored procedure without parameters)</a><br>
-	<form action="q3.php" method="get">
-		Query 3 (Calling a stored procedure with parameters)</a><br>
-		Parameter: <input type="text" name="city" value="Seattle">
-    <input type="submit" name="Query 3">
+	<h3>Queries Explained</h3>
+	<a href="q1.php" style="text-decoration: none;">Query 1: Insert/Edit Users</a><br>
+	<a href="q2.php" style="text-decoration: none;">Query 2: Insert/Edit/Delete Types</a><br>
+	<a href="q3.php" style="text-decoration: none;">Query 2: Calling a stored procedure without parameters</a><br>
+	<a href="q4.php" style="text-decoration: none;">Query 2: Calling a stored procedure without parameters</a><br>
+	<a href="q5.php" style="text-decoration: none;">Query 2: Calling a stored procedure without parameters</a><br>
+	
 	</form>
 
 	<hr>
@@ -50,11 +70,6 @@
 			die('<meta http-equiv="refresh" content="2; url=index.php" />');
 		} 
 	?> 
-
-	
-	<form method="post"> 
-		<input type="submit" name="disconnect" value="Disconnect"/> 
-	</form> 
-
+	</div>
 </body>
 </html>
