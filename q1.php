@@ -89,7 +89,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<button id="btnInsertForm" class="btnUpForm" onclick="document.getElementById('myForm').style.display = 'block';">Insert Type</button>
 		<button id="btnAdvSearchForm" class="btnUpForm" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
 		<button id="btnSearchForm" class="btnUpForm" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
-		<button class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>			
+		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>			
 		
 		<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.hdnCmdInsert.value='insert';frmInsert.submit();}}"> 
 		<form name="frmInsert" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
@@ -237,6 +237,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						?>
 							<script>
 									document.getElementById("btnSearchForm").classList.add("warningb");
+									document.getElementById("btnReset").style="display:inline-block;";
 								</script>
 						<?php
 	                    $strSQL = "{call dbo.Q1_Simple_Select(?)}";
@@ -248,6 +249,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						?>
 							<script>
 									document.getElementById("btnAdvSearchForm").classList.add("warningb");
+									document.getElementById("btnReset").style="display:inline-block;";
 								</script>
 						<?php
 	                    $strSQL = "{call dbo.Q1_Advanced_Select(?, ?, ?, ?, ?, ?, ?)}";
