@@ -54,7 +54,7 @@ CREATE TABLE [dbo].CAMPUS
 CREATE TABLE [dbo].BUILDING
 (
   BName NVARCHAR(30) NOT NULL,
-  BCode INT NOT NULL,
+  BCode INT IDENTITY(1,1) NOT NULL,
   Summary NVARCHAR(MAX) NOT NULL,
   BAddress NVARCHAR(30) NOT NULL,
   x DECIMAL(11, 8) NOT NULL, -- https://stackoverflow.com/questions/1196415/what-datatype-to-use-when-storing-latitude-and-longitude-data-in-sql-databases#:~:text=Lat%2FLong%20is%20a%20position,it%20is%20almost%20always%20WGS84.

@@ -291,9 +291,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     //*** Update Condition ***//  
     if ($_POST["hdnCmd"] == "Update") {
 	    $strSQL = "{call dbo.Q4_EditBuilding(?, ?, ?, ?, ?, ?, ?, ?)}";
-	    $owner = null;
-	    if ($_POST["txtEditBOwner"] != '')
-		    $owner = $_POST["txtEditBOwner"];
+	
 	    $params = array(
 	    	array($_POST["hdnEditBCode"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEditBName"], SQLSRV_PARAM_IN),
@@ -301,7 +299,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
 			array($_POST["txtEditBAddress"], SQLSRV_PARAM_IN),
 			array($_POST["txtEditSummary"], SQLSRV_PARAM_IN),
-	    	array($owner, SQLSRV_PARAM_IN),
+	    	array($_POST["txtEditBOwner"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEditCampusID"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
@@ -332,16 +330,14 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
     if ($_POST["hdnCmd"] == "Insert") {
 	    $strSQL = "{call dbo.Q4_InsertBuilding(?, ?, ?, ?, ?, ?, ?)}";
-	    $owner = null;
-	    if ($_POST["BOwner"] != '')
-		    $owner = $_POST["BOwner"];
+	    
 	    $params = array(
 	    	array($_POST["BName"], SQLSRV_PARAM_IN),
 	    	array($_POST["x"], SQLSRV_PARAM_IN),
 	    	array($_POST["y"], SQLSRV_PARAM_IN),
 			array($_POST["BAddress"], SQLSRV_PARAM_IN),
 	    	array($_POST["Summary"], SQLSRV_PARAM_IN),
-	    	array($owner, SQLSRV_PARAM_IN),
+	    	array($_POST["BOwner"], SQLSRV_PARAM_IN),
 	    	array($_POST["CampusID"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
@@ -384,10 +380,11 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			var x = f1.x.value;
 			var y = f1.y.value;
 			var baddress = f1.BAddress.value;
+			var bowner = f1.BOwner.value;
 			var summary = f1.Summary.value;
 			var campusid = f1.CampusID.value;
 
-			if (bname.length > 0 && x.length > 0 && y.length > 0 && baddress.length > 0 && summary.length > 0 && campusid.length > 0) {
+			if (bname.length > 0 && x.length > 0 && y.length > 0 && baddress.length > 0 && summary.length > 0 && campusid.length > 0 && bowner.length>0) {
 				return true;
 			}
 			var str = "";
@@ -403,6 +400,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				str += "Summary is empty\n";
 			if (campusid.length == 0)
 				str += "Campus ID is empty\n";
+			if (bowner.length == 0)
+				str += "Owner is empty\n";
 			alert(str);
 			return false;
 		}
@@ -411,10 +410,11 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			var x = frmMain.txtEditx.value;
 			var y = frmMain.txtEdity.value;
 			var baddress = frmMain.txtEditBAddress.value;
+			var bowner = frmMain.txtEditBOwner.value;
 			var summary = frmMain.txtEditSummary.value;
 			var campusid = frmMain.txtEditCampusID.value;
 
-			if (bname.length > 0 && x.length > 0 && y.length > 0 && baddress.length > 0 && summary.length > 0 && campusid.length > 0) {
+			if (bname.length > 0 && x.length > 0 && y.length > 0 && baddress.length > 0 && summary.length > 0 && campusid.length > 0 && bowner.length>0) {
 				return true;
 			}
 			var str = "";
@@ -430,6 +430,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				str += "Summary is empty\n";
 			if (campusid.length == 0)
 				str += "Campus ID is empty\n";
+			if (bowner.length == 0)
+				str += "Owner is empty\n";
 			alert(str);
 			return false;
 		}  
