@@ -85,7 +85,7 @@
 			<label> Model: </label>  
 			<input maxlength="40" type = "text" name = "model" />  
 			<input type ="button" class = "btn" value="Insert" onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" /> 
-			<button type ="button" class = "btn cancel" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>';">Cancel</button> 
+			<button type ="button" class = "btn cancel" OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button> 
         </form>  
     </div> 
 	<hr/>
