@@ -9,10 +9,10 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	$userID = $_SESSION["userID"];
 	$userType = $_SESSION["userType"];
 
-	if ($userType == '2') {
+	if ($userType != '0') {
 ?>
 <script>
-	alert("Simple users can't add/edit users.");
+	alert("Only Administrators can add or edit other users");
 </script>
 <?php
 		die('<meta http-equiv="refresh" content="0; url=menu.php" />');
@@ -82,16 +82,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	<div class="main">
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
-				<td vAlign=center align=middle><h2>Insert / Edit / Delete Types</h2></td>
+				<td vAlign=center align=middle><h2>Insert / Modify Users</h2></td>
 			</tr>
 		</table>
 		<hr>
 		<button id="btnInsertForm" class="btnUpForm" onclick="document.getElementById('myForm').style.display = 'block';">Insert Type</button>
-		<button id="btnAdvSearchForm" class="btnUpForm" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
-		<button id="btnSearchForm" class="btnUpForm" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
-		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>			
-		
-		<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.hdnCmdInsert.value='insert';frmInsert.submit();}}"> 
+		<button id="btnAdvSearchForm" class="btnUpForm" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>
+		<button id="btnSearchForm" class="btnUpForm" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>
+		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>
+
+		<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.hdnCmdInsert.value='insert';frmInsert.submit();}}">
 		<form name="frmInsert" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
 			<input type="hidden" name="hdnCmdInsert" value="">
 			<h3>Insert new user</h3>
@@ -100,7 +100,6 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			<label> User Type: </label>
 			<select name="UserType" id="UserType"><br/>
 				<option value=""> </option>
-				<option value="0">Διαχειριστής Συστήματος</option>
 				<option value="1">Διαχειριστής Λειτουργιών</option>
 				<option value="2">Απλός χρήστης</option>
 			</select>
@@ -122,10 +121,10 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			<input name="btnInsert" type="button" class="btn" value="Insert" onclick="if(insertValidation()){frmInsert.hdnCmdInsert.value='insert';frmInsert.submit();}">
 			<button type ="button" class = "btn cancel" onclick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 		</form>
-		</div>			
-		<div class="form-popup" id="myForm1"> 
+		</div>
+		<div class="form-popup" id="myForm1">
 		<form name="frmAdvSearch" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-		<input type="hidden" name="hdnCmdAdvSearch" value="">					
+		<input type="hidden" name="hdnCmdAdvSearch" value="">
 		<h3>Advanced Search</h3>
 		<label> User ID: </label>
 		<input maxlength="40" type="text" name="UserID2" value="<?=$_POST["UserID2"];?>"/><br/>
@@ -183,25 +182,25 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<button type ="button" class = "btn cancel" onclick="document.getElementById('myForm1').style.display = 'none';">Cancel</button>
 		</form>
 		</div>
-		<div class="form-popup" id="myForm2" onkeypress="if(event.keyCode==13){frmSearch.hdnCmdSearch.value='simpleSearch';frmSearch.submit();}"> 
+		<div class="form-popup" id="myForm2" onkeypress="if(event.keyCode==13){frmSearch.hdnCmdSearch.value='simpleSearch';frmSearch.submit();}">
 		<form name="frmSearch" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-		<input type="hidden" name="hdnCmdSearch" value="">	
+		<input type="hidden" name="hdnCmdSearch" value="">
 		<h3>Search</h3>
 		<label> Keyword: </label>
 		<input maxlength="40" type="text" name="keyword" value="<?=$_POST["keyword"];?>"/>
 		<input name="btnSimpleSearch" type="button" class="btn" value="Search"
 												onclick="frmSearch.hdnCmdSearch.value='simpleSearch';frmSearch.submit();">
-										
+
 		<button type ="button" class = "btn cancel" onclick="document.getElementById('myForm2').style.display = 'none';">Cancel</button>
-		
+
 		</form>
-		</div>	
+		</div>
 		<hr />
 
 		<div onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
 			<h2>List of all users</h2>
 			<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-				
+
 				<input type="hidden" name="hdnCmd" value="">
 				<input type="hidden" name="userIDpass" value="">
 				<input type="hidden" name="passwordpass" value="">
@@ -415,8 +414,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 		<?php
         // $time_start = microtime(true);
-        
-        //*** Update Condition ***//  
+
+        //*** Update Condition ***//
         if ($_POST["hdnCmd"] == "Update") {
 	        $strSQL = "{call dbo.Q1_Edit_User(?, ?, ?, ?, ?, ?, ?)}";
 	        $params = array(
@@ -436,7 +435,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		        echo "<meta http-equiv='refresh' content='0'>";
         }
 
-        //*** Update Password ***//  
+        //*** Update Password ***//
         if ($_POST["hdnCmd"] == "ChangePass") {
 	        echo $_POST["userIDpass"];
 	        $strSQL = "{call dbo.Q1_Change_Password(?, ?)}";
@@ -485,7 +484,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
         // $execution_time = round((($time_end - $time_start)*1000),2);
         // echo 'QueryTime: '.$execution_time.' ms';
-        
+
         ?>
 
 		<script>
@@ -510,63 +509,63 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				}
 				return false;
 			}
-			function insertValidation()  {  
-				var username=frmInsert.Username.value;  
-				var userType=frmInsert.UserType.value;  
-				var password=frmInsert.Password.value;  
-				var fname=frmInsert.FName.value;  
-				var lname=frmInsert.LName.value;  
-				var dob=frmInsert.Date_of_Birth.value;  
-				var gender=frmInsert.Gender.value;  
-				
+			function insertValidation()  {
+				var username=frmInsert.Username.value;
+				var userType=frmInsert.UserType.value;
+				var password=frmInsert.Password.value;
+				var fname=frmInsert.FName.value;
+				var lname=frmInsert.LName.value;
+				var dob=frmInsert.Date_of_Birth.value;
+				var gender=frmInsert.Gender.value;
+
 				if(username.length>0 && userType.length>0 && password.length>0 && fname.length>0 && lname.length>0 && dob.length>0 && gender.length>0){
 					return true;
 				}
 				var str="";
 				if(username.length==0)
-					str+="User Name is empty\n"; 
-				if(userType.length==0) 
-					str+="User Type is empty\n";    
-				if(password.length==0) 
-					str+="Password is empty\n"; 
-				if(fname.length==0) 
+					str+="User Name is empty\n";
+				if(userType.length==0)
+					str+="User Type is empty\n";
+				if(password.length==0)
+					str+="Password is empty\n";
+				if(fname.length==0)
 					str+="First Name is empty\n";
-				if(lname.length==0) 
+				if(lname.length==0)
 					str+="Last Name is empty\n";
-				if(dob.length==0) 
-					str+="Date of Birth is empty\n";	
-				if(gender.length==0) 
-					str+="Gender is empty\n";	 	
+				if(dob.length==0)
+					str+="Date of Birth is empty\n";
+				if(gender.length==0)
+					str+="Gender is empty\n";
 				alert(str);
 				return false;
-			}  
-			function updateValidation()  {  
-				var username=frmMain.txtEditUsername.value;  
-				var userType=frmMain.txtEditUserType.value;  
-				var fname=frmMain.txtEditFName.value;  
-				var lname=frmMain.txtEditLName.value;  
-				var dob=frmMain.txtEditDOB.value;  
-				var gender=frmMain.txtEditGender.value;  
-				
+			}
+			function updateValidation()  {
+				var username=frmMain.txtEditUsername.value;
+				var userType=frmMain.txtEditUserType.value;
+				var fname=frmMain.txtEditFName.value;
+				var lname=frmMain.txtEditLName.value;
+				var dob=frmMain.txtEditDOB.value;
+				var gender=frmMain.txtEditGender.value;
+
 				if(username.length>0 && userType.length>0 && fname.length>0 && lname.length>0 && dob.length>0 && gender.length>0){
 					return true;
 				}
 				var str="";
 				if(username.length==0)
-					str+="User Name is empty\n"; 
-				if(userType.length==0) 
-					str+="User Type is empty\n";   
-				if(fname.length==0) 
+					str+="User Name is empty\n";
+				if(userType.length==0)
+					str+="User Type is empty\n";
+				if(fname.length==0)
 					str+="First Name is empty\n";
-				if(lname.length==0) 
+				if(lname.length==0)
 					str+="Last Name is empty\n";
-				if(dob.length==0) 
-					str+="Date of Birth is empty\n";	
-				if(gender.length==0) 
-					str+="Gender is empty\n";	 	
+				if(dob.length==0)
+					str+="Date of Birth is empty\n";
+				if(gender.length==0)
+					str+="Gender is empty\n";
 				alert(str);
 				return false;
-			}  
+			}
 		</script>
 
 
