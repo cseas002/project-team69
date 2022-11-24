@@ -53,7 +53,10 @@ CREATE TABLE [dbo].CAMPUS
   CampusID INT IDENTITY(1,1) NOT NULL,
   CampusName NVARCHAR(30) NOT NULL,
   Summary NVARCHAR(MAX) NOT NULL,
-  Date_Added DATE NOT NULL,
+  UserAdded INT,
+  UserModified INT,
+  Date_Added DATE,
+  Date_Modified DATE,
   Website NVARCHAR(2083) NOT NULL, -- Maximum URL length
   CONSTRAINT CAMPUS_PK PRIMARY KEY (CampusID),
   CONSTRAINT CAMPUS_UQ_CampusName UNIQUE (CampusName)
@@ -61,14 +64,17 @@ CREATE TABLE [dbo].CAMPUS
 
 CREATE TABLE [dbo].BUILDING
 (
-  Name NVARCHAR(30) NOT NULL,
+  BName NVARCHAR(30) NOT NULL,
   BCode INT NOT NULL,
   Summary NVARCHAR(MAX) NOT NULL,
-  Address NVARCHAR(30) NOT NULL,
+  BAddress NVARCHAR(30) NOT NULL,
   x DECIMAL(11, 8) NOT NULL, -- https://stackoverflow.com/questions/1196415/what-datatype-to-use-when-storing-latitude-and-longitude-data-in-sql-databases#:~:text=Lat%2FLong%20is%20a%20position,it%20is%20almost%20always%20WGS84.
   y DECIMAL(11, 8) NOT NULL,
-  Owner NVARCHAR(30) NOT NULL,
-  Date_Added DATE NOT NULL,
+  BOwner NVARCHAR(30) NOT NULL,
+  UserAdded INT,
+  UserModified INT,
+  Date_Added DATE,
+  Date_Modified DATE,
   CampusID INT, -- This is the foreign key, which might be null 
   CONSTRAINT BUILDING_PK PRIMARY KEY (BCode),
   CONSTRAINT BUILDING_FK_CampusID FOREIGN KEY (CampusID) REFERENCES [dbo].CAMPUS(CampusID)
@@ -80,6 +86,10 @@ CREATE TABLE [dbo].BFLOOR
   TopoPlan VARCHAR(MAX) NOT NULL,
   FloorZ TINYINT NOT NULL,
   BCode INT NOT NULL,
+  UserAdded INT,
+  UserModified INT,
+  Date_Added DATE,
+  Date_Modified DATE,
   CONSTRAINT FLOOR_PK PRIMARY KEY (FloorZ, BCode),
   CONSTRAINT FLOOR_FK_BCode FOREIGN KEY (BCode) REFERENCES [dbo].BUILDING(BCode)
 );
@@ -95,6 +105,10 @@ CREATE TABLE [dbo].POI
   POIType NVARCHAR(30) NOT NULL,
   POIZ TINYINT NOT NULL,
   BCode INT NOT NULL,
+  UserAdded INT,
+  UserModified INT,
+  Date_Added DATE,
+  Date_Modified DATE,
   CONSTRAINT POI_PK PRIMARY KEY (POIID),
   CONSTRAINT POI_FK_POIZ_BCode FOREIGN KEY (POIZ, BCode) REFERENCES [dbo].BFLOOR(FloorZ, BCode)
 );
@@ -124,6 +138,10 @@ CREATE TABLE [dbo].ITEM
   ItemID INT IDENTITY(1,1) NOT NULL,
   TypeID int NOT NULL,
   FingerprintID INT NOT NULL,
+  UserAdded INT,
+  UserModified INT,
+  Date_Added DATE,
+  Date_Modified DATE,
   CONSTRAINT ITEM_PK PRIMARY KEY (ItemID),
   CONSTRAINT ITEM_FK_TypeID FOREIGN KEY (TypeID) REFERENCES [dbo].TYPES(TypeID),
   CONSTRAINT ITEM_FK_TypeInFingerprint FOREIGN KEY (FingerprintID) REFERENCES [dbo].FINGERPRINT(FingerprintID)
