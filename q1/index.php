@@ -15,7 +15,7 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	alert("Only Administrators can add or edit other users");
 </script>
 <?php
-		die('<meta http-equiv="refresh" content="0; url=menu.php" />');
+		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 	}
 
 
@@ -24,7 +24,7 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	session_unset();
 	session_destroy();
 	echo "Session is not correctly set! Clossing session and redirecting to start page in 3 seconds<br/>";
-	die('<meta http-equiv="refresh" content="3; url=index.php" />');
+	die('<meta http-equiv="refresh" content="3; url=../index.php" />');
 }
 //Establishes the connection
 $conn = sqlsrv_connect($serverName, $connectionOptions);
@@ -35,7 +35,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 <html>
 
 <head>
-	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="../style.css">
 	<style>
 		table th {
 			background: grey
@@ -54,26 +54,26 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 <body>
 	<div class="sidenav">
-		<a href="http://www.ucy.ac.cy/"><img width="160px" alt=UCY src="images/logo_en.png"></a>
+		<a href="http://www.ucy.ac.cy/"><img width="160px" alt=UCY src="../images/logo_en.png"></a>
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<a href="q1.php">Query 1</a>
-		<a href="q2.php">Query 2</a>
-		<a href="q3.php">Query 3</a>
-		<a href="q4.php">Query 4</a>
+		<a href="../q1">Query 1</a>
+		<a href="../q2">Query 2</a>
+		<a href="../q3">Query 3</a>
+		<a href="../q4">Query 4</a>
 		<div class="disconnectForm">
 			<?php
             if (isset($_POST['disconnect'])) {
 	            echo "Clossing session and redirecting to start page";
 	            session_unset();
 	            session_destroy();
-	            die('<meta http-equiv="refresh" content="1; url=index.php" />');
+	            die('<meta http-equiv="refresh" content="1; url=../index.php" />');
             }
             ?>
 
 			<form method="post">
-				<input class="disconnectBtn" type="submit" value="Menu" formaction="menu.php"
+				<input class="disconnectBtn" type="submit" value="Menu" formaction="../menu.php"
 					style="margin-top:20px;"><br /><br />
 				<input class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br />
 			</form>
@@ -82,16 +82,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	<div class="main">
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
-				<td vAlign=center align=middle><h2>Insert / Modify Users</h2></td>
+				<td vAlign=center align=middle><h2>Insert / Modify / Delete Users</h2></td>
 			</tr>
 		</table>
 		<hr>
-		<button id="btnInsertForm" class="btnUpForm" onclick="document.getElementById('myForm').style.display = 'block';">Insert Type</button>
-		<button id="btnAdvSearchForm" class="btnUpForm" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>
-		<button id="btnSearchForm" class="btnUpForm" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>
-		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>
-
-		<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.hdnCmdInsert.value='insert';frmInsert.submit();}}">
+		<button id="btnInsertForm" class="btnUpForm" onclick="document.getElementById('myForm').style.display = 'block';">Insert User</button>
+		<button id="btnAdvSearchForm" class="btnUpForm" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
+		<button id="btnSearchForm" class="btnUpForm" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
+		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>			
+		
+		<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.hdnCmdInsert.value='insert';frmInsert.submit();}}"> 
 		<form name="frmInsert" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
 			<input type="hidden" name="hdnCmdInsert" value="">
 			<h3>Insert new user</h3>
@@ -227,7 +227,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						<th width="9%">
 							<div align="center">Gender</div>
 						</th>
-						<th width="14%" colspan="2">
+						<th width="14%" colspan="3">
 							<div align="center">Actions</div>
 						</th>
 					</tr>
@@ -333,7 +333,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 							</select>
 						</td>
 
-						<td style="height:40px;" colspan="2" align="right">
+						<td style="height:40px;" colspan="3" align="right">
 							<div align="center">
 								<input class="textbtn success" name="btnUpdate" type="button" id="btnUpdate"
 									value="Update" onclick="if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}">
@@ -401,6 +401,11 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 								value="Change password"
 								OnClick="changePass(<?= $objResult["UserID"]; ?>);frmMain.hdnCmd.value='ChangePass';frmMain.submit();">
 						</td>
+						<td align="center" width="7%">
+							<input class="textbtn danger" name="btnDelete" type="button" id="btnDelete"
+								value="Delete"
+								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.userIDpass.value='<?= $objResult["UserID"]; ?>';frmMain.submit();}">
+						</td>
 					</tr>
 					<?php
 	                    }
@@ -437,7 +442,6 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
         //*** Update Password ***//
         if ($_POST["hdnCmd"] == "ChangePass") {
-	        echo $_POST["userIDpass"];
 	        $strSQL = "{call dbo.Q1_Change_Password(?, ?)}";
 	        $params = array(
 	        	array($_POST["userIDpass"], SQLSRV_PARAM_IN),
@@ -447,6 +451,19 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	        $objRow = sqlsrv_fetch_array($objQuery);
 	        if (!$objQuery) {
 		        echo "Error Update [" . sqlsrv_errors() . "]";
+	        } else
+		        echo "<meta http-equiv='refresh' content='0'>";
+        }
+
+		if ($_POST["hdnCmd"] == "Delete") {
+	        $strSQL = "{call dbo.Q1_Delete(?)}";
+	        $params = array(
+	        	array($_POST["userIDpass"], SQLSRV_PARAM_IN),
+	        );
+	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
+	        $objRow = sqlsrv_fetch_array($objQuery);
+	        if (!$objQuery) {
+		        echo "Error Delete [" . sqlsrv_errors() . "]";
 	        } else
 		        echo "<meta http-equiv='refresh' content='0'>";
         }

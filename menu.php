@@ -53,11 +53,11 @@
     </table>
 	<hr>
 	<h3>Queries Explained</h3>
-	<a href="q1.php" style="text-decoration: none;">Query 1: Insert/Edit Users</a><br>
-	<a href="q2.php" style="text-decoration: none;">Query 2: Insert/Edit/Delete Types</a><br>
-	<a href="q3.php" style="text-decoration: none;">Query 2: Calling a stored procedure without parameters</a><br>
-	<a href="q4.php" style="text-decoration: none;">Query 2: Calling a stored procedure without parameters</a><br>
-	<a href="q5.php" style="text-decoration: none;">Query 2: Calling a stored procedure without parameters</a><br>
+	<a href="q1" style="text-decoration: none;">Query 1: Insert/Edit Users</a><br>
+	<a href="q2" style="text-decoration: none;">Query 2: Insert/Edit/Delete Types</a><br>
+	<a href="q3" style="text-decoration: none;">Query 2: Calling a stored procedure without parameters</a><br>
+	<a href="q4" style="text-decoration: none;">Query 2: Calling a stored procedure without parameters</a><br>
+	<a href="q5" style="text-decoration: none;">Query 2: Calling a stored procedure without parameters</a><br>
 	
 	</form>
 

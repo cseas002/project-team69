@@ -13,16 +13,16 @@
 			alert("Simple users can't insert/modify/delete types.");
 			</script>
 			<?php
-			die('<meta http-equiv="refresh" content="0; url=menu.php" />');
-
+			die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
+			
 		}
 
 	} else {
 		session_unset();
 		session_destroy();
 		echo "Session is not correctly set! Clossing session and redirecting to start page in 3 seconds<br/>";
-		die('<meta http-equiv="refresh" content="3; url=index.php" />');
-	}
+		die('<meta http-equiv="refresh" content="3; url=../index.php" />');
+	} 	
 	//Establishes the connection
 	$conn = sqlsrv_connect($serverName, $connectionOptions);
 ?>
@@ -30,7 +30,7 @@
 
 <html>
 <head>
-<link rel = "stylesheet" type = "text/css" href = "style.css">
+<link rel = "stylesheet" type = "text/css" href = "../style.css"> 
 	<style>
 		table th{background:grey}
 		table tr:nth-child(odd){background:LightYellow}
@@ -40,26 +40,26 @@
 <body>
 
 <div class="sidenav">
-		<a href="http://www.ucy.ac.cy/"><img width="160px" alt=UCY src="images/logo_en.png"></a>
+		<a href="http://www.ucy.ac.cy/"><img width="160px" alt=UCY src="../images/logo_en.png"></a>
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<a href="q1.php">Query 1</a>
-		<a href="q2.php">Query 2</a>
-		<a href="q3.php">Query 3</a>
-		<a href="q4.php">Query 4</a>
+		<a href="../q1">Query 1</a>
+		<a href="../q2">Query 2</a>
+		<a href="../q3">Query 3</a>
+		<a href="../q4">Query 4</a>
 		<div class="disconnectForm">
 			<?php
         if (isset($_POST['disconnect'])) {
 	        echo "Clossing session and redirecting to start page";
 	        session_unset();
 	        session_destroy();
-	        die('<meta http-equiv="refresh" content="1; url=index.php" />');
+	        die('<meta http-equiv="refresh" content="1; url=../index.php" />');
         }
         ?>
 
 			<form method="post">
-				<input class="disconnectBtn" type="submit" value="Menu" formaction="menu.php"
+				<input class="disconnectBtn" type="submit" value="Menu" formaction="../menu.php"
 					style="margin-top:20px;"><br /><br />
 				<input class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br />
 			</form>
@@ -80,30 +80,28 @@
         <form name="f1" method = "POST" class="form-container">
 			<input type="hidden" name="hdnCmd" value="">
 			<h2 style="text-align:center;">Insert new type</h2>
-			<label> Title: </label>
-			<input type = "text" name = "title" />
-			<label> Model: </label>
-			<input maxlength="40" type = "text" name = "model" />
-			<input type ="button" class = "btn" value="Insert" onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
-			<button type ="button" class = "btn cancel" OnClick="window.location='<?=$_SERVER["PHP_SELF"];?>';">Cancel</button>
-        </form>
-    </div>
-
-	<br/>
-	<br/>
+			<label> Title: </label>  
+			<input type = "text" name = "title" />  
+			<label> Model: </label>  
+			<input maxlength="40" type = "text" name = "model" />  
+			<input type ="button" class = "btn" value="Insert" onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" /> 
+			<button type ="button" class = "btn cancel" OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button> 
+        </form>  
+    </div> 
 	<hr/>
 	<div onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
 	<h2>List of all types</h2>
-	<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-		<input type="hidden" name="hdnCmd" value="">
-		<table width="100%" border="1">
-		<tr>
-		<th width = "20%"> <div align="center">TypeID </div></th>
-		<th width = "25%"> <div align="center">Title</div></th>
-		<th width = "25%"> <div align="center">Model</div></th>
-		<th width = "30%" colspan = "2"> <div align="center">Actions</div></th>
-		</tr>
-		<?php
+	<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">  
+		<input type="hidden" name="hdnCmd" value="">  
+		<input type="hidden" name="hdnTypeID" value="">
+		<table width="100%" border="1">  
+		<tr>  
+		<th width = "20%"> <div align="center">TypeID </div></th>  
+		<th width = "25%"> <div align="center">Title</div></th>  
+		<th width = "25%"> <div align="center">Model</div></th>  
+		<th width = "30%" colspan = "2"> <div align="center">Actions</div></th>  
+		</tr>  
+		<?php 
 		$tsql="EXEC dbo.Q2_Select";
 		$objQuery = sqlsrv_query($conn, $tsql);
 
@@ -140,26 +138,26 @@
 		</td>
 		<td align="center" width="15%">
 		<input class="textbtn danger" name="btnDelete" type="button" id="btnChange" value="Delete"
-								OnClick="if(confirm('Confirm Delete?')==true){window.location='<?=$_SERVER["PHP_SELF"];?>?Action=Del&id=<?=$objResult["TypeID"];?>';}"></td>
-		</tr>
-		<?php
-		}
-		?>
-		<?php
-		}
-		?>
-		</table>
+								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.hdnTypeID.value='<?=$objResult["TypeID"];?>';frmMain.submit();}"></td>  
+		</tr>  
+		<?php 
+		}  
+		?>  
+		<?php 
+		}  
+		?>  
+		</table>  
 		</form>
 	</div>
 
 	<?php
 	// $time_start = microtime(true);
 
-	//*** Update Condition ***//
-	if($_POST["hdnCmd"] == "Update")
-	{
-	$strSQL = "{call dbo.Q2_Update(?, ?, ?, ?)}";
-	$params = array(
+	//*** Update Condition ***//  
+	if($_POST["hdnCmd"] == "Update")  
+	{  
+	$strSQL = "{call dbo.Q2_Update(?, ?, ?)}";  
+	$params = array(  
 		array($_POST["txtEditTitle"], SQLSRV_PARAM_IN),
 		array($_POST["txtEditModel"], SQLSRV_PARAM_IN),
 		array($_POST["hdnEditTypeID"], SQLSRV_PARAM_IN)
@@ -170,22 +168,22 @@
 		{
 			echo "Error Update [" . sqlsrv_errors() . "]";
 		} else echo "<meta http-equiv='refresh' content='0'>";
-	}
-
-	//*** Delete Condition ***//
-	if($_GET["Action"] == "Del")
-	{
-		$strSQL = "{call dbo.Q2_Delete(?, ?)}";
-	$params = array(
-		array($_GET["id"], SQLSRV_PARAM_IN)
-	   );
+	}  
+	
+	//*** Delete Condition ***//  
+	if($_POST["hdnCmd"] == "Delete")  
+	{  
+		$strSQL = "{call dbo.Q2_Delete(?)}";  
+	$params = array(  
+		array($_POST["hdnTypeID"], SQLSRV_PARAM_IN)
+	   ); 
 	$objQuery = sqlsrv_query($conn, $strSQL, $params);
 		$objRow = sqlsrv_fetch_array($objQuery);
 		if (!$objQuery)
 		{
 			echo "Error Delete [" . sqlsrv_errors() . "]";
 		}
-		else echo "<meta http-equiv='refresh' content='0;url=q2.php'>";
+		else echo "<meta http-equiv='refresh' content='0'>";
 	}
 
 	if ($_POST["hdnCmd"] == "Insert") {
@@ -224,9 +222,9 @@
 			echo "Clossing session and redirecting to start page";
 			session_unset();
 			session_destroy();
-			die('<meta http-equiv="refresh" content="1; url=index.php" />');
-		}
-	?>
+			die('<meta http-equiv="refresh" content="1; url=../index.php" />');
+		} 
+	?>  
 	</div>
 
 	<script>
