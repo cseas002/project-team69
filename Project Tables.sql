@@ -129,7 +129,7 @@ CREATE TABLE [dbo].ITEM
   TypeID int NOT NULL,
   FingerprintID INT NOT NULL,
   UserAdded INT,
-  UserModified INT,
+  UserModified INT, 
   Date_Added DATE,
   Date_Modified DATE,
   CONSTRAINT ITEM_PK PRIMARY KEY (ItemID),
@@ -137,3 +137,4 @@ CREATE TABLE [dbo].ITEM
   CONSTRAINT ITEM_FK_TypeInFingerprint FOREIGN KEY (FingerprintID) REFERENCES [dbo].FINGERPRINT(FingerprintID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE NONCLUSTERED INDEX FINGERPRINT_ON_ITEM ON dbo.ITEM (FingerprintID);  -- For Q12

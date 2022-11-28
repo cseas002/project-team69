@@ -30,7 +30,7 @@
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<div class="disconnectForm" style="height:70px;">
+		<div class="disconnectform" style="height:70px;">
 			<?php
         if (isset($_POST['disconnect'])) {
 	        echo "Clossing session and redirecting to start page";
@@ -39,7 +39,6 @@
 	        die('<meta http-equiv="refresh" content="1; url=index.php" />');
         }
         ?>
-
 			<form method="post">
 				<input style="margin-top:20px;" class="disconnectBtn" type="submit" name="disconnect" value="Disconnect" /><br />
 			</form>
@@ -53,95 +52,63 @@
     </table>
 	<style>
 
-/* CSS */
-.button-20 {
-  appearance: button;
-  background-color: #00afff;
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
-  border: 1px solid #00afff;
-  border-radius: 1rem;
-  box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset,rgba(46, 54, 80, 0.075) 0 1px 1px;
-  box-sizing: border-box;
-  color: #FFFFFF;
-  cursor: pointer;
-  display: inline-block;
-  font-family: Inter,sans-serif;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.5;
-  margin: 10;
-  padding: .5rem 1rem;
-  height:50px;
-  width:100px;
-  text-align: center;
-  text-transform: none;
-  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  vertical-align: middle;
+body {
+  background-image: url("./images/UCY_lib.jpg");
+  background-repeat: no-repeat; 
+  background-attachment: fixed;
+  background-size: cover;
+  background-blend-mode: overlay;
 }
 
-.button-20:focus:not(:focus-visible),
-.button-20:focus {
-  outline: 0;
-}
-
-.button-20:hover {
-  background-color: #004fff;
-  border-color: #000fff;
-}
-
-.button-20:focus {
-  background-color: #004fff;
-  border-color: #000fff;
-  box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
-}
-
-.button-20:active {
-  background-color: #000fff;
-  background-image: none;
-  border-color: #000fff;
-  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset;
-}
-
-.button-20:active:focus {
-  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
-}
-
-.button-20:disabled {
-  background-image: none;
-  box-shadow: none;
-  opacity: .65;
-  pointer-events: none;
-}
-    </style>
+</style>
+	
 	<hr>
-	<h3>Queries Explained</h3>
-	<button href="q1" class="button-20" role="button">Query 1 </button>
-	<button href="q2"class="button-20" role="button">Query 2 </button>
-	<button href="q3"class="button-20" role="button"> Query 3 </button>
-	<button href="q4"class="button-20" role="button">Query 4 </button>
-	<button href="q5"class="button-20" role="button"> Query 5</button><br>
-	<button href="q6"class="button-20" role="button">Query 6 </button>
-	<button href="q7"class="button-20" role="button">Query 7 </button>
-	<button href="q8"class="button-20" role="button">Query 8 </button>
-	<button href="q9"class="button-20" role="button"> Query 9</button>
-	<button href="q10"class="button-20" role="button">Query 10</button><br>
-	<button href="q11"class="button-20" role="button"> Query 11 </button>
-	<button href="q12"class="button-20" role="button">Query 12 </button>
-	<button href="q13"class="button-20" role="button">Query 13 </button>
-	<button href="q14"class="button-20" role="button">Query 14 </button>
-	<button href="q15"class="button-20" role="button"> Query 15 </button><br>
-	<button href="q16"class="button-20" role="button">Query 16 </button>
-	<button href="q17"class="button-20" role="button"> Query 17</button>
-	<button href="q18"class="button-20" role="button"> Query 18 </button>
-	<button href="q19"class="button-20" role="button">Query 19</button>
-	<button href="q20"class="button-20" role="button"> Query 20 </button><br>
-	<button href="q21"class="button-20" role="button">Query 21</button>
+	<h3 style="color: #C68F06;">Queries Explained</h3>
+	<button class="button-20" role="button" onclick="document.location.href='./q1'">Query 1 </button> 
+	<p style="display:inline; color: #C68F06;" >Προσθήκη/Διόρθωση/Εµφάνιση στοιχείων ΔΛ και ΑΧ</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q2'">Query 2 </button> 
+	<p style="display:inline; color: #C68F06;">Διαχείριση τύπων αντικειµένων</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q3'">Query 3 </button>
+	<p style="display:inline; color: #C68F06;">Διαχείριση fingerprint</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q4'">Query 4 </button>
+	<p style="display:inline; color: #C68F06;">Διαχείριση κτηρίων/ορόφων</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q5'">Query 5</button>
+	<p style="display:inline; color: #C68F06;">Διαχείριση εγκαταστάσεων</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q6'">Query 6 </button>
+	<p style="display:inline; color: #C68F06;">Λίστα fingerprints</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q7'">Query 7 </button>
+	<p style="display:inline; color: #C68F06;">Εύρεση δηµοφιλέστερων τύπων αντικειµένων</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q8'">Query 8 </button>
+	<p style="display:inline; color: #C68F06;">Αριθµός τύπων POIs ανά όροφο</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q9'">Query 9</button>
+	<p style="display:inline; color: #C68F06;">Μέσο πλήθος αντικειµένων ανά τύπο</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q10'">Query 10</button>
+	<p style="display:inline; color: #C68F06;">Εύρεση µεγάλων ορόφων</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q11'">Query 11 </button>
+	<p style="display:inline; color: #C68F06;">Εύρεση µικρότερων ορόφων</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q12'">Query 12 </button>
+	<p style="display:inline; color: #C68F06;">Εύρεση fingerprint µε κοινούς τύπους αντικειµένων</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q13'">Query 13 </button>
+	<p style="display:inline; color: #C68F06;">Εύρεση κοινών τύπων αντικειµένων</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q14'">Query 14 </button>
+	<p style="display:inline; color: #C68F06;">Εύρεση των k τύπων αντικειµένων µε τις λιγότερες συµµέτοχες</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q15'">Query 15 </button>
+	<p style="display:inline; color: #C68F06;">Τύποι αντικειµένων που βρίσκονται σε κάθε fingerprint</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q16'">Query 16 </button>
+	<p style="display:inline; color: #C68F06;">Εύρεση πλήθους αντικειµένων εντός ενός πλαίσιου οριοθέτησης</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q17'">Query 17</button>
+	<p style="display:inline; color: #C68F06;">Εύρεση πλαίσιού οριοθέτησης κτηρίου</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q18'">Query 18 </button>
+	<p style="display:inline; color: #C68F06;">Εύρεση πλησιέστερου (Nearest Neighbor - NN) POI</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q19'">Query 19</button>
+	<p style="display:inline; color: #C68F06;">Εύρεση k πλησιέστερων (k Nearest Neighbor - kNN) POI</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q20'">Query 20 </button>
+	<p style="display:inline; color: #C68F06;">Εύρεση όλων των k πλησιέστερων (All k Nearest Neighbor - AkNN) POI ενός ορόφου</p><br>
+	<button class="button-20" role="button" onclick="document.location.href='./q21'">Query 21</button>
+	<p style="display:inline; color: #C68F06;">Συνολικό πλήθος αντικειµένων διαδροµής fingerprint</p><br>
 	
 	</form>
-
+	</body>
 	<hr>
 	<?php
 		if(isset($_POST['disconnect'])) { 
