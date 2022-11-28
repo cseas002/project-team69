@@ -7,6 +7,7 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	$userID = $_SESSION["userID"];
 	$userType = $_SESSION["userType"];
 	$fid = $_GET["fid"];
+	
 
 	if ($userType == '2') {
 ?>
@@ -26,6 +27,15 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 }
 //Establishes the connection
 $conn = sqlsrv_connect($serverName, $connectionOptions);
+
+$strSQL1 = "{call dbo.Q4_GetFingerprintByID(?)}";
+	$params = array(
+		array($fid, SQLSRV_PARAM_IN)
+	);
+    $objQuery1 = sqlsrv_query($conn, $strSQL1, $params);
+    $row = sqlsrv_fetch_array($objQuery1);
+	$bcode = $row["BCode"];
+	$floorz = $row["FloorZ"];
 ?>
 
 
@@ -59,7 +69,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
 		<a href="../q4">Query 4</a>
-		<a href="../q4/editbfloors.php?fid=<?=$fid?>"> - Edit Floors</a>
+		<a href="../q4/editbfloors.php?fid=<?=$bcode?>"> - Edit Floors</a>
+        <a href="../q4/editfingerprints.php?fid=<?=$bcode?>&zid=<?=$floorz?>"> -- Edit Fingerprints</a>
+		<a href="../q4/edititems.php?fid=<?=$fid?>"> --- Edit Items</a>
 		<div class="disconnectForm">
 			<?php
             if (isset($_POST['disconnect'])) {
@@ -82,7 +94,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
 				<td vAlign=center align=middle>
-					<h2>Insert / Edit / Delete Items from Building <?= $fid ?>
+					<h2>Insert / Edit / Delete Items from Fingerprint <?= $fid ?>
 					</h2>
 				</td>
 			</tr>
@@ -90,32 +102,34 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<hr>
 
 		<button class="btnUpForm" onclick="document.getElementById('myForm').style.display = 'block';">Insert
-			Floor</button>
+			Item</button>
 
 		<div class="form-popup" id="myForm"
 			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
 			<form name="f1" method="POST" class="form-container">
 				<input type="hidden" name="hdnCmd" value="">
 				<input type="hidden" name="hdnfid" value="<?= $_GET["fid"] ?>">
-				<h2 style="text-align:center;">Insert new floor</h2>
-				<label> FloorZ: </label>
-				<input type="text" name="FloorZ" />
-				<div style="display:inline">
-					<div style="float: left; width: 50%;">
-						<br/>
-						<label> Topo Plan: </label>
-					</div>
-					<div style="float: left; width: 50%;">
-						<label style="width: 90%;padding:10px;margin: 5px 0 12px 0;border: none;background: #f1f1f1;"
-							for="upload-photo1" class="textbtn blue">Upload</label>
-						<input style="opacity: 0; position: absolute; z-index: -1;" type="file" name="imageInsert"
-							id="upload-photo1" />
-					</div>
-				</div>
-
-
-				<label> Summary: </label>
-				<input type="text" name="Summary" />
+				<h2 style="text-align:center;">Insert new item</h2>
+				<label> Height: </label>
+				<input type="text" name="Height" />
+				<label> Width: </label>
+				<input type="text" name="Width" />
+				<label> Type: </label>
+				<select name="TypeID" id="selectTypeID">
+					<option value=''> </option>
+					<?php
+                    $strSQL1 = "{call dbo.Q2_Select()}";
+                    $objQuery1 = sqlsrv_query($conn, $strSQL1);
+                    while ($row = sqlsrv_fetch_array($objQuery1)) {
+                    ?>
+					<option value='<?= $row["TypeID"] ?>'>
+						<?= $row["Title"] ?>
+							<?= $row["Model"] ?>
+					</option>
+					<?php
+                    }
+                    ?>
+				</select>
 				<input type="button" class="btn" value="Insert"
 					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
 				<button type="button" class="btn cancel"
@@ -125,29 +139,31 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<hr />
 		<div
 			onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
-			<h2>List of all floors in building <?= $fid ?>
-			</h2>
-			<form name="frmMain" method="post" enctype="multipart/form-data"
+			<h2>List of all items in fingerprint <?=$fid?></h2>
+			<form name="frmMain" method="post"
 				action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'] . "?fid=" . $fid); ?>">
 				<input type="hidden" name="hdnCmd" value="">
 				<input type="hidden" name="idpass" value="">
 				<table width="100%" border="1">
 					<tr>
-						<th width="20%">
-							<div align="center">Floor Z </div>
+						<th width="13%">
+							<div align="center">ItemID </div>
 						</th>
-						<th width="20%">
-							<div align="center">Summary</div>
+						<th width="13%">
+							<div align="center">Height</div>
 						</th>
-						<th width="20%">
-							<div align="center">Topo Plan</div>
+						<th width="13%">
+							<div align="center">Width</div>
 						</th>
-						<th width="40%" colspan="4">
+						<th width="13%">
+							<div align="center">Type</div>
+						</th>
+						<th width="22%" colspan="3">
 							<div align="center">Actions</div>
 						</th>
 					</tr>
 					<?php
-                    $tsql = "{CALL dbo.Q4_SelectFloorOfBuilding(?)}";
+                    $tsql = "{CALL dbo.Q3_SelectItemsOfFingerprint(?)}";
                     $params = array(
                     	array($fid, SQLSRV_PARAM_IN)
                     );
@@ -157,28 +173,41 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
                     ?>
 
 					<?php
-	                    if ($objResult["FloorZ"] == $_GET["id"] and $_GET["Action"] == "Edit") {
+	                    if ($objResult["ItemID"] == $_GET["id"] and $_GET["Action"] == "Edit") {
                     ?>
 					<tr>
-						<td align="center" style="height:40px;">
-							<div id='row<?= $objResult["FloorZ"]; ?>' align="center">
+						<td>
+							<div id='row<?= $objResult["ItemID"]; ?>' align="center">
+								<?= $objResult["ItemID"]; ?>
 							</div>
-							<input style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
-								name="txtEditFloorZ" value="<?= $objResult["FloorZ"]; ?>">
+							<input type="hidden" name="hdnEditItemID" value="<?= $objResult["ItemID"]; ?>">
 						</td>
+						<td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
+								name="txtEditHeight" value="<?= $objResult["Height"]; ?>"></td>
+						<td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
+								name="txtEditWidth" value="<?= $objResult["Width"]; ?>"></td>
 						<td align="center" style="height:40px;">
-							<input style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
-								name="txtEditSummary" value="<?= $objResult["Summary"]; ?>">
+							<select name="txtEditTypeID" id="txtEditTypeID">
+								<option value=''> </option>
+								<?php
+		                    $strSQL1 = "{call dbo.Q2_Select()}";
+		                    $objQuery1 = sqlsrv_query($conn, $strSQL1);
+		                    while ($row = sqlsrv_fetch_array($objQuery1)) {
+
+			                    if ($objResult["TypeID"] == $row["TypeID"]) {
+				                    echo "<option value='" . $row["TypeID"] . "' selected='selected'>" . $row["Title"] . " - " . $row["Model"] . "</option>";
+
+			                    } else {
+				                    echo "<option value='" . $row["TypeID"] . "'>" . $row["Title"] . " - " . $row["Model"] . "</option>";
+
+			                    }
+		                    }
+                                ?>
+							</select>
 						</td>
-						<td align="center" style="height:40px;">
-							<label for="upload-photo" class="textbtn blue">
-								Upload
-							</label>
-							<input style="opacity: 0; position: absolute; z-index: -1;" type="file" name="image"
-								id="upload-photo">
-				<input type="hidden" name="hdnimage" value="<?= $objResult["TopoPlan"] ?>">
-						</td>
-						<td colspan="4" align="right">
+						<td colspan="2" align="right">
 							<div align="center">
 								<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update"
 									onclick="if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}">
@@ -192,31 +221,26 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
                     ?>
 					<tr>
 						<td>
-							<div id='row<?= $objResult["FloorZ"]; ?>' align="center">
-								<?= $objResult["FloorZ"]; ?>
+							<div id='row<?= $objResult["ItemID"]; ?>' align="center">
+								<?= $objResult["ItemID"]; ?>
 							</div>
 						</td>
 						<td align="center">
-							<?= $objResult["Summary"]; ?>
+							<?= $objResult["Height"]; ?>
 						</td>
 						<td align="center">
-							<img src='<?= $objResult["TopoPlan"]; ?>' height="100px" />
+							<?= $objResult["Width"]; ?>
 						</td>
-						<td align="center" width="10%">
-							<input class="textbtn warning" name="btnEditPOIS" type="button" id="btnEditPOIS" value="Edit POIs"
-								OnClick="window.location='editpois.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorZ"]; ?>';">
+						<td align="center">
+							<?= $objResult["TypeID"]; ?>
 						</td>
-						<td align="center" width="10%">
-							<input class="textbtn warning" name="btnEditFingerprints" type="button" id="btnEditFingerprint" value="Edit Fingerprints"
-								OnClick="window.location='editfingerprints.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorZ"]; ?>';">
-						</td>
-						<td align="center" width="10%">
+						<td align="center" width="11%">
 							<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit"
-								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?fid=<?= $fid; ?>&Action=Edit&id=<?= $objResult["FloorZ"]; ?>#row<?= $objResult["FloorZ"]; ?>';">
+								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?fid=<?= $fid; ?>&Action=Edit&id=<?= $objResult["ItemID"]; ?>#row<?= $objResult["ItemID"]; ?>';">
 						</td>
-						<td align="center" width="10%">
+						<td align="center" width="11%">
 							<input class="textbtn danger" name="btnDelete" type="button" id="btnChange" value="Delete"
-								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.idpass.value='<?= $objResult["FloorZ"] ?>';frmMain.submit();}">
+								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.idpass.value='<?= $objResult["ItemID"] ?>';frmMain.submit();}">
 						</td>
 					</tr>
 					<?php
@@ -234,43 +258,13 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
         
         //*** Update Condition ***//  
         if ($_POST["hdnCmd"] == "Update") {
-			
-	        $errors = array();
-	        $allowed_ext = array('jpg', 'jpeg', 'png', 'gif');
-	        $file_name = $_FILES['image']['name'];
-	        $file_ext = strtolower(end(explode('.', $file_name)));
-	        $file_size = $_FILES['image']['size'];
-	        $file_tmp = $_FILES['image']['tmp_name'];
-	        echo $file_tmp;
-	        echo "<br>";
-	        $type = pathinfo($file_tmp, PATHINFO_EXTENSION);
-	        $data = file_get_contents($file_tmp);
-	        $base64 = 'data:image/' . $file_ext . ';base64,' . base64_encode($data);
-	        if (in_array($file_ext, $allowed_ext) === false) {
-		        $errors[] = 'Extension not allowed ' . $file_ext;
-	        }
-	        if ($file_size > 2097152/2) {
-		        $errors[] = 'File size must be under 1mb';
-	        }
-	        if (empty($errors)) {
-		        if (move_uploaded_file($file_tmp, 'images/' . $file_name))
-			        ; {
-			        echo 'File uploaded';
-		        }
-	        } else {
-		        foreach ($errors as $error) {
-			        echo $error, '<br/>';
-		        }
-	        }
-			if($data == ""){
-				$base64 = $_POST["hdnimage"];
-			}
-	        $strSQL = "{call dbo.Q4_UpdateFloor(?, ?, ?, ?)}";
+	        $strSQL = "{call dbo.Q3_EditItem(?, ?, ?, ?, ?)}";
 	        $params = array(
-	        	array($fid, SQLSRV_PARAM_IN),
-	        	array($_POST["txtEditFloorZ"], SQLSRV_PARAM_IN),
-	        	array($base64, SQLSRV_PARAM_IN),
-	        	array($_POST["txtEditSummary"], SQLSRV_PARAM_IN)
+	        	array($_POST["hdnEditItemID"], SQLSRV_PARAM_IN),
+	        	array($_POST["txtEditTypeID"], SQLSRV_PARAM_IN),
+	        	array($_POST["txtEditHeight"], SQLSRV_PARAM_IN),
+	        	array($_POST["txtEditWidth"], SQLSRV_PARAM_IN),
+	        	array($fid, SQLSRV_PARAM_IN)
 	        );
 	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	        $objRow = sqlsrv_fetch_array($objQuery);
@@ -278,34 +272,33 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		        echo "Error Update [" . sqlsrv_errors() . "]";
 	        } else {
 		        $url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
-		        echo "<meta http-equiv='refresh' content='0; url=$url'>";
-        	}
+	        echo "<meta http-equiv='refresh' content='0; url=$url'>";
+			}
         }
 
         //*** Delete Condition ***//  
         if ($_POST["hdnCmd"] == "Delete") {
-	        $strSQL = "{call dbo.Q4_DeleteFloor(?, ?)}";
+	        $strSQL = "{call dbo.Q3_DeleteItem(?)}";
 	        $params = array(
-	        	array($fid, SQLSRV_PARAM_IN),
-	        	array($_POST["idpass"], SQLSRV_PARAM_IN),
+	        	array($_POST["idpass"], SQLSRV_PARAM_IN)
 	        );
 	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	        $objRow = sqlsrv_fetch_array($objQuery);
 	        if (!$objQuery) {
 		        echo "Error Delete [" . sqlsrv_errors() . "]";
-	        } else {
+	        } else{
 		        $url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
-		        echo "<meta http-equiv='refresh' content='0; url=$url'>";
-	        }
+	        echo "<meta http-equiv='refresh' content='0; url=$url'>";
+			}
         }
 
         if ($_POST["hdnCmd"] == "Insert") {
-	        $strSQL = "{call dbo.Q4_InsertFloor(?, ?, ?, ?)}";
+	        $strSQL = "{call dbo.Q3_InsertItem(?, ?, ?, ?)}";
 	        $params = array(
-	        	array($fid, SQLSRV_PARAM_IN),
-	        	array($_POST["FloorZ"], SQLSRV_PARAM_IN),
-	        	array($_POST["TopoPlan"], SQLSRV_PARAM_IN),
-	        	array($_POST["Summary"], SQLSRV_PARAM_IN)
+	        	array($_POST["TypeID"], SQLSRV_PARAM_IN),
+	        	array($_POST["Height"], SQLSRV_PARAM_IN),
+	        	array($_POST["Width"], SQLSRV_PARAM_IN),
+	        	array($_POST["hdnfid"], SQLSRV_PARAM_IN)
 	        );
 	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	        $objRow = sqlsrv_fetch_array($objQuery);
@@ -313,8 +306,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		        echo "Error Insert [" . sqlsrv_errors() . "]";
 	        } else {
 		        $url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
-		        echo "<meta http-equiv='refresh' content='0; url=$url'>";
-	        }
+	        echo "<meta http-equiv='refresh' content='0; url=$url'>";
+			}
         }
 
         // $time_end = microtime(true);
@@ -344,35 +337,39 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	</div>
 
 	<script>
-		function openInNewTab(a) {
-			var win = window.open();
-			win.document.write('<iframe src="' + a + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
-		}
 		function insertValidation() {
-			var topoplan = f1.TopoPlan.value;
-			var summary = f1.Summary.value;
+			var typeid = f1.Height.value;
+			var height = f1.Width.value;
+			var width = f1.TypeID.value;
 
-			if (topoplan.length > 0 && summary.length > 0) {
+			if (typeid.length > 0 && height.length > 0 && width.length > 0) {
 				return true;
 			}
 			var str = "";
-			if (topoplan.length == 0)
-				str += "TopoPlan is empty\n";
-			if (summary.length == 0)
-				str += "Summary is empty\n";
+			if (typeid.length == 0)
+				str += "Type ID is empty\n";
+			if (height.length == 0)
+				str += "Height is empty\n";
+			if (width.length == 0)
+				str += "Width is empty\n";
 			alert(str);
 			return false;
 		}
 		function updateValidation() {
-			var summary = frmMain.txtEditSummary.value;
+			var typeid = frmMain.txtEditHeight.value;
+			var height = frmMain.txtEditWidth.value;
+			var width = frmMain.txtEditTypeID.value;
 
-			if (summary.length > 0) {
+			if (typeid.length > 0 && height.length > 0 && width.length > 0) {
 				return true;
 			}
 			var str = "";
-			
-			if (summary.length == 0)
-				str += "Summary is empty\n";
+			if (typeid.length == 0)
+				str += "Type ID is empty\n";
+			if (height.length == 0)
+				str += "Height is empty\n";
+			if (width.length == 0)
+				str += "Width is empty\n";
 			alert(str);
 			return false;
 		}  

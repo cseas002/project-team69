@@ -250,7 +250,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						</td>
 						<td align="center" width="7%">
 							<input class="textbtn danger" name="btnDelete" type="button" id="btnChange" value="Delete"
-								OnClick="if(confirm('Confirm Delete?')==true){frmMain.fidpass.value='<?= $objResult["FingerprintID"] ?>';frmMain.submit();}">
+								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.fidpass.value='<?= $objResult["FingerprintID"] ?>';frmMain.submit();}">
 						</td>
 					</tr>
 					<?php
@@ -297,7 +297,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     if ($_POST["hdnCmd"] == "Delete") {
 	    $strSQL = "{call dbo.Q3_DeleteFingerprint(?)}";
 	    $params = array(
-	    	array($_POST["FingerprintID"], SQLSRV_PARAM_IN)
+	    	array($_POST["fidpass"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
