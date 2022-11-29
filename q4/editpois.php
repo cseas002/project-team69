@@ -261,7 +261,7 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
     
     //*** Update Condition ***//  
     if ($_POST["hdnCmd"] == "Update") {
-	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?)}";
+	    $strSQL = "{call dbo.Q4_EditPOI(?, ?, ?, ?, ?, ?, ?, ?)}";
 	    $params = array(
 	    	array($_POST["hdnEditPOIID"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEditPOIName"], SQLSRV_PARAM_IN),
@@ -284,7 +284,7 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 
     //*** Delete Condition ***//  
     if ($_POST["hdnCmd"] == "Delete") {
-	    $strSQL = "{call dbo.Q3_DeleteFingerprint(?)}";
+	    $strSQL = "{call dbo.Q4_DeletePOI(?)}";
 	    $params = array(
 	    	array($_POST["fidpass"], SQLSRV_PARAM_IN)
 	    );
@@ -299,7 +299,7 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
     }
 
     if ($_POST["hdnCmd"] == "Insert") {
-	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?)}";
+	    $strSQL = "{call dbo.Q3_InsertPOI(?, ?, ?, ?, ?, ?, ?)}";
 	    $params = array(
 	    	array($_POST["POIName"], SQLSRV_PARAM_IN),
 	    	array($_POST["Summary"], SQLSRV_PARAM_IN),
