@@ -86,7 +86,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			</tr>
 		</table>
 		<hr>
-		<button id="btnInsertForm" class="btnUpForm" onclick="document.getElementById('myForm').style.display = 'block';">Insert User</button>
+
+		<!-- <div class="addRowBtn" value=""><i class="fa fa-plus" aria-hidden="true"></i></div> -->
+		<button id="btnInsertForm" class="addRowBtn" onclick="document.getElementById('myForm').style.display = 'block';" >+</button>
 		<button id="btnAdvSearchForm" class="btnUpForm" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
 		<button id="btnSearchForm" class="btnUpForm" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
 		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>			

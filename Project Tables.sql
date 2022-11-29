@@ -19,7 +19,7 @@ CREATE TABLE [dbo].USERS
   UserType TINYINT NOT NULL, -- Root (1), Database Admin (2), Simple User(3)
   CONSTRAINT USERS_UQ_Username UNIQUE (Username),
   CONSTRAINT USERS_PK  PRIMARY KEY (UserID), 
-  CONSTRAINT UserType_Type CHECK(UserType IN (0, 1, 2)),
+  CONSTRAINT UserType_Type CHECK(UserType IN (1, 2, 3)),
   CONSTRAINT Gender_MFO CHECK(Gender IN ('M', 'F', 'O'))
   -- Check for usertype
 );
@@ -57,9 +57,9 @@ CREATE TABLE [dbo].BUILDING
   BCode INT IDENTITY(1,1) NOT NULL,
   Summary NVARCHAR(MAX) NOT NULL,
   BAddress NVARCHAR(30) NOT NULL,
-  x DECIMAL(11, 8) NOT NULL, -- https://stackoverflow.com/questions/1196415/what-datatype-to-use-when-storing-latitude-and-longitude-data-in-sql-databases#:~:text=Lat%2FLong%20is%20a%20position,it%20is%20almost%20always%20WGS84.
-  y DECIMAL(11, 8) NOT NULL,
-  BOwner NVARCHAR(30) NOT NULL,
+  x DECIMAL(15, 12) NOT NULL, -- https://stackoverflow.com/questions/1196415/what-datatype-to-use-when-storing-latitude-and-longitude-data-in-sql-databases#:~:text=Lat%2FLong%20is%20a%20position,it%20is%20almost%20always%20WGS84.
+  y DECIMAL(15, 12) NOT NULL,
+  BOwner NVARCHAR(30),
   UserAdded INT,
   UserModified INT,
   Date_Added DATE,
@@ -87,8 +87,8 @@ CREATE TABLE [dbo].POI
 (
   Name NVARCHAR(30) NOT NULL,
   Summary NVARCHAR(MAX) NOT NULL,
-  x DECIMAL(11, 8) NOT NULL,
-  y DECIMAL(11, 8) NOT NULL,
+  x DECIMAL(15, 12) NOT NULL,
+  y DECIMAL(15, 12) NOT NULL,
   POIID INT IDENTITY(1, 1) NOT NULL,
   Owner NVARCHAR(30), -- Owner could be null
   POIType NVARCHAR(30) NOT NULL,
@@ -106,9 +106,8 @@ CREATE TABLE [dbo].FINGERPRINT
 (
   Date_Added DATE,
   Date_Modified DATE,
-  x DECIMAL(11, 8) NOT NULL,
-  y DECIMAL(11, 8) NOT NULL,
-  z TINYINT NOT NULL,
+  x DECIMAL(15, 12) NOT NULL,
+  y DECIMAL(15, 12) NOT NULL,
   FingerprintID INT IDENTITY(1, 1) NOT NULL,
   FloorZ TINYINT,
   BCode INT,
@@ -116,7 +115,6 @@ CREATE TABLE [dbo].FINGERPRINT
   UserModified INT,
   CONSTRAINT FINGERPRINT_PK PRIMARY KEY (FingerprintID),
   CONSTRAINT FINGERPRINT_FK_FloorZ_BCode FOREIGN KEY (FloorZ, BCode) REFERENCES [dbo].BFLOOR(FloorZ, BCode) ON UPDATE CASCADE,
-  CONSTRAINT FINGERPRINT_CK_FloorZ CHECK (FloorZ IS NULL OR (z = FloorZ)),
   CONSTRAINT FINGERPRINT_CK_FloorZ_BCode_NOTNULL CHECK ((FloorZ IS NULL AND BCode IS NULL) OR (FloorZ IS NOT NULL AND BCode IS NOT NULL))
   -- Checking whether the floor's z is the same with the fingerprint's z 
 );
@@ -138,3 +136,5 @@ CREATE TABLE [dbo].ITEM
 );
 
 CREATE NONCLUSTERED INDEX FINGERPRINT_ON_ITEM ON dbo.ITEM (FingerprintID);  -- For Q12
+
+INSERT INTO dbo.USERS(FName, LName, Date_of_Birth, Gender, Username, UPassword, UserType) VALUES ('Pampos', 'Pampou', '2001-01-01', 'O', 'gchora01', '1234', 1)

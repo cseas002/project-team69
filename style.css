@@ -23,7 +23,26 @@ body{
     padding: 7px;  
     cursor: pointer;
     width: 100px;
+    border-radius: 2rem;
+    margin-left: 20px;
+    height: 60px;
+    margin-bottom: -4rem;
 } 
+
+.addRowBtn{
+  color: #fff; 
+  /* margin-bottom: -4rem; */
+  width: 60px; 
+  height: 60px;
+  left: 2rem;     
+  /* font-size: 2rem;     */
+  background-color: #337ab7;   
+  padding: 7px;  
+  border-radius: 4rem; 
+  /* z-index: 999999999999999;  */
+  cursor: pointer; 
+}
+
 .disconnectForm { 
     height: 100px; 
     position: fixed; 
