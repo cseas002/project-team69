@@ -61,10 +61,10 @@ CREATE TABLE [dbo].CAMPUS
 CREATE TABLE [dbo].BUILDING
 (
   BCode INT IDENTITY(1,1) NOT NULL,
-  BLDCode INT NOT NULL,
-  BName NVARCHAR(30) NOT NULL,
+  BLDCode NVARCHAR(50) NOT NULL,
+  BName NVARCHAR(50) NOT NULL,
   Summary NVARCHAR(MAX) NOT NULL,
-  BAddress NVARCHAR(30) NOT NULL,
+  BAddress NVARCHAR(200) NOT NULL,
   x DECIMAL(15, 12) NOT NULL, -- https://stackoverflow.com/questions/1196415/what-datatype-to-use-when-storing-latitude-and-longitude-data-in-sql-databases#:~:text=Lat%2FLong%20is%20a%20position,it%20is%20almost%20always%20WGS84.
   y DECIMAL(15, 12) NOT NULL,
   BOwner NVARCHAR(30),
