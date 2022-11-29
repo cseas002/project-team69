@@ -239,7 +239,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn warning" name="btnEditFingerprints" type="button" id="btnEditFingerprint" value="Edit Fingerprints"
-								OnClick="window.location='editfingerprints.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorID"]; ?>';">
+								OnClick="window.location='editfingerprints.php?zid=<?= $objResult["FloorID"]; ?>';">
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit"

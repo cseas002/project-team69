@@ -34,7 +34,7 @@ $strSQL1 = "{call dbo.Q4_GetFingerprintByID(?)}";
 	);
     $objQuery1 = sqlsrv_query($conn, $strSQL1, $params);
     $row = sqlsrv_fetch_array($objQuery1);
-	$bcode = $row["BCode"];
+	$floorid = $row["FloorID"];
 	$floorz = $row["FloorZ"];
 ?>
 
@@ -70,7 +70,7 @@ $strSQL1 = "{call dbo.Q4_GetFingerprintByID(?)}";
 		<a href="../q3">Query 3</a>
 		<a href="../q4">Query 4</a>
 		<a href="../q4/editbfloors.php?fid=<?=$bcode?>"> - Edit Floors</a>
-        <a href="../q4/editfingerprints.php?fid=<?=$bcode?>&zid=<?=$floorz?>"> -- Edit Fingerprints</a>
+        <a href="../q4/editfingerprints.php?zid=<?=$floorid?>"> -- Edit Fingerprints</a>
 		<a href="../q4/edititems.php?fid=<?=$fid?>"> --- Edit Items</a>
 		<div class="disconnectForm">
 			<?php

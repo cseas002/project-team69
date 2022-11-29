@@ -6,7 +6,6 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	$connectionOptions = $_SESSION["connectionOptions"];
 	$userID = $_SESSION["userID"];
 	$userType = $_SESSION["userType"];
-    $fid = $_GET["fid"];
     $zid = $_GET["zid"];
 
 	if ($userType == '2') {
@@ -27,6 +26,17 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 }
 //Establishes the connection
 $conn = sqlsrv_connect($serverName, $connectionOptions);
+
+$strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
+						$params = array(
+							array($zid, SQLSRV_PARAM_IN)
+						);
+						$objQuery1 = sqlsrv_query($conn, $strSQL1, $params);
+						$row = sqlsrv_fetch_array($objQuery1);
+						$FloorZ = $row["FloorZ"];
+						$BName = $row["BName"];
+						$BCode = $row["BCode"];
+						$FloorID = $zid;
             ?>
 
 
@@ -60,8 +70,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
 		<a href="../q4">Query 4</a>
-        <a href="../q4/editbfloors.php?fid=<?=$fid?>"> - Edit Floors</a>
-        <a href="../q4/editfingerprints.php?fid=<?=$fid?>&zid=<?=$zid?>"> -- Edit Fingerprints</a>
+        <a href="../q4/editbfloors.php?fid=<?=$BCode?>"> - Edit Floors</a>
+        <a href="../q4/editfingerprints.php?zid=<?=$zid?>"> -- Edit Fingerprints</a>
 		<div class="disconnectForm">
 			<?php
             if (isset($_POST['disconnect'])) {
@@ -84,8 +94,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
 				<td vAlign=center align=middle>
-					<h2>Insert / Edit / Delete Fingerprints on Building <?=$fid;?>, Floor <?=$zid;?></h2>
-                    <h4>Z is by default = <?=$zid;?></h4>
+					<h2>Insert / Edit / Delete Fingerprints on Building <?=$BName;?>, Floor <?=$FloorZ;?> (FloorID: <?=$FloorID;?>)</h2>
+                    <h4>Z is by default = <?=$FloorZ;?></h4>
 				</td>
 			</tr>
 		</table>
@@ -99,7 +109,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			<form name="f1" method="POST" class="form-container">
 				<input type="hidden" name="hdnCmd" value="">
 				<h2 style="text-align:center;">Insert new fingerprint</h2>
-                <h4 style="text-align:center;">Z is by default = <?=$zid;?></h4>
+                <h4 style="text-align:center;">Z is by default = <?=$FloorZ;?></h4>
 				<label> x: </label>
 				<input type="text" name="x" />
 				<label> y: </label>
@@ -113,8 +123,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<hr />
 		<div
 			onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
-			<h2>List of all fingerprints on Building <?=$fid;?>, Floor <?=$zid;?></h2>
-            <h4>Z is by default = <?=$zid;?></h4>
+			<h2>List of all fingerprints on Building <?=$BName;?>, Floor <?=$FloorZ;?></h2>
+            <h4>Z is by default = <?=$FloorZ;?></h4>
 			<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
 				<input type="hidden" name="hdnCmd" value="">
 				<input type="hidden" name="fidpass" value="">
@@ -134,10 +144,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						</th>
 					</tr>
 					<?php
-        $tsql = "{CALL dbo.Q4_SelectFingerprintsOfFloor(?,?)}";
+        $tsql = "{CALL dbo.Q4_SelectFingerprintsOfFloor(?)}";
         $params = array(
-            array($fid, SQLSRV_PARAM_IN),
-	    	array($zid, SQLSRV_PARAM_IN)
+	    	array($FloorID, SQLSRV_PARAM_IN)
 	    );
         $objQuery = sqlsrv_query($conn, $tsql, $params);
 
@@ -213,14 +222,13 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     
     //*** Update Condition ***//  
     if ($_POST["hdnCmd"] == "Update") {
-	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?, ?)}";
+	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?)}";
 	    $params = array(
 	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
-	    	array($zid, SQLSRV_PARAM_IN),
-	    	array($zid, SQLSRV_PARAM_IN),
-	    	array($fid, SQLSRV_PARAM_IN)
+	    	array($FloorZ, SQLSRV_PARAM_IN),
+	    	array($FloorID, SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -249,13 +257,12 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     }
 
     if ($_POST["hdnCmd"] == "Insert") {
-	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?, ?)}";
+	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?)}";
 	    $params = array(
 	    	array($_POST["x"], SQLSRV_PARAM_IN),
 	    	array($_POST["y"], SQLSRV_PARAM_IN),
-	    	array($zid, SQLSRV_PARAM_IN),
-	    	array($zid, SQLSRV_PARAM_IN),
-	    	array($fid, SQLSRV_PARAM_IN)
+	    	array($FloorZ, SQLSRV_PARAM_IN),
+	    	array($FloorID, SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -295,9 +302,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		function insertValidation() {
 			var x = f1.x.value;
 			var y = f1.y.value;
-			var z = f1.z.value;
 
-			if (x.length > 0 && y.length > 0 && z.length > 0) {
+			if (x.length > 0 && y.length > 0 ) {
 				return true;
 			}
 			var str = "";
@@ -305,17 +311,14 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				str += "x is empty\n";
 			if (y.length == 0)
 				str += "y is empty\n";
-			if (z.length == 0)
-				str += "z is empty\n";
 			alert(str);
 			return false;
 		}
 		function updateValidation() {
 			var x = frmMain.txtEditx.value;
 			var y = frmMain.txtEdity.value;
-			var z = frmMain.txtEditz.value;
 
-			if (x.length > 0 && y.length > 0 && z.length > 0) {
+			if (x.length > 0 && y.length > 0) {
 				return true;
 			}
 			var str = "";
@@ -323,8 +326,6 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				str += "x is empty\n";
 			if (y.length == 0)
 				str += "y is empty\n";
-			if (z.length == 0)
-				str += "z is empty\n";
 			alert(str);
 			return false;
 		}  

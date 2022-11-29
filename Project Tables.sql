@@ -9,15 +9,17 @@ DROP TABLE [dbo].CAMPUS
 
 CREATE TABLE [dbo].USERS
 (
+  UserID INT IDENTITY (1,1) NOT NULL,
   FName NVARCHAR(30) NOT NULL CHECK (FName != ''),
   LName NVARCHAR(30) NOT NULL CHECK (Lname != ''),
-  UserID INT IDENTITY (1,1) NOT NULL,
+  GovID INT NOT NULL,
   Date_of_Birth DATE NOT NULL,
   Gender CHAR(1) NOT NULL, -- M,F,O
   Username NVARCHAR(30)  NOT NULL CHECK (Username != ''),
   UPassword NVARCHAR(30) NOT NULL CHECK (UPassword != ''),
   UserType TINYINT NOT NULL, -- Root (1), Database Admin (2), Simple User(3)
   CONSTRAINT USERS_UQ_Username UNIQUE (Username),
+  CONSTRAINT USERS_UQ_GovID UNIQUE (GovID),
   CONSTRAINT USERS_PK  PRIMARY KEY (UserID), 
   CONSTRAINT UserType_Type CHECK(UserType IN (1, 2, 3)),
   CONSTRAINT Gender_MFO CHECK(Gender IN ('M', 'F', 'O'))
@@ -55,6 +57,7 @@ CREATE TABLE [dbo].CAMPUS
 CREATE TABLE [dbo].BUILDING
 (
   BCode INT IDENTITY(1,1) NOT NULL,
+  BLDCode INT NOT NULL,
   BName NVARCHAR(30) NOT NULL,
   Summary NVARCHAR(MAX) NOT NULL,
   BAddress NVARCHAR(30) NOT NULL,
@@ -112,7 +115,9 @@ CREATE TABLE [dbo].FINGERPRINT
   Date_Modified DATE,
   x DECIMAL(15, 12) NOT NULL,
   y DECIMAL(15, 12) NOT NULL,
+  z INT NOT NULL,
   FloorID INT,
+  Level INT,
   UserAdded INT,  -- NULL at first and then inserted by trigger
   UserModified INT,
   CONSTRAINT FINGERPRINT_PK PRIMARY KEY (FingerprintID),

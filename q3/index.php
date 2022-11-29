@@ -98,15 +98,17 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				<input type="text" name="x" />
 				<label> y: </label>
 				<input type="text" name="y" />
-				<label> z: </label>
-				<select name="z" id="z">
+				<label> Level: </label>
+				<input type="text" name="z" />
+				<label> Building/Floor: </label>
+				<select name="FloorID" id="FloorID">
 					<option value=''> </option>
 					<?php
                 $strSQL = "{call dbo.Q3_SelectBuildings()}";
                 $objQuery = sqlsrv_query($conn, $strSQL);
                 while ($row = sqlsrv_fetch_array($objQuery)) {
                 ?>
-					<option value='<?= $row["FloorID"] ?>'>
+					<option value='<?= $row["FloorID"] . "?" . $row["FloorZ"] ?>'>
 						<?= $row["BName"] . " - " . $row["FloorZ"] ?>
 					</option>
 					<?php
@@ -138,6 +140,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 							<div align="center">y</div>
 						</th>
 						<th width="13%">
+							<div align="center">Level</div>
+						</th>
+						<th width="13%">
 							<div align="center">Building - Floor</div>
 						</th>
 						<th width="22%" colspan="3">
@@ -167,8 +172,11 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						<td align="center" style="height:40px;"><input
 								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
 								name="txtEdity" value="<?= $objResult["y"]; ?>"></td>
+						<td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
+								name="txtEditz" value="<?= $objResult["Level"]; ?>"></td>
 						<td align="center" style="height:40px;">
-							<select name="txtEditz" id="txtEditz">
+							<select name="txtEditFloorID" id="txtEditFloorID">
 								<option value=''> </option>
 								<?php
 		        $strSQL1 = "{call dbo.Q3_SelectBuildings()}";
@@ -178,10 +186,10 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 					$BName = $row["BName"];
 					$FloorID = $row["FloorID"];
 			        if ($objResult["FloorID"] == $FloorID) {
-				        echo "<option value='" . $FloorID . "' selected='selected'>" . $BName . " - " . $FloorZ . "</option>";
+				        echo "<option value='" . $FloorID . "?" . $FloorZ . "' selected='selected'>" . $BName . " - " . $FloorZ . "</option>";
 
 			        } else {
-				        echo "<option value='" . $FloorID . "'>" . $BName . " - " . $FloorZ . "</option>";
+				        echo "<option value='" . $FloorID . "?" . $FloorZ . "'>" . $BName . " - " . $FloorZ . "</option>";
 
 			        }
 		        }
@@ -213,7 +221,25 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 							<?= $objResult["y"]; ?>
 						</td>
 						<td align="center">
-							<?= $objResult["FloorID"]; ?>
+							<?= $objResult["Level"]; ?>
+						</td>
+						<?php
+						$FloorLabel = '';
+						if($objResult["FloorID"] != ''){
+						$strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
+						$params = array(
+							array($objResult["FloorID"], SQLSRV_PARAM_IN)
+						);
+						$objQuery1 = sqlsrv_query($conn, $strSQL1, $params);
+						$row = sqlsrv_fetch_array($objQuery1);
+						$FloorZ = $row["FloorZ"];
+						$BName = $row["BName"];
+						$FloorID = $row["FloorID"];
+						$FloorLabel = $BName . " - " . $FloorZ;
+						}
+						?>
+						<td align="center">
+							<?= $FloorLabel; ?>
 						</td>
 						<td align="center" width="8%">
 							<input class="textbtn warning" name="btnEditItems" type="button" id="btnEditItems"
@@ -244,12 +270,24 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     
     //*** Update Condition ***//  
     if ($_POST["hdnCmd"] == "Update") {
-	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?)}";
+	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?)}";
+
+		$fz = $_POST["txtEditz"];
+		$flid = NULL;
+		if($_POST["txtEditFloorID"] != ''){
+			$array = explode("?", $_POST["txtEditFloorID"]);
+			$fz = $array[1];
+			$flid = $array[0];
+		}
+
+		echo $flid . " " . $fz;
+
 	    $params = array(
 	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
-	    	array($_POST["txtEditz"], SQLSRV_PARAM_IN)
+			array($fz, SQLSRV_PARAM_IN),
+	    	array($flid, SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -257,7 +295,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			echo "Error Update [";
 			print_r(sqlsrv_errors());
 			echo "]<br/>";
-	    } else
+	    } 
+		else
 		    echo "<meta http-equiv='refresh' content='0'>";
     }
 
@@ -278,11 +317,21 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     }
 
     if ($_POST["hdnCmd"] == "Insert") {
-	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?)}";
+	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?)}";
+
+		$fz = $_POST["z"];
+		$flid = NULL;
+		if($_POST["FloorID"] != ''){
+			$array = explode("?", $_POST["FloorID"]);
+			$fz = $array[1];
+			$flid = $array[0];
+		}
+		
 	    $params = array(
 	    	array($_POST["x"], SQLSRV_PARAM_IN),
 	    	array($_POST["y"], SQLSRV_PARAM_IN),
-	    	array($_POST["z"], SQLSRV_PARAM_IN)
+	    	array($fz, SQLSRV_PARAM_IN),
+			array($flid, SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -324,6 +373,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			var y = f1.y.value;
 			var z = f1.z.value;
 
+			var building = f1.FloorID.value;
+
+			if(z.length == 0){
+				const myArray = z.split("?");
+				f1.z.value = myArray[0];
+				f1.FloorID.value = myArray[1];
+				z = myArray[0];
+				building = myArray[1];
+			}
+
 			if (x.length > 0 && y.length > 0 && z.length > 0) {
 				return true;
 			}
@@ -341,6 +400,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			var x = frmMain.txtEditx.value;
 			var y = frmMain.txtEdity.value;
 			var z = frmMain.txtEditz.value;
+
+			var building = frmMain.txtEditFloorID.value;
+
+			if(z.length == 0){
+				const myArray = z.split("?");
+				frmMain.txtEditz.value = myArray[0];
+				frmMain.txtEditFloorID.value = myArray[1];
+				z = myArray[0];
+				building = myArray[1];
+			}
 
 			if (x.length > 0 && y.length > 0 && z.length > 0) {
 				return true;
