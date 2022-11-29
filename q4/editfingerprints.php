@@ -114,6 +114,8 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 				<input type="text" name="x" />
 				<label> y: </label>
 				<input type="text" name="y" />
+				<label> RegDate: </label>
+				<input type="date" name="RegDate" />
 				<input type="button" class="btn" value="Insert"
 					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
 				<button type="button" class="btn cancel"
@@ -130,14 +132,17 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 				<input type="hidden" name="fidpass" value="">
 				<table width="100%" border="1">
 					<tr>
-						<th width="20%">
+						<th width="15%">
 							<div align="center">FingerprintID </div>
 						</th>
-						<th width="20%">
+						<th width="15%">
 							<div align="center">x</div>
 						</th>
-						<th width="20%">
+						<th width="15%">
 							<div align="center">y</div>
+						</th>
+						<th width="15%">
+							<div align="center">RegDate</div>
 						</th>
 						<th width="40%" colspan="3">
 							<div align="center">Actions</div>
@@ -169,6 +174,9 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 						<td align="center" style="height:40px;"><input
 								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
 								name="txtEdity" value="<?= $objResult["y"]; ?>"></td>
+						<td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="datetime-local"
+								name="txtEditRegDate" value="<?= $objResult["RegDate"]; ?>"></td>
 						<td colspan="3" align="right">
 							<div align="center">
 								<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update"
