@@ -139,13 +139,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				<input type="hidden" name="idpass" value="">
 				<table width="100%" border="1">
 					<tr>
-						<th width="20%">
+						<th width="15%">
+							<div align="center">Floor ID</div>
+						</th>
+						<th width="15%">
 							<div align="center">Floor Z </div>
 						</th>
-						<th width="20%">
+						<th width="15%">
 							<div align="center">Summary</div>
 						</th>
-						<th width="20%">
+						<th width="15%">
 							<div align="center">Topo Plan</div>
 						</th>
 						<th width="40%" colspan="4">
@@ -163,12 +166,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
                     ?>
 
 					<?php
-	                    if ($objResult["FloorZ"] == $_GET["id"] and $_GET["Action"] == "Edit") {
+	                    if ($objResult["FloorID"] == $_GET["id"] and $_GET["Action"] == "Edit") {
                     ?>
 					<tr>
 						<td align="center" style="height:40px;">
-							<div id='row<?= $objResult["FloorZ"]; ?>' align="center">
+							<input type="hidden" name="hdnFloorID" value="<?= $objResult['FloorID']; ?>">
+							<div id='row<?= $objResult["FloorID"]; ?>' align="center">
+							<?= $objResult["FloorID"]; ?>
 							</div>
+						</td>
+						<td align="center" style="height:40px;">
 							<input style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
 								name="txtEditFloorZ" value="<?= $objResult["FloorZ"]; ?>">
 						</td>
@@ -203,9 +210,12 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
                     ?>
 					<tr>
 						<td>
-							<div id='row<?= $objResult["FloorZ"]; ?>' align="center">
-								<?= $objResult["FloorZ"]; ?>
+							<div id='row<?= $objResult["FloorID"]; ?>' align="center">
+								<?= $objResult["FloorID"]; ?>
 							</div>
+						</td>
+						<td align="center">
+							<?= $objResult["FloorZ"]; ?>
 						</td>
 						<td align="center">
 							<?= $objResult["Summary"]; ?>
@@ -225,19 +235,19 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn warning" name="btnEditPOIS" type="button" id="btnEditPOIS" value="Edit POIs"
-								OnClick="window.location='editpois.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorZ"]; ?>';">
+								OnClick="window.location='editpois.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorID"]; ?>';">
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn warning" name="btnEditFingerprints" type="button" id="btnEditFingerprint" value="Edit Fingerprints"
-								OnClick="window.location='editfingerprints.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorZ"]; ?>';">
+								OnClick="window.location='editfingerprints.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorID"]; ?>';">
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit"
-								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?fid=<?= $fid; ?>&Action=Edit&id=<?= $objResult["FloorZ"]; ?>#row<?= $objResult["FloorZ"]; ?>';">
+								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?fid=<?= $fid; ?>&Action=Edit&id=<?= $objResult["FloorID"]; ?>#row<?= $objResult["FloorID"]; ?>';">
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn danger" name="btnDelete" type="button" id="btnChange" value="Delete"
-								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.idpass.value='<?= $objResult["FloorZ"] ?>';frmMain.submit();}">
+								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.idpass.value='<?= $objResult["FloorID"] ?>';frmMain.submit();}">
 						</td>
 					</tr>
 					<?php
@@ -306,7 +316,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 	        $strSQL = "{call dbo.Q4_UpdateFloor(?, ?, ?, ?)}";
 	        $params = array(
-	        	array($fid, SQLSRV_PARAM_IN),
+	        	array($_POST["hdnFloorID"], SQLSRV_PARAM_IN),
 	        	array($_POST["txtEditFloorZ"], SQLSRV_PARAM_IN),
 	        	array($base64, SQLSRV_PARAM_IN),
 	        	array($_POST["txtEditSummary"], SQLSRV_PARAM_IN)
@@ -323,9 +333,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
         //*** Delete Condition ***//  
         if ($_POST["hdnCmd"] == "Delete") {
-	        $strSQL = "{call dbo.Q4_DeleteFloor(?, ?)}";
+	        $strSQL = "{call dbo.Q4_DeleteFloor(?)}";
 	        $params = array(
-	        	array($fid, SQLSRV_PARAM_IN),
 	        	array($_POST["idpass"], SQLSRV_PARAM_IN),
 	        );
 	        $objQuery = sqlsrv_query($conn, $strSQL, $params);

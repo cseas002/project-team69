@@ -9,7 +9,7 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	$userID = $_SESSION["userID"];
 	$userType = $_SESSION["userType"];
 
-	if ($userType != '0') {
+	if ($userType != '1') {
 ?>
 <script>
 	alert("Only Administrators can add or edit other users");
