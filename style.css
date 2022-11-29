@@ -18,6 +18,7 @@ body{
     cursor: pointer;
 }  
 .btnUpForm{  
+    display:inline-block;
     color: #fff;  
     background: #337ab7;  
     padding: 7px;  
@@ -26,10 +27,11 @@ body{
     border-radius: 2rem;
     margin-left: 20px;
     height: 60px;
-    margin-bottom: -4rem;
+    /* margin-bottom: 4rem; */
 } 
 
 .addRowBtn{
+  display:inline-block;
   color: #fff; 
   /* margin-bottom: -4rem; */
   width: 60px; 
