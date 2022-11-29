@@ -63,7 +63,7 @@ CREATE TABLE [dbo].BUILDING
   BAddress NVARCHAR(30) NOT NULL,
   x DECIMAL(15, 12) NOT NULL, -- https://stackoverflow.com/questions/1196415/what-datatype-to-use-when-storing-latitude-and-longitude-data-in-sql-databases#:~:text=Lat%2FLong%20is%20a%20position,it%20is%20almost%20always%20WGS84.
   y DECIMAL(15, 12) NOT NULL,
-  BOwner NVARCHAR(30) NOT NULL,
+  BOwner NVARCHAR(30),
   RegDate DATE NOT NULL,
   UserAdded INT,
   UserModified INT,
@@ -115,13 +115,27 @@ CREATE TABLE [dbo].FINGERPRINT
   Date_Modified DATE,
   x DECIMAL(15, 12) NOT NULL,
   y DECIMAL(15, 12) NOT NULL,
+<<<<<<< HEAD
   z INT NOT NULL,
+=======
+<<<<<<< HEAD
+  FingerprintID INT IDENTITY(1, 1) NOT NULL,
+  FloorZ TINYINT,
+  BCode INT,
+  UserAdded INT,  -- NULL at first and then inserted by trigger
+  UserModified INT,
+  CONSTRAINT FINGERPRINT_PK PRIMARY KEY (FingerprintID),
+  CONSTRAINT FINGERPRINT_FK_FloorZ_BCode FOREIGN KEY (FloorZ, BCode) REFERENCES [dbo].BFLOOR(FloorZ, BCode) ON UPDATE CASCADE,
+  CONSTRAINT FINGERPRINT_CK_FloorZ_BCode_NOTNULL CHECK ((FloorZ IS NULL AND BCode IS NULL) OR (FloorZ IS NOT NULL AND BCode IS NOT NULL))
+=======
+>>>>>>> 2fbbf0b29c1a800480b1eeb959d1f8b3a04f6a93
   FloorID INT,
   Level INT,
   UserAdded INT,  -- NULL at first and then inserted by trigger
   UserModified INT,
   CONSTRAINT FINGERPRINT_PK PRIMARY KEY (FingerprintID),
   CONSTRAINT FINGERPRINT_FK_FloorID FOREIGN KEY (FloorID) REFERENCES [dbo].BFLOOR(FloorID) ON UPDATE CASCADE ON DELETE CASCADE
+>>>>>>> d510d407897d083b80a7f21541c38a41bf988cd1
   -- Checking whether the floor's z is the same with the fingerprint's z 
 );
 
@@ -142,3 +156,5 @@ CREATE TABLE [dbo].ITEM
 );
 
 CREATE NONCLUSTERED INDEX FINGERPRINT_ON_ITEM ON dbo.ITEM (FingerprintID);  -- For Q12
+
+INSERT INTO dbo.USERS(FName, LName, Date_of_Birth, Gender, Username, UPassword, UserType) VALUES ('Pampos', 'Pampou', '2001-01-01', 'O', 'gchora01', '1234', 1)
