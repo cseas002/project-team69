@@ -9,13 +9,13 @@ DROP TABLE [dbo].CAMPUS
 
 CREATE TABLE [dbo].USERS
 (
-  FName NVARCHAR(30) NOT NULL,
-  LName NVARCHAR(30) NOT NULL,
-  UserID INT IDENTITY (1000,2) NOT NULL,
+  FName NVARCHAR(30) NOT NULL CHECK (FName != ''),
+  LName NVARCHAR(30) NOT NULL CHECK (Lname != ''),
+  UserID INT IDENTITY (1,1) NOT NULL,
   Date_of_Birth DATE NOT NULL,
   Gender CHAR(1) NOT NULL, -- M,F,O
-  Username NVARCHAR(30)  NOT NULL,
-  UPassword NVARCHAR(30) NOT NULL,
+  Username NVARCHAR(30)  NOT NULL CHECK (Username != ''),
+  UPassword NVARCHAR(30) NOT NULL CHECK (UPassword != ''),
   UserType TINYINT NOT NULL, -- Root (1), Database Admin (2), Simple User(3)
   CONSTRAINT USERS_UQ_Username UNIQUE (Username),
   CONSTRAINT USERS_PK  PRIMARY KEY (UserID), 
@@ -34,32 +34,38 @@ CREATE TABLE [dbo].TYPES
   Date_Added DATE,
   Date_Modified DATE,
   CONSTRAINT TYPES_PK PRIMARY KEY (TypeID),
-  CONSTRAINT TYPES_UQ_Title_Model Unique ( Title,Model)
+  CONSTRAINT TYPES_UQ_Title_Model Unique (Title,Model)
 );
 
 CREATE TABLE [dbo].CAMPUS
 (
   CampusID INT IDENTITY(1,1) NOT NULL,
-  CampusName NVARCHAR(30) NOT NULL,
-  Summary NVARCHAR(MAX) NOT NULL,
+  CampusName NVARCHAR(30) NOT NULL CHECK (CampusName != ''),
+  Summary NVARCHAR(MAX) NOT NULL CHECK (Summary != ''),
+  RegDate DATE NOT NULL,
   UserAdded INT,
   UserModified INT,
   Date_Added DATE,
   Date_Modified DATE,
-  Website NVARCHAR(2083) NOT NULL, -- Maximum URL length
+  Website NVARCHAR(2083) NOT NULL CHECK (Website != ''), -- Maximum URL length
   CONSTRAINT CAMPUS_PK PRIMARY KEY (CampusID),
   CONSTRAINT CAMPUS_UQ_CampusName UNIQUE (CampusName)
 );
 
 CREATE TABLE [dbo].BUILDING
 (
-  BName NVARCHAR(30) NOT NULL,
   BCode INT IDENTITY(1,1) NOT NULL,
+  BName NVARCHAR(30) NOT NULL,
   Summary NVARCHAR(MAX) NOT NULL,
   BAddress NVARCHAR(30) NOT NULL,
   x DECIMAL(15, 12) NOT NULL, -- https://stackoverflow.com/questions/1196415/what-datatype-to-use-when-storing-latitude-and-longitude-data-in-sql-databases#:~:text=Lat%2FLong%20is%20a%20position,it%20is%20almost%20always%20WGS84.
   y DECIMAL(15, 12) NOT NULL,
+<<<<<<< HEAD
   BOwner NVARCHAR(30),
+=======
+  BOwner NVARCHAR(30) NOT NULL,
+  RegDate DATE NOT NULL,
+>>>>>>> d510d407897d083b80a7f21541c38a41bf988cd1
   UserAdded INT,
   UserModified INT,
   Date_Added DATE,
@@ -71,43 +77,53 @@ CREATE TABLE [dbo].BUILDING
 
 CREATE TABLE [dbo].BFLOOR
 (
-  Summary NVARCHAR(MAX) NOT NULL,
-  TopoPlan VARCHAR(MAX) NOT NULL,
+  FloorID INT NOT NULL IDENTITY(1,1),
+  Summary NVARCHAR(MAX) NOT NULL CHECK (Summary != ''),
+  TopoPlan VARCHAR(MAX) NOT NULL CHECK (TopoPlan != ''),
   FloorZ TINYINT NOT NULL,
   BCode INT NOT NULL,
   UserAdded INT,
   UserModified INT,
   Date_Added DATE,
   Date_Modified DATE,
-  CONSTRAINT FLOOR_PK PRIMARY KEY (FloorZ, BCode),
+  CONSTRAINT FLOOR_PK UNIQUE (FloorID),
+  CONSTRAINT FLOOR_U_BCode_FloorZ UNIQUE (FloorZ, BCode),
   CONSTRAINT FLOOR_FK_BCode FOREIGN KEY (BCode) REFERENCES [dbo].BUILDING(BCode) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE [dbo].POI
 (
+<<<<<<< HEAD
   Name NVARCHAR(30) NOT NULL,
   Summary NVARCHAR(MAX) NOT NULL,
   x DECIMAL(15, 12) NOT NULL,
   y DECIMAL(15, 12) NOT NULL,
+=======
+>>>>>>> d510d407897d083b80a7f21541c38a41bf988cd1
   POIID INT IDENTITY(1, 1) NOT NULL,
-  Owner NVARCHAR(30), -- Owner could be null
-  POIType NVARCHAR(30) NOT NULL,
-  POIZ TINYINT NOT NULL,
-  BCode INT NOT NULL,
+  POIName NVARCHAR(30) NOT NULL CHECK (POIName != ''),
+  Summary NVARCHAR(MAX) NOT NULL CHECK (Summary != ''),
+  x DECIMAL(15, 12) NOT NULL,
+  y DECIMAL(15, 12) NOT NULL,
+  FloorID INT NOT NULL,
+  POIOwner NVARCHAR(30) CHECK (POIOwner != ''), -- Owner could be null
+  POIType NVARCHAR(30) NOT NULL CHECK (POIType != ''),
   UserAdded INT,
   UserModified INT,
   Date_Added DATE,
   Date_Modified DATE,
   CONSTRAINT POI_PK PRIMARY KEY (POIID),
-  CONSTRAINT POI_FK_POIZ_BCode FOREIGN KEY (POIZ, BCode) REFERENCES [dbo].BFLOOR(FloorZ, BCode) ON UPDATE CASCADE
+  CONSTRAINT POI_FK_FloorID FOREIGN KEY (FloorID) REFERENCES [dbo].BFLOOR(FloorID) ON UPDATE CASCADE
 );
 
 CREATE TABLE [dbo].FINGERPRINT
 (
+  FingerprintID INT IDENTITY(1, 1) NOT NULL,
   Date_Added DATE,
   Date_Modified DATE,
   x DECIMAL(15, 12) NOT NULL,
   y DECIMAL(15, 12) NOT NULL,
+<<<<<<< HEAD
   FingerprintID INT IDENTITY(1, 1) NOT NULL,
   FloorZ TINYINT,
   BCode INT,
@@ -116,6 +132,13 @@ CREATE TABLE [dbo].FINGERPRINT
   CONSTRAINT FINGERPRINT_PK PRIMARY KEY (FingerprintID),
   CONSTRAINT FINGERPRINT_FK_FloorZ_BCode FOREIGN KEY (FloorZ, BCode) REFERENCES [dbo].BFLOOR(FloorZ, BCode) ON UPDATE CASCADE,
   CONSTRAINT FINGERPRINT_CK_FloorZ_BCode_NOTNULL CHECK ((FloorZ IS NULL AND BCode IS NULL) OR (FloorZ IS NOT NULL AND BCode IS NOT NULL))
+=======
+  FloorID INT,
+  UserAdded INT,  -- NULL at first and then inserted by trigger
+  UserModified INT,
+  CONSTRAINT FINGERPRINT_PK PRIMARY KEY (FingerprintID),
+  CONSTRAINT FINGERPRINT_FK_FloorID FOREIGN KEY (FloorID) REFERENCES [dbo].BFLOOR(FloorID) ON UPDATE CASCADE ON DELETE CASCADE
+>>>>>>> d510d407897d083b80a7f21541c38a41bf988cd1
   -- Checking whether the floor's z is the same with the fingerprint's z 
 );
 
@@ -131,7 +154,7 @@ CREATE TABLE [dbo].ITEM
   Date_Added DATE,
   Date_Modified DATE,
   CONSTRAINT ITEM_PK PRIMARY KEY (ItemID),
-  CONSTRAINT ITEM_FK_TypeID FOREIGN KEY (TypeID) REFERENCES [dbo].TYPES(TypeID) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT ITEM_FK_TypeID FOREIGN KEY (TypeID) REFERENCES [dbo].TYPES(TypeID) ON UPDATE CASCADE,
   CONSTRAINT ITEM_FK_TypeInFingerprint FOREIGN KEY (FingerprintID) REFERENCES [dbo].FINGERPRINT(FingerprintID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 

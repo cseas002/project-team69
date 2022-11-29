@@ -99,24 +99,20 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				<label> y: </label>
 				<input type="text" name="y" />
 				<label> z: </label>
-				<input type="text" name="z" />
-				<label> Building: </label>
-				<select name="BCode" id="selectBCode">
+				<select name="z" id="z">
 					<option value=''> </option>
 					<?php
                 $strSQL = "{call dbo.Q3_SelectBuildings()}";
                 $objQuery = sqlsrv_query($conn, $strSQL);
                 while ($row = sqlsrv_fetch_array($objQuery)) {
                 ?>
-					<option value='<?= $row["BCode"] ?>'>
-						<?= $row["BName"] ?>
+					<option value='<?= $row["FloorID"] ?>'>
+						<?= $row["BName"] . " - " . $row["FloorZ"] ?>
 					</option>
 					<?php
                 }
                         ?>
 				</select>
-				<label> Floor: </label>
-				<input type="text" name="FloorZ" />
 				<input type="button" class="btn" value="Insert"
 					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
 				<button type="button" class="btn cancel"
@@ -142,13 +138,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 							<div align="center">y</div>
 						</th>
 						<th width="13%">
-							<div align="center">z</div>
-						</th>
-						<th width="13%">
-							<div align="center">Building</div>
-						</th>
-						<th width="13%">
-							<div align="center">Floor</div>
+							<div align="center">Building - Floor</div>
 						</th>
 						<th width="22%" colspan="3">
 							<div align="center">Actions</div>
@@ -177,35 +167,27 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						<td align="center" style="height:40px;"><input
 								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
 								name="txtEdity" value="<?= $objResult["y"]; ?>"></td>
-						<td align="center" style="height:40px;"><input
-								style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
-								name="txtEditz" value="<?= $objResult["z"]; ?>"></td>
-
 						<td align="center" style="height:40px;">
-							<select name="txtEditBCode" id="txtEditBCode">
+							<select name="txtEditz" id="txtEditz">
 								<option value=''> </option>
 								<?php
 		        $strSQL1 = "{call dbo.Q3_SelectBuildings()}";
 		        $objQuery1 = sqlsrv_query($conn, $strSQL1);
 		        while ($row = sqlsrv_fetch_array($objQuery1)) {
-					$bcode = '';
-					$name = '';
-					if ($row["BCode"] != null) $bcode = $row["BCode"];
-					if ($row["BName"] != null) $name = $row["BName"];
-			        if ($objResult["BCode"] == $row["BCode"]) {
-				        echo "<option value='" . $bcode . "' selected='selected'>" . $name . "</option>";
+					$FloorZ = $row["FloorZ"];
+					$BName = $row["BName"];
+					$FloorID = $row["FloorID"];
+			        if ($objResult["FloorID"] == $FloorID) {
+				        echo "<option value='" . $FloorID . "' selected='selected'>" . $BName . " - " . $FloorZ . "</option>";
 
 			        } else {
-				        echo "<option value='" . $bcode . "'>" . $name . "</option>";
+				        echo "<option value='" . $FloorID . "'>" . $BName . " - " . $FloorZ . "</option>";
 
 			        }
 		        }
                 ?>
 							</select>
 						</td>
-						<td align="center" style="height:40px;"><input
-								style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
-								name="txtEditFloorZ" value="<?= $objResult["FloorZ"]; ?>"></td>
 						<td colspan="3" align="right">
 							<div align="center">
 								<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update"
@@ -231,13 +213,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 							<?= $objResult["y"]; ?>
 						</td>
 						<td align="center">
-							<?= $objResult["z"]; ?>
-						</td>
-						<td align="center">
-							<?= $objResult["BCode"]; ?>
-						</td>
-						<td align="center">
-							<?= $objResult["FloorZ"]; ?>
+							<?= $objResult["FloorID"]; ?>
 						</td>
 						<td align="center" width="8%">
 							<input class="textbtn warning" name="btnEditItems" type="button" id="btnEditItems"
@@ -268,20 +244,12 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     
     //*** Update Condition ***//  
     if ($_POST["hdnCmd"] == "Update") {
-	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?, ?)}";
-	    $floor = null;
-	    if ($_POST["txtEditFloorZ"] != '')
-		    $floor = $_POST["txtEditFloorZ"];
-	    $bcode = null;
-	    if ($_POST["txtEditBCode"] != '')
-		    $bcode = $_POST["txtEditBCode"];
+	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?)}";
 	    $params = array(
 	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
-	    	array($_POST["txtEditz"], SQLSRV_PARAM_IN),
-	    	array($floor, SQLSRV_PARAM_IN),
-	    	array($bcode, SQLSRV_PARAM_IN)
+	    	array($_POST["txtEditz"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -310,19 +278,11 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     }
 
     if ($_POST["hdnCmd"] == "Insert") {
-	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?, ?)}";
-	    $floor = null;
-	    if ($_POST["FloorZ"] != '')
-		    $floor = $_POST["FloorZ"];
-	    $bcode = null;
-	    if ($_POST["BCode"] != '')
-		    $bcode = $_POST["BCode"];
+	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?)}";
 	    $params = array(
 	    	array($_POST["x"], SQLSRV_PARAM_IN),
 	    	array($_POST["y"], SQLSRV_PARAM_IN),
-	    	array($_POST["z"], SQLSRV_PARAM_IN),
-	    	array($floor, SQLSRV_PARAM_IN),
-	    	array($bcode, SQLSRV_PARAM_IN)
+	    	array($_POST["z"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);

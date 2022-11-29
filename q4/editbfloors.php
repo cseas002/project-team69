@@ -94,7 +94,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 		<div class="form-popup" id="myForm"
 			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
-			<form name="f1" method="POST" class="form-container">
+			<form name="f1" method="POST" class="form-container" enctype="multipart/form-data">
 				<input type="hidden" name="hdnCmd" value="">
 				<input type="hidden" name="hdnfid" value="<?= $_GET["fid"] ?>">
 				<h2 style="text-align:center;">Insert new floor</h2>
@@ -105,11 +105,17 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						<br/>
 						<label> Topo Plan: </label>
 					</div>
-					<div style="float: left; width: 50%;">
-						<label style="width: 90%;padding:10px;margin: 5px 0 12px 0;border: none;background: #f1f1f1;"
-							for="upload-photo1" class="textbtn blue">Upload</label>
+					<div style="float: left; width: 25%;">
+						<label style="width: 80%;padding:10px;margin: 5px 0 12px 0;border: none;background: #f1f1f1;"
+							for="upload-photo1" class="textbtn blue">Upload Photo</label>
 						<input style="opacity: 0; position: absolute; z-index: -1;" type="file" name="imageInsert"
 							id="upload-photo1" />
+					</div>
+					<div style="float: left; width: 25%;">
+						<label style="width: 80%;padding:10px;margin: 5px 0 12px 0;border: none;background: #f1f1f1;"
+							for="upload-base641" class="textbtn blue">Upload Base64</label>
+						<input style="opacity: 0; position: absolute; z-index: -1;" type="file" name="base64Insert"
+							id="upload-base641" />
 					</div>
 				</div>
 
@@ -133,13 +139,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				<input type="hidden" name="idpass" value="">
 				<table width="100%" border="1">
 					<tr>
-						<th width="20%">
+						<th width="15%">
+							<div align="center">Floor ID</div>
+						</th>
+						<th width="15%">
 							<div align="center">Floor Z </div>
 						</th>
-						<th width="20%">
+						<th width="15%">
 							<div align="center">Summary</div>
 						</th>
-						<th width="20%">
+						<th width="15%">
 							<div align="center">Topo Plan</div>
 						</th>
 						<th width="40%" colspan="4">
@@ -157,12 +166,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
                     ?>
 
 					<?php
-	                    if ($objResult["FloorZ"] == $_GET["id"] and $_GET["Action"] == "Edit") {
+	                    if ($objResult["FloorID"] == $_GET["id"] and $_GET["Action"] == "Edit") {
                     ?>
 					<tr>
 						<td align="center" style="height:40px;">
-							<div id='row<?= $objResult["FloorZ"]; ?>' align="center">
+							<input type="hidden" name="hdnFloorID" value="<?= $objResult['FloorID']; ?>">
+							<div id='row<?= $objResult["FloorID"]; ?>' align="center">
+							<?= $objResult["FloorID"]; ?>
 							</div>
+						</td>
+						<td align="center" style="height:40px;">
 							<input style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
 								name="txtEditFloorZ" value="<?= $objResult["FloorZ"]; ?>">
 						</td>
@@ -172,10 +185,15 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						</td>
 						<td align="center" style="height:40px;">
 							<label for="upload-photo" class="textbtn blue">
-								Upload
+								Upload Photo
 							</label>
 							<input style="opacity: 0; position: absolute; z-index: -1;" type="file" name="image"
 								id="upload-photo">
+							<label for="upload-base64" class="textbtn blue">
+								Upload Base64
+							</label>
+							<input style="opacity: 0; position: absolute; z-index: -1;" type="file" name="base64"
+								id="upload-base64">
 				<input type="hidden" name="hdnimage" value="<?= $objResult["TopoPlan"] ?>">
 						</td>
 						<td colspan="4" align="right">
@@ -192,31 +210,44 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
                     ?>
 					<tr>
 						<td>
-							<div id='row<?= $objResult["FloorZ"]; ?>' align="center">
-								<?= $objResult["FloorZ"]; ?>
+							<div id='row<?= $objResult["FloorID"]; ?>' align="center">
+								<?= $objResult["FloorID"]; ?>
 							</div>
+						</td>
+						<td align="center">
+							<?= $objResult["FloorZ"]; ?>
 						</td>
 						<td align="center">
 							<?= $objResult["Summary"]; ?>
 						</td>
 						<td align="center">
-							<img src='<?= $objResult["TopoPlan"]; ?>' height="100px" />
+							<?php
+								$base64code = $objResult["TopoPlan"];
+								$substr = strtoupper(substr($base64code, 0, 5));
+								$fileext = "";
+								if($substr == "IVBOR")
+									$fileext = "png";
+								else if ($substr == "/9J/4")
+									$fileext = "jpg";
+								$base64file = "data:image/" . $fileext . ";base64," .	$base64code;
+							?>
+							<img src='<?= $base64file; ?>' height="100px" />
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn warning" name="btnEditPOIS" type="button" id="btnEditPOIS" value="Edit POIs"
-								OnClick="window.location='editpois.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorZ"]; ?>';">
+								OnClick="window.location='editpois.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorID"]; ?>';">
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn warning" name="btnEditFingerprints" type="button" id="btnEditFingerprint" value="Edit Fingerprints"
-								OnClick="window.location='editfingerprints.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorZ"]; ?>';">
+								OnClick="window.location='editfingerprints.php?fid=<?= $fid; ?>&zid=<?= $objResult["FloorID"]; ?>';">
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit"
-								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?fid=<?= $fid; ?>&Action=Edit&id=<?= $objResult["FloorZ"]; ?>#row<?= $objResult["FloorZ"]; ?>';">
+								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?fid=<?= $fid; ?>&Action=Edit&id=<?= $objResult["FloorID"]; ?>#row<?= $objResult["FloorID"]; ?>';">
 						</td>
 						<td align="center" width="10%">
 							<input class="textbtn danger" name="btnDelete" type="button" id="btnChange" value="Delete"
-								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.idpass.value='<?= $objResult["FloorZ"] ?>';frmMain.submit();}">
+								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.idpass.value='<?= $objResult["FloorID"] ?>';frmMain.submit();}">
 						</td>
 					</tr>
 					<?php
@@ -245,7 +276,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	        echo "<br>";
 	        $type = pathinfo($file_tmp, PATHINFO_EXTENSION);
 	        $data = file_get_contents($file_tmp);
-	        $base64 = 'data:image/' . $file_ext . ';base64,' . base64_encode($data);
+	        $base64_1 =  base64_encode($data);
+			//'data:image/' . $file_ext . ';base64,' .
 	        if (in_array($file_ext, $allowed_ext) === false) {
 		        $errors[] = 'Extension not allowed ' . $file_ext;
 	        }
@@ -262,12 +294,29 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			        echo $error, '<br/>';
 		        }
 	        }
-			if($data == ""){
+			$file_name1 = $_FILES['base64']['name'];
+	        $file_ext1 = strtolower(end(explode('.', $file_name1)));
+	        $file_size1 = $_FILES['base64']['size'];
+	        $file_tmp1 = $_FILES['base64']['tmp_name'];
+	        echo $file_tmp1;
+	        echo "<br>";
+	        $type1 = pathinfo($file_tmp1, PATHINFO_EXTENSION);
+	        $data1 = file_get_contents($file_tmp1);
+						
+			$base64 = "";
+			if($data != ""){
+				$base64 = $base64_1 ;
+			}
+			else if($data1 != ""){
+				$base64 = $data1;
+			}
+			else{
 				$base64 = $_POST["hdnimage"];
 			}
+
 	        $strSQL = "{call dbo.Q4_UpdateFloor(?, ?, ?, ?)}";
 	        $params = array(
-	        	array($fid, SQLSRV_PARAM_IN),
+	        	array($_POST["hdnFloorID"], SQLSRV_PARAM_IN),
 	        	array($_POST["txtEditFloorZ"], SQLSRV_PARAM_IN),
 	        	array($base64, SQLSRV_PARAM_IN),
 	        	array($_POST["txtEditSummary"], SQLSRV_PARAM_IN)
@@ -284,9 +333,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
         //*** Delete Condition ***//  
         if ($_POST["hdnCmd"] == "Delete") {
-	        $strSQL = "{call dbo.Q4_DeleteFloor(?, ?)}";
+	        $strSQL = "{call dbo.Q4_DeleteFloor(?)}";
 	        $params = array(
-	        	array($fid, SQLSRV_PARAM_IN),
 	        	array($_POST["idpass"], SQLSRV_PARAM_IN),
 	        );
 	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
@@ -300,17 +348,66 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
         }
 
         if ($_POST["hdnCmd"] == "Insert") {
+			$errors = array();
+	        $allowed_ext = array('jpg', 'jpeg', 'png', 'gif');
+	        $file_name = $_FILES['imageInsert']['name'];
+	        $file_ext = strtolower(end(explode('.', $file_name)));
+	        $file_size = $_FILES['imageInsert']['size'];
+	        $file_tmp = $_FILES['imageInsert']['tmp_name'];
+	        echo $file_tmp;
+	        echo "<br>";
+	        $type = pathinfo($file_tmp, PATHINFO_EXTENSION);
+	        $data = file_get_contents($file_tmp);
+	        $base64_1 =  base64_encode($data);
+			//'data:image/' . $file_ext . ';base64,' .
+	        if (in_array($file_ext, $allowed_ext) === false) {
+		        $errors[] = 'Extension not allowed ' . $file_ext;
+	        }
+	        if ($file_size > 2097152/2) {
+		        $errors[] = 'File size must be under 1mb';
+	        }
+	        if (empty($errors)) {
+		        if (move_uploaded_file($file_tmp, 'images/' . $file_name))
+			        ; {
+			        echo 'File uploaded';
+		        }
+	        } else {
+		        foreach ($errors as $error) {
+			        echo $error, '<br/>';
+		        }
+	        }
+			$file_name1 = $_FILES['base64Insert']['name'];
+	        $file_ext1 = strtolower(end(explode('.', $file_name1)));
+	        $file_size1 = $_FILES['base64Insert']['size'];
+	        $file_tmp1 = $_FILES['base64Insert']['tmp_name'];
+	        echo $file_tmp1;
+	        echo "<br>";
+	        $type1 = pathinfo($file_tmp1, PATHINFO_EXTENSION);
+	        $data1 = file_get_contents($file_tmp1);
+						
+			$base64 = NULL;
+			if($data != ""){
+				$base64 = $base64_1 ;
+			}
+			else if($data1 != ""){
+				$base64 = $data1;
+			}
+			echo $base64_1;
+			echo $data1;
+
 	        $strSQL = "{call dbo.Q4_InsertFloor(?, ?, ?, ?)}";
 	        $params = array(
 	        	array($fid, SQLSRV_PARAM_IN),
 	        	array($_POST["FloorZ"], SQLSRV_PARAM_IN),
-	        	array($_POST["TopoPlan"], SQLSRV_PARAM_IN),
+	        	array($base64, SQLSRV_PARAM_IN),
 	        	array($_POST["Summary"], SQLSRV_PARAM_IN)
 	        );
 	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	        $objRow = sqlsrv_fetch_array($objQuery);
 	        if (!$objQuery) {
-		        echo "Error Insert [" . sqlsrv_errors() . "]";
+		        echo "Error Insert [";
+			print_r(sqlsrv_errors());
+			echo "]<br/>";
 	        } else {
 		        $url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
 		        echo "<meta http-equiv='refresh' content='0; url=$url'>";
@@ -349,15 +446,12 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			win.document.write('<iframe src="' + a + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
 		}
 		function insertValidation() {
-			var topoplan = f1.TopoPlan.value;
 			var summary = f1.Summary.value;
 
-			if (topoplan.length > 0 && summary.length > 0) {
+			if (summary.length > 0) {
 				return true;
 			}
 			var str = "";
-			if (topoplan.length == 0)
-				str += "TopoPlan is empty\n";
 			if (summary.length == 0)
 				str += "Summary is empty\n";
 			alert(str);
