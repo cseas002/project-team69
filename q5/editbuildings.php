@@ -109,6 +109,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				<input type="text" name="Summary" />
 				<label> Owner: </label>
 				<input type="text" name="BOwner" />
+				<label> Owner: </label>
+				<input type="text" name="BOwner" />
 				<input type="button" class="btn" value="Insert"
 					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
 				<button type="button" class="btn cancel"
@@ -311,14 +313,17 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			array($_POST["BAddress"], SQLSRV_PARAM_IN),
 	    	array($_POST["Summary"], SQLSRV_PARAM_IN),
 	    	array($_POST["BOwner"], SQLSRV_PARAM_IN),
-	    	array($cid, SQLSRV_PARAM_IN)
+	    	array($cid, SQLSRV_PARAM_IN),
+			array($_POST["RegDate"], SQLSRV_PARAM_IN)
 	    );
+		echo $_POST["BLDCode"] . " " . $_POST["BName"] . " " .$_POST["BOwner"]. " ". $cid;
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
 	    if (!$objQuery) {
 		    echo "Error Insert [" . sqlsrv_errors() . "]";
-	    } else
-		    echo "<meta http-equiv='refresh' content='0'>";
+	    } 
+		// else
+		//     echo "<meta http-equiv='refresh' content='0'>";
     }
 
     // $time_end = microtime(true);
