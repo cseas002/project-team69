@@ -109,8 +109,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				<input type="text" name="Summary" />
 				<label> Owner: </label>
 				<input type="text" name="BOwner" />
-				<label> Owner: </label>
-				<input type="text" name="BOwner" />
+				<label> RegDate: </label>
+				<input type="date" name="RegDate" />
 				<input type="button" class="btn" value="Insert"
 					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
 				<button type="button" class="btn cancel"
@@ -126,29 +126,32 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				<input type="hidden" name="fidpass" value="">
 				<table width="100%" border="1">
 					<tr>
-						<th width="10%">
+						<th width="8%">
 							<div align="center">Building ID </div>
 						</th>
-						<th width="10%">
+						<th width="8%">
 							<div align="center">Building Code </div>
 						</th>
-						<th width="10%">
+						<th width="9%">
 							<div align="center">Name</div>
 						</th>
-						<th width="10%">
+						<th width="9%">
 							<div align="center">x</div>
 						</th>
-						<th width="10%">
+						<th width="9%">
 							<div align="center">y</div>
 						</th>
-						<th width="10%">
+						<th width="9%">
 							<div align="center">Address</div>
 						</th>
 						<th width="10%">
 							<div align="center">Summary</div>
 						</th>
-						<th width="10%">
+						<th width="9%">
 							<div align="center">Owner</div>
+						</th>
+						<th width="9%">
+							<div align="center">RegDate</div>
 						</th>
 						<th width="20%" colspan="3">
 							<div align="center">Actions</div>
@@ -195,6 +198,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						<td align="center" style="height:40px;"><input
 								style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
 								name="txtEditBOwner" value="<?= $objResult["BOwner"]; ?>"></td>
+						<td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" maxlength="30" type="date"
+								name="txtEditRegDate" value="<?= $objResult["RegDate"]; ?>"></td>
 						<td colspan="3" align="right">
 							<div align="center">
 								<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update"
@@ -234,6 +240,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						<td align="center">
 							<?= $objResult["BOwner"]; ?>
 						</td>
+						<td align="center">
+							<?= $objResult["RegDate"]; ?>
+						</td>
 						<td align="center" width="8%">
 							<input class="textbtn warning" name="btnEditItems" type="button" id="btnEditItems"
 								value="Edit Floors"
@@ -263,7 +272,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     
     //*** Update Condition ***//  
     if ($_POST["hdnCmd"] == "Update") {
-	    $strSQL = "{call dbo.Q4_EditBuilding(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+	    $strSQL = "{call dbo.Q4_EditBuilding(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 	
 	    $params = array(
 	    	array($_POST["hdnEditBCode"], SQLSRV_PARAM_IN),
@@ -274,7 +283,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			array($_POST["txtEditBAddress"], SQLSRV_PARAM_IN),
 			array($_POST["txtEditSummary"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEditBOwner"], SQLSRV_PARAM_IN),
-	    	array($cid, SQLSRV_PARAM_IN)
+	    	array($cid, SQLSRV_PARAM_IN),
+			array($_POST["txtEditRegDate"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -303,7 +313,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     }
 
     if ($_POST["hdnCmd"] == "Insert") {
-	    $strSQL = "{call dbo.Q4_InsertBuilding(?, ?, ?, ?, ?, ?, ?, ?)}";
+	    $strSQL = "{call dbo.Q4_InsertBuilding(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 	    
 	    $params = array(
 			array($_POST["BLDCode"], SQLSRV_PARAM_IN),
@@ -360,8 +370,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			var baddress = f1.BAddress.value;
 			var bowner = f1.BOwner.value;
 			var summary = f1.Summary.value;
+			var RegDate = f1.RegDate.value;
 
-			if (bname.length > 0 && x.length > 0 && y.length > 0 && baddress.length > 0 && summary.length > 0 && bowner.length>0) {
+			if (bname.length > 0 && x.length > 0 && y.length > 0 && baddress.length > 0 && summary.length > 0 && bowner.length>0 && RegDate.length>0) {
 				return true;
 			}
 			var str = "";
@@ -377,6 +388,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				str += "Summary is empty\n";
 			if (bowner.length == 0)
 				str += "Owner is empty\n";
+			if (RegDate.length == 0)
+				str += "RegDate is empty\n";
 			alert(str);
 			return false;
 		}
@@ -387,8 +400,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			var baddress = frmMain.txtEditBAddress.value;
 			var bowner = frmMain.txtEditBOwner.value;
 			var summary = frmMain.txtEditSummary.value;
+			var RegDate = frmMain.txtEditRegDate.value;
 
-			if (bname.length > 0 && x.length > 0 && y.length > 0 && baddress.length > 0 && summary.length > 0 && bowner.length>0) {
+			if (bname.length > 0 && x.length > 0 && y.length > 0 && baddress.length > 0 && summary.length > 0 && bowner.length>0 && RegDate.length>0) {
 				return true;
 			}
 			var str = "";
@@ -404,6 +418,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				str += "Summary is empty\n";
 			if (bowner.length == 0)
 				str += "Owner is empty\n";
+			if (RegDate.length == 0)
+				str += "RegDate is empty\n";
 			alert(str);
 			return false;
 		}  
