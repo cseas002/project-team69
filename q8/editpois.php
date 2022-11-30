@@ -6,6 +6,7 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	$connectionOptions = $_SESSION["connectionOptions"];
 	$userID = $_SESSION["userID"];
 	$userType = $_SESSION["userType"];
+    $zid = $_GET["zid"];
 
 	if ($userType == '2') {
 ?>
@@ -25,6 +26,17 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 }
 //Establishes the connection
 $conn = sqlsrv_connect($serverName, $connectionOptions);
+
+$strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
+						$params = array(
+							array($zid, SQLSRV_PARAM_IN)
+						);
+						$objQuery1 = sqlsrv_query($conn, $strSQL1, $params);
+						$row = sqlsrv_fetch_array($objQuery1);
+						$FloorZ = $row["FloorZ"];
+						$BName = $row["BName"];
+						$BCode = $row["BCode"];
+						$FloorID = $zid;
             ?>
 
 
@@ -58,23 +70,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
 		<a href="../q4">Query 4</a>
-		<a href="../q5">Query 5</a>
-		<a href="../q6">Query 6</a>
-		<a href="../q7">Query 7</a>
-		<a href="../q8">Query 8</a>
-		<a href="../q9">Query 9</a>
-		<a href="../q10">Query 10</a>
-		<a href="../q11">Query 11</a>
-		<a href="../q12">Query 12</a>
-		<a href="../q13">Query 13</a>
-		<a href="../q14">Query 14</a>
-		<a href="../q15">Query 15</a>
-		<a href="../q16">Query 16</a>
-		<a href="../q17">Query 17</a>
-		<a href="../q18">Query 18</a>
-		<a href="../q19">Query 19</a>
-		<a href="../q20">Query 20</a>
-		<a href="../q21">Query 21</a>
+        <a href="../q4/editbfloors.php?fid=<?=$BCode?>"> - Edit Floors</a>
+        <a href="../q4/editpois.php?zid=<?=$zid?>"> -- Edit POIs</a>
 		<div class="disconnectForm">
 			<?php
             if (isset($_POST['disconnect'])) {
@@ -97,7 +94,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
 				<td vAlign=center align=middle>
-					<h2>Insert / Edit / Delete Fingerprints</h2>
+					<h2>Insert / Edit / Delete POIs on Building <?=$BName;?>, Floor <?=$FloorZ;?> (FloorID: <?=$FloorID;?>)</h2>
+                    <h4>Z is by default = <?=$FloorZ;?></h4>
 				</td>
 			</tr>
 		</table>
@@ -110,28 +108,20 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
 			<form name="f1" method="POST" class="form-container">
 				<input type="hidden" name="hdnCmd" value="">
-				<h2 style="text-align:center;">Insert new fingerprint</h2>
+				<h2 style="text-align:center;">Insert new POI</h2>
+                <h4 style="text-align:center;">Z is by default = <?=$FloorZ;?></h4>
+                <label> Name: </label>
+				<input type="text" name="POIName" />
+                <label> Summary: </label>
+				<input type="text" name="Summary" />
+                <label> Type: </label>
+				<input type="text" name="POIType" />
+                <label> Owner: </label>
+				<input type="text" name="POIOwner" />
 				<label> x: </label>
 				<input type="text" name="x" />
 				<label> y: </label>
 				<input type="text" name="y" />
-				<label> Level: </label>
-				<input type="text" name="z" />
-				<label> Building/Floor: </label>
-				<select name="FloorID" id="FloorID">
-					<option value=''> </option>
-					<?php
-                $strSQL = "{call dbo.Q3_SelectBuildings()}";
-                $objQuery = sqlsrv_query($conn, $strSQL);
-                while ($row = sqlsrv_fetch_array($objQuery)) {
-                ?>
-					<option value='<?= $row["FloorID"] . "?" . $row["FloorZ"] ?>'>
-						<?= $row["BName"] . " - " . $row["FloorZ"] ?>
-					</option>
-					<?php
-                }
-                        ?>
-				</select>
 				<input type="button" class="btn" value="Insert"
 					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
 				<button type="button" class="btn cancel"
@@ -141,84 +131,82 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<hr />
 		<div
 			onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
-			<h2>List of all fingerprints</h2>
-			<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+			<h2>List of all fingerprints on Building <?=$BName;?>, Floor <?=$FloorZ;?></h2>
+            <h4>Z is by default = <?=$FloorZ;?></h4>
+			<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']."?zid=".$zid); ?>">
 				<input type="hidden" name="hdnCmd" value="">
 				<input type="hidden" name="fidpass" value="">
 				<table width="100%" border="1">
 					<tr>
-						<th width="13%">
-							<div align="center">FingerprintID </div>
+						<th width="10%">
+							<div align="center">POIID </div>
 						</th>
-						<th width="13%">
+                        <th width="15%">
+							<div align="center">Name</div>
+						</th>
+                        <th width="15%">
+							<div align="center">Summary</div>
+						</th>
+                        <th width="10%">
+							<div align="center">Type</div>
+						</th>
+                        <th width="10%">
+							<div align="center">Owner</div>
+						</th>
+						<th width="10%">
 							<div align="center">x</div>
 						</th>
-						<th width="13%">
+						<th width="10%">
 							<div align="center">y</div>
 						</th>
-						<th width="13%">
-							<div align="center">Level</div>
-						</th>
-						<th width="13%">
-							<div align="center">Building - Floor</div>
-						</th>
-						<th width="22%" colspan="3">
+						<th width="20%" colspan="2">
 							<div align="center">Actions</div>
 						</th>
 					</tr>
 					<?php
-        $tsql = "EXEC dbo.Q3_SelectFingerprints";
-        $objQuery = sqlsrv_query($conn, $tsql);
+        $tsql = "{CALL dbo.Q4_SelectPOIsOfFloor(?)}";
+        $params = array(
+	    	array($FloorID, SQLSRV_PARAM_IN)
+	    );
+        $objQuery = sqlsrv_query($conn, $tsql, $params);
 
         while ($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC)) {
         ?>
 
 					<?php
-	        if ($objResult["FingerprintID"] == $_GET["id"] and $_GET["Action"] == "Edit") {
+	        if ($objResult["POIID"] == $_GET["id"] and $_GET["Action"] == "Edit") {
         ?>
 					<tr>
 						<td>
-							<div id='row<?= $objResult["FingerprintID"]; ?>' align="center">
-								<?= $objResult["FingerprintID"]; ?>
+							<div id='row<?= $objResult["POIID"]; ?>' align="center">
+								<?= $objResult["POIID"]; ?>
 							</div>
-							<input type="hidden" name="hdnEditFingerprintID" value="<?= $objResult["FingerprintID"]; ?>">
+							<input type="hidden" name="hdnEditPOIID" value="<?= $objResult["POIID"]; ?>">
 						</td>
 						<td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
+								name="txtEditPOIName" value="<?= $objResult["POIName"]; ?>"></td>
+						<td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
+								name="txtEditSummary" value="<?= $objResult["Summary"]; ?>"></td>
+                        <td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
+								name="txtEditPOIType" value="<?= $objResult["POIType"]; ?>"></td>
+						<td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
+								name="txtEditPOIOwner" value="<?= $objResult["POIOwner"]; ?>"></td>
+                        <td align="center" style="height:40px;"><input
 								style="text-align:center; width:100%; height: 100%;" maxlength="30" type="text"
 								name="txtEditx" value="<?= $objResult["x"]; ?>"></td>
 						<td align="center" style="height:40px;"><input
 								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
 								name="txtEdity" value="<?= $objResult["y"]; ?>"></td>
-						<td align="center" style="height:40px;"><input
-								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="text"
-								name="txtEditz" value="<?= $objResult["Level"]; ?>"></td>
-						<td align="center" style="height:40px;">
-							<select name="txtEditFloorID" id="txtEditFloorID">
-								<option value=''> </option>
-								<?php
-		        $strSQL1 = "{call dbo.Q3_SelectBuildings()}";
-		        $objQuery1 = sqlsrv_query($conn, $strSQL1);
-		        while ($row = sqlsrv_fetch_array($objQuery1)) {
-					$FloorZ = $row["FloorZ"];
-					$BName = $row["BName"];
-					$FloorID = $row["FloorID"];
-			        if ($objResult["FloorID"] == $FloorID) {
-				        echo "<option value='" . $FloorID . "?" . $FloorZ . "' selected='selected'>" . $BName . " - " . $FloorZ . "</option>";
-
-			        } else {
-				        echo "<option value='" . $FloorID . "?" . $FloorZ . "'>" . $BName . " - " . $FloorZ . "</option>";
-
-			        }
-		        }
-                ?>
-							</select>
-						</td>
-						<td colspan="3" align="right">
+						<td colspan="2" align="right">
 							<div align="center">
 								<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update"
 									onclick="if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}">
 								<input class="textbtn danger" name="btnAdd" type="button" id="btnCancel" value="Cancel"
-									OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>';">
+									OnClick="window.location='<?= $_SERVER["PHP_SELF"]."?zid=". $zid;?>';">
 							</div>
 						</td>
 					</tr>
@@ -227,9 +215,21 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
         ?>
 					<tr>
 						<td>
-							<div id='row<?= $objResult["FingerprintID"]; ?>' align="center">
-								<?= $objResult["FingerprintID"]; ?>
+							<div id='row<?= $objResult["POIID"]; ?>' align="center">
+								<?= $objResult["POIID"]; ?>
 							</div>
+						</td>
+                        <td align="center">
+							<?= $objResult["POIName"]; ?>
+						</td>
+						<td align="center">
+							<?= $objResult["Summary"]; ?>
+						</td>
+                        <td align="center">
+							<?= $objResult["POIType"]; ?>
+						</td>
+						<td align="center">
+							<?= $objResult["POIOwner"]; ?>
 						</td>
 						<td align="center">
 							<?= $objResult["x"]; ?>
@@ -237,39 +237,13 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						<td align="center">
 							<?= $objResult["y"]; ?>
 						</td>
-						<td align="center">
-							<?= $objResult["Level"]; ?>
-						</td>
-						<?php
-						$FloorLabel = '';
-						if($objResult["FloorID"] != ''){
-						$strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
-						$params = array(
-							array($objResult["FloorID"], SQLSRV_PARAM_IN)
-						);
-						$objQuery1 = sqlsrv_query($conn, $strSQL1, $params);
-						$row = sqlsrv_fetch_array($objQuery1);
-						$FloorZ = $row["FloorZ"];
-						$BName = $row["BName"];
-						$FloorID = $row["FloorID"];
-						$FloorLabel = $BName . " - " . $FloorZ;
-						}
-						?>
-						<td align="center">
-							<?= $FloorLabel; ?>
-						</td>
-						<td align="center" width="8%">
-							<input class="textbtn warning" name="btnEditItems" type="button" id="btnEditItems"
-								value="Edit Items"
-								OnClick="window.location='edititems.php?fid=<?= $objResult["FingerprintID"]; ?>';">
-						</td>
-						<td align="center" width="7%">
+						<td align="center" width="10%">
 							<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit"
-								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?Action=Edit&id=<?= $objResult["FingerprintID"]; ?>#row<?= $objResult["FingerprintID"]; ?>';">
+								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?zid=<?=$zid?>&Action=Edit&id=<?= $objResult["POIID"]; ?>#row<?= $objResult["POIID"]; ?>';">
 						</td>
-						<td align="center" width="7%">
+						<td align="center" width="10%">
 							<input class="textbtn danger" name="btnDelete" type="button" id="btnChange" value="Delete"
-								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.fidpass.value='<?= $objResult["FingerprintID"] ?>';frmMain.submit();}">
+								OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.fidpass.value='<?= $objResult["POIID"] ?>';frmMain.submit();}">
 						</td>
 					</tr>
 					<?php
@@ -287,24 +261,16 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     
     //*** Update Condition ***//  
     if ($_POST["hdnCmd"] == "Update") {
-	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?)}";
-
-		$fz = $_POST["txtEditz"];
-		$flid = NULL;
-		if($_POST["txtEditFloorID"] != ''){
-			$array = explode("?", $_POST["txtEditFloorID"]);
-			$fz = $array[1];
-			$flid = $array[0];
-		}
-
-		echo $flid . " " . $fz;
-
+	    $strSQL = "{call dbo.Q4_EditPOI(?, ?, ?, ?, ?, ?, ?, ?)}";
 	    $params = array(
-	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
-	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
+	    	array($_POST["hdnEditPOIID"], SQLSRV_PARAM_IN),
+	    	array($_POST["txtEditPOIName"], SQLSRV_PARAM_IN),
+	    	array($_POST["txtEditSummary"], SQLSRV_PARAM_IN),
+            array($_POST["txtEditPOIType"], SQLSRV_PARAM_IN),
+	    	array($_POST["txtEditPOIOwner"], SQLSRV_PARAM_IN),
+            array($_POST["txtEditx"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
-			array($fz, SQLSRV_PARAM_IN),
-	    	array($flid, SQLSRV_PARAM_IN)
+	    	array($FloorID, SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -312,14 +278,13 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			echo "Error Update [";
 			print_r(sqlsrv_errors());
 			echo "]<br/>";
-	    } 
-		else
+	    } else
 		    echo "<meta http-equiv='refresh' content='0'>";
     }
 
     //*** Delete Condition ***//  
     if ($_POST["hdnCmd"] == "Delete") {
-	    $strSQL = "{call dbo.Q3_DeleteFingerprint(?)}";
+	    $strSQL = "{call dbo.Q4_DeletePOI(?)}";
 	    $params = array(
 	    	array($_POST["fidpass"], SQLSRV_PARAM_IN)
 	    );
@@ -334,21 +299,15 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
     }
 
     if ($_POST["hdnCmd"] == "Insert") {
-	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?)}";
-
-		$fz = $_POST["z"];
-		$flid = NULL;
-		if($_POST["FloorID"] != ''){
-			$array = explode("?", $_POST["FloorID"]);
-			$fz = $array[1];
-			$flid = $array[0];
-		}
-		
+	    $strSQL = "{call dbo.Q4_InsertPOI(?, ?, ?, ?, ?, ?, ?)}";
 	    $params = array(
-	    	array($_POST["x"], SQLSRV_PARAM_IN),
+	    	array($_POST["POIName"], SQLSRV_PARAM_IN),
+	    	array($_POST["Summary"], SQLSRV_PARAM_IN),
+            array($_POST["POIType"], SQLSRV_PARAM_IN),
+	    	array($_POST["POIOwner"], SQLSRV_PARAM_IN),
+            array($_POST["x"], SQLSRV_PARAM_IN),
 	    	array($_POST["y"], SQLSRV_PARAM_IN),
-	    	array($fz, SQLSRV_PARAM_IN),
-			array($flid, SQLSRV_PARAM_IN)
+	    	array($FloorID, SQLSRV_PARAM_IN),
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -386,58 +345,50 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 	<script>
 		function insertValidation() {
+            var name = f1.POIName.value;
+			var summary = f1.Summary.value;
+            var type = f1.POIType.value;
 			var x = f1.x.value;
 			var y = f1.y.value;
-			var z = f1.z.value;
 
-			var building = f1.FloorID.value;
-
-			if(z.length == 0){
-				const myArray = z.split("?");
-				f1.z.value = myArray[0];
-				f1.FloorID.value = myArray[1];
-				z = myArray[0];
-				building = myArray[1];
-			}
-
-			if (x.length > 0 && y.length > 0 && z.length > 0) {
+			if (x.length > 0 && y.length > 0 && name.length>0 && summary.length>0 && type.length>0) {
 				return true;
 			}
 			var str = "";
-			if (x.length == 0)
+			if (name.length == 0)
+				str += "Name is empty\n";
+			if (summary.length == 0)
+				str += "Summary is empty\n";
+            if (type.length == 0)
+				str += "Type is empty\n";
+            if (x.length == 0)
 				str += "x is empty\n";
 			if (y.length == 0)
 				str += "y is empty\n";
-			if (z.length == 0)
-				str += "z is empty\n";
 			alert(str);
 			return false;
 		}
 		function updateValidation() {
+			var name = frmMain.txtEditPOIName.value;
+			var summary = frmMain.txtEditSummary.value;
+            var type = frmMain.txtEditPOIType.value;
 			var x = frmMain.txtEditx.value;
 			var y = frmMain.txtEdity.value;
-			var z = frmMain.txtEditz.value;
 
-			var building = frmMain.txtEditFloorID.value;
-
-			if(z.length == 0){
-				const myArray = z.split("?");
-				frmMain.txtEditz.value = myArray[0];
-				frmMain.txtEditFloorID.value = myArray[1];
-				z = myArray[0];
-				building = myArray[1];
-			}
-
-			if (x.length > 0 && y.length > 0 && z.length > 0) {
+			if (x.length > 0 && y.length > 0 && name.length>0 && summary.length>0 && type.length>0) {
 				return true;
 			}
 			var str = "";
-			if (x.length == 0)
+			if (name.length == 0)
+				str += "Name is empty\n";
+			if (summary.length == 0)
+				str += "Summary is empty\n";
+            if (type.length == 0)
+				str += "Type is empty\n";
+            if (x.length == 0)
 				str += "x is empty\n";
 			if (y.length == 0)
 				str += "y is empty\n";
-			if (z.length == 0)
-				str += "z is empty\n";
 			alert(str);
 			return false;
 		}  
