@@ -6,6 +6,9 @@ DROP TABLE [dbo].POI
 DROP TABLE [dbo].BFLOOR 
 DROP TABLE [dbo].BUILDING 
 DROP TABLE [dbo].CAMPUS 
+DROP TABLE [dbo].FValid
+DROP TABLE [dbo].FPassed
+DROP TABLE [dbo].UserID
 
 CREATE TABLE [dbo].USERS
 (
@@ -33,7 +36,7 @@ CREATE TABLE [dbo].TYPES
   Model NVARCHAR(30) NOT NULL CHECK (Model != ''),
   UserAdded INT,
   UserModified INT,
-  Date_Added DATE,
+  Date_Added DATE DEFAULT GETDATE(),
   Date_Modified DATE,
   CONSTRAINT TYPES_PK PRIMARY KEY (TypeID),
   CONSTRAINT TYPES_UQ_Title_Model Unique (Title,Model),
@@ -49,7 +52,7 @@ CREATE TABLE [dbo].CAMPUS
   RegDate DATE NOT NULL,
   UserAdded INT,
   UserModified INT,
-  Date_Added DATE,
+  Date_Added DATE DEFAULT GETDATE(),
   Date_Modified DATE,
   Website NVARCHAR(2083) NOT NULL CHECK (Website != ''), -- Maximum URL length
   CONSTRAINT CAMPUS_PK PRIMARY KEY (CampusID),
@@ -71,7 +74,7 @@ CREATE TABLE [dbo].BUILDING
   RegDate DATE NOT NULL,
   UserAdded INT,
   UserModified INT,
-  Date_Added DATE,
+  Date_Added DATE DEFAULT GETDATE(),
   Date_Modified DATE,
   CampusID INT, -- This is the foreign key, which might be null 
   CONSTRAINT BUILDING_PK PRIMARY KEY (BCode),
@@ -90,7 +93,7 @@ CREATE TABLE [dbo].BFLOOR
   BCode INT NOT NULL,
   UserAdded INT,
   UserModified INT,
-  Date_Added DATE,
+  Date_Added DATE DEFAULT GETDATE(),
   Date_Modified DATE,
   CONSTRAINT FLOOR_PK UNIQUE (FloorID),
   CONSTRAINT FLOOR_U_BCode_FloorZ UNIQUE (FloorZ, BCode),
@@ -111,7 +114,7 @@ CREATE TABLE [dbo].POI
   POIType NVARCHAR(30) NOT NULL CHECK (POIType != ''),
   UserAdded INT,
   UserModified INT,
-  Date_Added DATE,
+  Date_Added DATE DEFAULT GETDATE(),
   Date_Modified DATE,
   CONSTRAINT POI_PK PRIMARY KEY (POIID),
   CONSTRAINT POI_FK_FloorID FOREIGN KEY (FloorID) REFERENCES [dbo].BFLOOR(FloorID) ON UPDATE CASCADE,
@@ -122,7 +125,7 @@ CREATE TABLE [dbo].POI
 CREATE TABLE [dbo].FINGERPRINT
 (
   FingerprintID INT IDENTITY(1, 1) NOT NULL,
-  Date_Added DATE,
+  Date_Added DATE DEFAULT GETDATE(),
   Date_Modified DATE,
   x DECIMAL(15, 12) NOT NULL,
   y DECIMAL(15, 12) NOT NULL,
@@ -147,7 +150,7 @@ CREATE TABLE [dbo].ITEM
   IDescription NVARCHAR(50) NOT NULL,
   UserAdded INT,
   UserModified INT, 
-  Date_Added DATE,
+  Date_Added DATE DEFAULT GETDATE(),
   Date_Modified DATE,
   CONSTRAINT ITEM_PK PRIMARY KEY (ItemID),
   CONSTRAINT ITEM_FK_TypeID FOREIGN KEY (TypeID) REFERENCES [dbo].TYPES(TypeID) ON UPDATE CASCADE,
@@ -165,134 +168,4 @@ CREATE NONCLUSTERED INDEX FINGERPRINT_ON_ITEM ON dbo.ITEM (FingerprintID);  -- F
 GO
 -- TEST USER gchora01 1234
 
---INSERT INTO dbo.USERS(FName, LName, Date_of_Birth, Gender, Username, UPassword, UserType) VALUES ('Pampos', 'Pampou', '2001-01-01', 'O', 'gchora01', '1234', 1),
-
--- TRIGGERS
-
-CREATE TRIGGER dbo.Restrict_Item_Deletion ON dbo.ITEM FOR DELETE AS
-BEGIN
-	SET NOCOUNT ON
-	BEGIN TRANSACTION 
-
-	DECLARE @countF INT
-	DECLARE @countFinI INT
-
-	SET @countF = (SELECT COUNT(f.FingerprintID) FROM dbo.FINGERPRINT f)
-	SET @countFinI = (SELECT COUNT(DISTINCT(i.FingerprintID)) FROM dbo.ITEM i WHERE i.ItemID NOT IN (SELECT ItemID FROM deleted))
-
-	PRINT @countF
-	PRINT @countFinI
-
-	IF @countF - @countFinI > 0
-    BEGIN 
-      ROLLBACK TRANSACTION 
-      PRINT 'This deletion leaves a fingerprint without any items'
-    END
-  ELSE
-    BEGIN
-      COMMIT TRANSACTION 
-    END
-END
-GO
-
-CREATE TRIGGER dbo.Items_Insert ON dbo.ITEM AFTER INSERT AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.ITEM SET UserAdded = @user WHERE UserAdded IS NULL 
-  UPDATE dbo.ITEM SET Date_Added = GETDATE() WHERE Date_Added IS NULL   
- END
- GO
-CREATE TRIGGER dbo.Items_Update ON dbo.ITEM AFTER UPDATE AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.ITEM SET UserModified = @user, Date_Modified = GETDATE() WHERE ItemID IN (SELECT ItemID FROM inserted) 
- END
- GO
- CREATE TRIGGER dbo.BFLOOR_Insert ON dbo.BFLOOR AFTER INSERT AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.BFLOOR SET UserAdded = @user WHERE UserAdded IS NULL  
-  UPDATE dbo.BFLOOR SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
- END
- GO
-CREATE TRIGGER dbo.BFLOOR_Update ON dbo.BFLOOR AFTER UPDATE AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.BFLOOR SET UserModified = @user, Date_Modified = GETDATE() WHERE BCode IN (SELECT BCode FROM inserted) 
- END
- GO
- CREATE TRIGGER dbo.CAMPUS_Insert ON dbo.CAMPUS AFTER INSERT AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.CAMPUS SET UserAdded = @user WHERE UserAdded IS NULL  
-  UPDATE dbo.CAMPUS SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
- END
- GO
-CREATE TRIGGER dbo.CAMPUS_Update ON dbo.CAMPUS AFTER UPDATE AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.CAMPUS SET UserModified = @user, Date_Modified = GETDATE() WHERE CampusID IN (SELECT CampusID FROM inserted) 
- END
- GO
- CREATE TRIGGER dbo.FINGERPRINT_Insert ON dbo.FINGERPRINT AFTER INSERT AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.FINGERPRINT  SET UserAdded = @user WHERE UserAdded IS NULL  
-  UPDATE dbo.FINGERPRINT  SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
- END
- GO
-CREATE TRIGGER dbo.FINGERPRINT_Update ON dbo.FINGERPRINT  AFTER UPDATE AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.FINGERPRINT  SET UserModified = @user, Date_Modified = GETDATE() WHERE FingerprintID  IN (SELECT FingerprintID  FROM inserted) 
- END
- GO
- CREATE TRIGGER dbo.POI_Insert ON dbo.POI AFTER INSERT AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.POI  SET UserAdded = @user WHERE UserAdded IS NULL  
-  UPDATE dbo.POI  SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
- END
- GO
-CREATE TRIGGER dbo.POI_Update ON dbo.POI  AFTER UPDATE AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.POI  SET UserModified = @user, Date_Modified = GETDATE() WHERE POIID  IN (SELECT POIID  FROM inserted) 
- END
- GO
- CREATE TRIGGER dbo.TYPES_Insert ON dbo.TYPES AFTER INSERT AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.TYPES  SET UserAdded = @user WHERE UserAdded IS NULL  
-  UPDATE dbo.TYPES  SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
- END
- GO
-CREATE TRIGGER dbo.TYPES_Update ON dbo.TYPES  AFTER UPDATE AS
-BEGIN
-  DECLARE @user INT;
-  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
-
-  UPDATE dbo.TYPES  SET UserModified = @user, Date_Modified = GETDATE() WHERE TypeID  IN (SELECT TypeID  FROM inserted) 
- END
+--INSERT INTO dbo.USERS(FName, LName, Date_of_Birth, Gender, Username, UPassword, UserType) VALUES ('Pampos', 'Pampou', '2001-01-01', 'O', 'gchora01', '1234', 1)

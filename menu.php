@@ -52,13 +52,7 @@
     </table>
 	<style>
 
-body {
-  background-image: url("./images/UCY_lib.jpg");
-  background-repeat: no-repeat; 
-  background-attachment: fixed;
-  background-size: cover;
-  background-blend-mode: overlay;
-}
+
 
 </style>
 	
