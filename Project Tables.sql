@@ -185,7 +185,8 @@ BEGIN
   DECLARE @user INT;
   SET @user = (SELECT TOP 1 * FROM dbo.UserID)
 
-  UPDATE dbo.ITEM SET UserAdded = @user, Date_Added = GETDATE() WHERE UserAdded IS NULL  
+  UPDATE dbo.ITEM SET UserAdded = @user WHERE UserAdded IS NULL 
+  UPDATE dbo.ITEM SET Date_Added = GETDATE() WHERE Date_Added IS NULL   
  END
 
 CREATE TRIGGER dbo.Items_Update ON dbo.ITEM AFTER UPDATE AS
@@ -201,7 +202,8 @@ BEGIN
   DECLARE @user INT;
   SET @user = (SELECT TOP 1 * FROM dbo.UserID)
 
-  UPDATE dbo.BFLOOR SET UserAdded = @user, Date_Added = GETDATE() WHERE UserAdded IS NULL  
+  UPDATE dbo.BFLOOR SET UserAdded = @user WHERE UserAdded IS NULL  
+  UPDATE dbo.BFLOOR SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
  END
  
 CREATE TRIGGER dbo.BFLOOR_Update ON dbo.BFLOOR AFTER UPDATE AS
@@ -217,7 +219,8 @@ BEGIN
   DECLARE @user INT;
   SET @user = (SELECT TOP 1 * FROM dbo.UserID)
 
-  UPDATE dbo.CAMPUS SET UserAdded = @user, Date_Added = GETDATE() WHERE UserAdded IS NULL  
+  UPDATE dbo.CAMPUS SET UserAdded = @user WHERE UserAdded IS NULL  
+  UPDATE dbo.CAMPUS SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
  END
  
 CREATE TRIGGER dbo.CAMPUS_Update ON dbo.CAMPUS AFTER UPDATE AS
@@ -233,7 +236,8 @@ BEGIN
   DECLARE @user INT;
   SET @user = (SELECT TOP 1 * FROM dbo.UserID)
 
-  UPDATE dbo.FINGERPRINT  SET UserAdded = @user, Date_Added = GETDATE() WHERE UserAdded IS NULL  
+  UPDATE dbo.FINGERPRINT  SET UserAdded = @user WHERE UserAdded IS NULL  
+  UPDATE dbo.FINGERPRINT  SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
  END
  
 CREATE TRIGGER dbo.FINGERPRINT_Update ON dbo.FINGERPRINT  AFTER UPDATE AS
@@ -249,7 +253,8 @@ BEGIN
   DECLARE @user INT;
   SET @user = (SELECT TOP 1 * FROM dbo.UserID)
 
-  UPDATE dbo.POI  SET UserAdded = @user, Date_Added = GETDATE() WHERE UserAdded IS NULL  
+  UPDATE dbo.POI  SET UserAdded = @user WHERE UserAdded IS NULL  
+  UPDATE dbo.POI  SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
  END
  
 CREATE TRIGGER dbo.POI_Update ON dbo.POI  AFTER UPDATE AS
@@ -265,7 +270,8 @@ BEGIN
   DECLARE @user INT;
   SET @user = (SELECT TOP 1 * FROM dbo.UserID)
 
-  UPDATE dbo.TYPES  SET UserAdded = @user, Date_Added = GETDATE() WHERE UserAdded IS NULL  
+  UPDATE dbo.TYPES  SET UserAdded = @user WHERE UserAdded IS NULL  
+  UPDATE dbo.TYPES  SET Date_Added = GETDATE() WHERE Date_Added IS NULL  
  END
  
 CREATE TRIGGER dbo.TYPES_Update ON dbo.TYPES  AFTER UPDATE AS
