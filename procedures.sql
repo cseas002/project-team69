@@ -586,15 +586,16 @@ HAVING COUNT(DISTINCT i.FingerprintID) =
 				FROM dbo.ITEM i2
 				GROUP BY i2.TypeID) AS Fing_amt)
 END;
-
+--change from previous check again for sure
 CREATE PROCEDURE dbo.Q8
 AS
 BEGIN
 	SELECT b.BCode AS Building, b.FloorZ AS [Floor in Building], COUNT(p.POIType) AS [POI Amount]
 	FROM dbo.BFLOOR b , dbo.POI p 
-	WHERE p.FloorID = b.FloorID 
+	WHERE p.FloorID = b.FloorID
 	GROUP BY b.BCode , b.FloorZ
 END;
+
 
 CREATE PROCEDURE dbo.Q9
 AS 
