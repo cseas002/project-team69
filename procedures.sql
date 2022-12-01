@@ -220,17 +220,17 @@ FROM dbo.FINGERPRINT);
 
 CREATE PROCEDURE dbo.Q16
 @TypeID INT,
-@x1 DECIMAL(11,8),
-@y1 DECIMAL(11,8),
-@x2 DECIMAL(11,8),
-@y2 DECIMAL(11,8)
+@x1 DECIMAL(15,12),
+@y1 DECIMAL(15,12),
+@x2 DECIMAL(15,12),
+@y2 DECIMAL(15,12)
 AS
 SELECT *
 FROM dbo.ITEM AS I
 WHERE I.TypeID=@TypeID AND I.FingerprintID IN (
 	SELECT F.FingerprintID
 	FROM dbo.FINGERPRINT AS F
-	WHERE ((F.x>@x1 AND F.x<@x2)OR(F.x<@x1 AND F.x>@x2)) AND ((F.y>@y1 AND F.y<@y2)OR(F.y<@y1 AND F.y>@y2))
+	WHERE ((F.x>=@x1 AND F.x=<@x2)OR(F.x=<@x1 AND F.x>=@x2)) AND ((F.y>=@y1 AND F.y=<@y2)OR(F.y=<@y1 AND F.y>=@y2))
 );
 
 CREATE PROCEDURE dbo.Q17
