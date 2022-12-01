@@ -1,0 +1,17 @@
+CREATE FUNCTION dbo.DISTANCE(@x1 DECIMAL(11, 8), @y1 DECIMAL(11, 8), @z1 int, @x2 DECIMAL(11, 8), @y2 DECIMAL(11, 8), @z2 int)
+RETURNS DECIMAL(11, 8)
+AS
+BEGIN
+	DECLARE @distance DECIMAL(11, 8)
+	SET @distance =  SQRT(POWER(@x2 - @x1, 2) + POWER(@y2 - @y1, 2) + POWER(@z2 - @z1, 2))
+	RETURN @distance
+END;
+
+CREATE FUNCTION dbo.DISTANCE2D(@x1 DECIMAL(11, 8), @y1 DECIMAL(11, 8), @x2 DECIMAL(11, 8), @y2 DECIMAL(11, 8))
+RETURNS DECIMAL(11, 8)
+AS
+BEGIN
+	DECLARE @distance DECIMAL(11, 8)
+	SET @distance =  SQRT(POWER(@x2 - @x1, 2) + POWER(@y2 - @y1, 2))
+	RETURN @distance
+END;

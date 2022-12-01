@@ -5,9 +5,12 @@ BEGIN
 	DECLARE @countF INT
 	DECLARE @countFinI INT
 
-	SET @countF = (SELECT COUNT(f.FingerprintID) FROM dbo.FINGERPRINT f)
+	SET @countF = (SELECT COUNT(f.FingerprintID) FROM dbo.FINGERPRINT f WHERE f.FingerprintID IN 
+	(SELECT i2.FingerprintID FROM dbo.ITEM i2))
+	-- All the fingerprints that have at least one item before deletion
 	SET @countFinI = (SELECT COUNT(DISTINCT(i.FingerprintID)) FROM dbo.ITEM i WHERE i.ItemID NOT IN (SELECT ItemID FROM deleted))
-
+	-- All the fingerprints that have at least one item after deletion
+	
 	PRINT @countF
 	PRINT @countFinI
 
@@ -15,8 +18,9 @@ BEGIN
 	BEGIN
       PRINT 'This deletion leaves a fingerprint without any items'
       ROLLBACK
-  END
-END
+     END
+END;
+
 GO
 
 CREATE TRIGGER dbo.Items_Insert ON dbo.ITEM AFTER INSERT AS
