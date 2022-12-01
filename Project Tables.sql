@@ -10,6 +10,15 @@ DROP TABLE [dbo].FValid
 DROP TABLE [dbo].FPassed
 DROP TABLE [dbo].UserID
 
+CREATE TABLE cseas002.dbo.FPassed (
+	f int NULL
+);
+
+CREATE TABLE cseas002.dbo.FValid (
+	f1 int NULL,
+	f2 int NULL
+);
+
 CREATE TABLE [dbo].USERS
 (
   UserID INT IDENTITY (1,1) NOT NULL,
