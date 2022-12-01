@@ -205,7 +205,6 @@ BEGIN
 	--#FingerprintsCombinations has the possible fingerprints who have the same types
 	
 	SELECT * FROM #FingerprintsCombinations 
-	
 	EXCEPT (
 	SELECT f1, f2
 	FROM #FingerprintsCombinations fc, dbo.TYPES t
@@ -213,9 +212,9 @@ BEGIN
 	-- There is an item of that type that belongs to f1 
 	AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2)
 	-- But there is not an item of that type that belongs to f2
-	OR	EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2) 
+	-- OR	EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2) 
 	-- There is an item of that type that belongs to f2 
-	AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1)
+	-- AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1)
 	-- But there is not an item of that type that belongs to f1
 	) 
 END
