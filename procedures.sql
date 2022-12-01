@@ -8,7 +8,6 @@ CREATE PROCEDURE [dbo].[Q1_Advanced_Select]
 @UserType [nvarchar](1)
 AS
 BEGIN
-	DECLARE @UserIDCheck nvarchar(20) 
 	IF @UserID = 0 -- empty
 		IF @Date_of_Birth = ''
 		SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType
