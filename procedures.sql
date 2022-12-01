@@ -218,7 +218,7 @@ GROUP BY I.TypeID, T.Title, T.Model
 HAVING COUNT(DISTINCT FingerprintID) = (SELECT COUNT(*)
 FROM dbo.FINGERPRINT);
 
-ALTER PROCEDURE dbo.Q16
+CREATE PROCEDURE dbo.Q16
 @TypeID INT,
 @x1 DECIMAL(15,12),
 @y1 DECIMAL(15,12),
@@ -230,8 +230,9 @@ FROM dbo.ITEM AS I
 WHERE I.TypeID=@TypeID AND I.FingerprintID IN (
 	SELECT F.FingerprintID
 	FROM dbo.FINGERPRINT AS F
-	WHERE F.x BETWEEN @x1 AND @x2 AND F.y BETWEEN @y1 AND @y2--((F.x>=@x1 AND F.x<=@x2)OR(F.x<=@x1 AND F.x>=@x2)) AND ((F.y>=@y1 AND F.y<=@y2)OR(F.y<=@y1 AND F.y>=@y2))
+	WHERE (F.x BETWEEN @x1 AND @x2 )AND (F.y BETWEEN @y1 AND @y2)--((F.x>=@x1 AND F.x<=@x2)OR(F.x<=@x1 AND F.x>=@x2)) AND ((F.y>=@y1 AND F.y<=@y2)OR(F.y<=@y1 AND F.y>=@y2))
 );
+
 
 CREATE PROCEDURE dbo.Q17
 @BCode INT
