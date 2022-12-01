@@ -58,6 +58,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<a href="../q1">Query 1</a>
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
+		<a href="../q3/edititems.php?fid=<?=$fid?>"> - Edit Items</a>
 		<a href="../q4">Query 4</a>
 		<a href="../q5">Query 5</a>
 		<a href="../q6">Query 6</a>

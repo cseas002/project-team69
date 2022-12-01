@@ -25,6 +25,87 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 }
 //Establishes the connection
 $conn = sqlsrv_connect($serverName, $connectionOptions);
+
+
+    //*** Update Condition ***//  
+    if ($_POST["hdnCmd"] == "Update") {
+	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?, ?)}";
+
+		$fz = $_POST["txtEditz"];
+		$flid = NULL;
+		if($_POST["txtEditFloorID"] != ''){
+			$array = explode("?", $_POST["txtEditFloorID"]);
+			$fz = $array[1];
+			$flid = $array[0];
+		}
+
+		
+		$timeNew = $_POST["txtEditRegDate"].":00";
+		//echo $_POST["hdnEditFingerprintID"] . " " . $_POST["txtEditx"] ." " .  $_POST["txtEdity"] . " ".$fz. " ". $flid . " ". $timeNew;
+
+	    $params = array(
+	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
+	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
+	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
+			array($fz, SQLSRV_PARAM_IN),
+	    	array($flid, SQLSRV_PARAM_IN),
+			array($timeNew, SQLSRV_PARAM_IN)
+	    );
+	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
+	    $objRow = sqlsrv_fetch_array($objQuery);
+	    if (!$objQuery) {
+			echo "Error Update [";
+			print_r(sqlsrv_errors());
+			echo "]<br/>";
+	    } 
+		else
+		    echo "<meta http-equiv='refresh' content='0'>";
+    }
+
+    //*** Delete Condition ***//  
+    if ($_POST["hdnCmd"] == "Delete") {
+	    $strSQL = "{call dbo.Q3_DeleteFingerprint(?)}";
+	    $params = array(
+	    	array($_POST["fidpass"], SQLSRV_PARAM_IN)
+	    );
+	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
+	    $objRow = sqlsrv_fetch_array($objQuery);
+	    if (!$objQuery) {
+		    echo "Error Delete [";
+			print_r(sqlsrv_errors());
+			echo "]<br/>";
+	    } else
+		    echo "<meta http-equiv='refresh' content='0'>";
+    }
+
+    if ($_POST["hdnCmd"] == "Insert") {
+	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?, ?)}";
+
+		$fz = $_POST["z"];
+		$flid = NULL;
+		if($_POST["FloorID"] != ''){
+			$array = explode("?", $_POST["FloorID"]);
+			$fz = $array[1];
+			$flid = $array[0];
+		}
+		
+		$timeNew = $_POST["RegDate"].":00";
+
+	    $params = array(
+	    	array($_POST["x"], SQLSRV_PARAM_IN),
+	    	array($_POST["y"], SQLSRV_PARAM_IN),
+	    	array($fz, SQLSRV_PARAM_IN),
+			array($flid, SQLSRV_PARAM_IN),
+			array($timeNew, SQLSRV_PARAM_IN)
+	    );
+	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
+	    $objRow = sqlsrv_fetch_array($objQuery);
+	    if (!$objQuery) {
+		    echo "Error Insert [" . sqlsrv_errors() . "]";
+	    } 
+		else
+		    echo "<meta http-equiv='refresh' content='0'>";
+    }
             ?>
 
 
@@ -132,6 +213,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
                 }
                         ?>
 				</select>
+				<label> RegDate: </label>
+				<input type="datetime-local" name="RegDate" />
 				<input type="button" class="btn" value="Insert"
 					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
 				<button type="button" class="btn cancel"
@@ -161,6 +244,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						</th>
 						<th width="13%">
 							<div align="center">Building - Floor</div>
+						</th>
+						<th width="13%">
+							<div align="center">RegDate</div>
 						</th>
 						<th width="22%" colspan="3">
 							<div align="center">Actions</div>
@@ -213,6 +299,10 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
                 ?>
 							</select>
 						</td>
+						<td align="center" style="height:40px;"><input
+								style="text-align:center; width:100%; height: 100%;" type="datetime-local"
+								name="txtEditRegDate" value="<?=date("Y-m-d\TH:i:s", strtotime($objResult['RegDate']));?>"></td>
+						
 						<td colspan="3" align="right">
 							<div align="center">
 								<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update"
@@ -258,6 +348,9 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 						<td align="center">
 							<?= $FloorLabel; ?>
 						</td>
+						<td align="center">
+							<?= $objResult["RegDate"]; ?>
+						</td>
 						<td align="center" width="8%">
 							<input class="textbtn warning" name="btnEditItems" type="button" id="btnEditItems"
 								value="Edit Items"
@@ -283,82 +376,6 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		</div>
 
 		<?php
-    // $time_start = microtime(true);
-    
-    //*** Update Condition ***//  
-    if ($_POST["hdnCmd"] == "Update") {
-	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?)}";
-
-		$fz = $_POST["txtEditz"];
-		$flid = NULL;
-		if($_POST["txtEditFloorID"] != ''){
-			$array = explode("?", $_POST["txtEditFloorID"]);
-			$fz = $array[1];
-			$flid = $array[0];
-		}
-
-		echo $flid . " " . $fz;
-
-	    $params = array(
-	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
-	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
-	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
-			array($fz, SQLSRV_PARAM_IN),
-	    	array($flid, SQLSRV_PARAM_IN)
-	    );
-	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	    $objRow = sqlsrv_fetch_array($objQuery);
-	    if (!$objQuery) {
-			echo "Error Update [";
-			print_r(sqlsrv_errors());
-			echo "]<br/>";
-	    } 
-		else
-		    echo "<meta http-equiv='refresh' content='0'>";
-    }
-
-    //*** Delete Condition ***//  
-    if ($_POST["hdnCmd"] == "Delete") {
-	    $strSQL = "{call dbo.Q3_DeleteFingerprint(?)}";
-	    $params = array(
-	    	array($_POST["fidpass"], SQLSRV_PARAM_IN)
-	    );
-	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	    $objRow = sqlsrv_fetch_array($objQuery);
-	    if (!$objQuery) {
-		    echo "Error Delete [";
-			print_r(sqlsrv_errors());
-			echo "]<br/>";
-	    } else
-		    echo "<meta http-equiv='refresh' content='0'>";
-    }
-
-    if ($_POST["hdnCmd"] == "Insert") {
-	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?)}";
-
-		$fz = $_POST["z"];
-		$flid = NULL;
-		if($_POST["FloorID"] != ''){
-			$array = explode("?", $_POST["FloorID"]);
-			$fz = $array[1];
-			$flid = $array[0];
-		}
-		
-	    $params = array(
-	    	array($_POST["x"], SQLSRV_PARAM_IN),
-	    	array($_POST["y"], SQLSRV_PARAM_IN),
-	    	array($fz, SQLSRV_PARAM_IN),
-			array($flid, SQLSRV_PARAM_IN)
-	    );
-	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	    $objRow = sqlsrv_fetch_array($objQuery);
-	    if (!$objQuery) {
-		    echo "Error Insert [" . sqlsrv_errors() . "]";
-	    } else
-		    echo "<meta http-equiv='refresh' content='0'>";
-    }
-
-    // $time_end = microtime(true);
     
     $userTypes = array("System Admin", "Functions Admin", "Simple User");
     echo "Connecting to SQL server (" . $serverName . ")<br/>";
@@ -389,6 +406,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			var x = f1.x.value;
 			var y = f1.y.value;
 			var z = f1.z.value;
+			var RegDate = f1.RegDate.value;
 
 			var building = f1.FloorID.value;
 
@@ -400,7 +418,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				building = myArray[1];
 			}
 
-			if (x.length > 0 && y.length > 0 && z.length > 0) {
+			if (x.length > 0 && y.length > 0 && z.length > 0 && RegDate.length>0) {
 				return true;
 			}
 			var str = "";
@@ -410,6 +428,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				str += "y is empty\n";
 			if (z.length == 0)
 				str += "z is empty\n";
+			if (RegDate.length == 0)
+				str += "RegDate is empty\n";
 			alert(str);
 			return false;
 		}
@@ -417,6 +437,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			var x = frmMain.txtEditx.value;
 			var y = frmMain.txtEdity.value;
 			var z = frmMain.txtEditz.value;
+			var RegDate = frmMain.txtEditRegDate.value;
 
 			var building = frmMain.txtEditFloorID.value;
 
@@ -428,7 +449,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				building = myArray[1];
 			}
 
-			if (x.length > 0 && y.length > 0 && z.length > 0) {
+			if (x.length > 0 && y.length > 0 && z.length > 0 && RegDate.length>0) {
 				return true;
 			}
 			var str = "";
@@ -438,6 +459,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				str += "y is empty\n";
 			if (z.length == 0)
 				str += "z is empty\n";
+			if (RegDate.length == 0)
+				str += "RegDate is empty\n";
 			alert(str);
 			return false;
 		}  

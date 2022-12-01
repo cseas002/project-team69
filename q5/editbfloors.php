@@ -26,6 +26,166 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 }
 //Establishes the connection
 $conn = sqlsrv_connect($serverName, $connectionOptions);
+
+$strSQL1 = "{call dbo.Q5_GetDetailsOfBuilding(?)}";
+						$params = array(
+							array($fid, SQLSRV_PARAM_IN)
+						);
+						$objQuery1 = sqlsrv_query($conn, $strSQL1, $params);
+						$row = sqlsrv_fetch_array($objQuery1);
+						$CampusID = $row["CampusID"];
+
+ //*** Update Condition ***//  
+ if ($_POST["hdnCmd"] == "Update") {
+			
+	$errors = array();
+	$allowed_ext = array('jpg', 'jpeg', 'png', 'gif');
+	$file_name = $_FILES['image']['name'];
+	$file_ext = strtolower(end(explode('.', $file_name)));
+	$file_size = $_FILES['image']['size'];
+	$file_tmp = $_FILES['image']['tmp_name'];
+	echo $file_tmp;
+	echo "<br>";
+	$type = pathinfo($file_tmp, PATHINFO_EXTENSION);
+	$data = file_get_contents($file_tmp);
+	$base64_1 =  base64_encode($data);
+	//'data:image/' . $file_ext . ';base64,' .
+	if (in_array($file_ext, $allowed_ext) === false) {
+		$errors[] = 'Extension not allowed ' . $file_ext;
+	}
+	if ($file_size > 2097152/2) {
+		$errors[] = 'File size must be under 1mb';
+	}
+	if (empty($errors)) {
+		if (move_uploaded_file($file_tmp, 'images/' . $file_name))
+			; {
+			echo 'File uploaded';
+		}
+	} else {
+		foreach ($errors as $error) {
+			echo $error, '<br/>';
+		}
+	}
+	$file_name1 = $_FILES['base64']['name'];
+	$file_ext1 = strtolower(end(explode('.', $file_name1)));
+	$file_size1 = $_FILES['base64']['size'];
+	$file_tmp1 = $_FILES['base64']['tmp_name'];
+	echo $file_tmp1;
+	echo "<br>";
+	$type1 = pathinfo($file_tmp1, PATHINFO_EXTENSION);
+	$data1 = file_get_contents($file_tmp1);
+				
+	$base64 = "";
+	if($data != ""){
+		$base64 = $base64_1 ;
+	}
+	else if($data1 != ""){
+		$base64 = $data1;
+	}
+	else{
+		$base64 = $_POST["hdnimage"];
+	}
+
+	$strSQL = "{call dbo.Q4_UpdateFloor(?, ?, ?, ?)}";
+	$params = array(
+		array($_POST["hdnFloorID"], SQLSRV_PARAM_IN),
+		array($_POST["txtEditFloorZ"], SQLSRV_PARAM_IN),
+		array($base64, SQLSRV_PARAM_IN),
+		array($_POST["txtEditSummary"], SQLSRV_PARAM_IN)
+	);
+	$objQuery = sqlsrv_query($conn, $strSQL, $params);
+	$objRow = sqlsrv_fetch_array($objQuery);
+	if (!$objQuery) {
+		echo "Error Update [" . sqlsrv_errors() . "]";
+	} else {
+		$url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
+		echo "<meta http-equiv='refresh' content='0; url=$url'>";
+	}
+}
+
+//*** Delete Condition ***//  
+if ($_POST["hdnCmd"] == "Delete") {
+	$strSQL = "{call dbo.Q4_DeleteFloor(?)}";
+	$params = array(
+		array($_POST["idpass"], SQLSRV_PARAM_IN),
+	);
+	$objQuery = sqlsrv_query($conn, $strSQL, $params);
+	$objRow = sqlsrv_fetch_array($objQuery);
+	if (!$objQuery) {
+		echo "Error Delete [" . sqlsrv_errors() . "]";
+	} else {
+		$url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
+		echo "<meta http-equiv='refresh' content='0; url=$url'>";
+	}
+}
+
+if ($_POST["hdnCmd"] == "Insert") {
+	$errors = array();
+	$allowed_ext = array('jpg', 'jpeg', 'png', 'gif');
+	$file_name = $_FILES['imageInsert']['name'];
+	$file_ext = strtolower(end(explode('.', $file_name)));
+	$file_size = $_FILES['imageInsert']['size'];
+	$file_tmp = $_FILES['imageInsert']['tmp_name'];
+	echo $file_tmp;
+	echo "<br>";
+	$type = pathinfo($file_tmp, PATHINFO_EXTENSION);
+	$data = file_get_contents($file_tmp);
+	$base64_1 =  base64_encode($data);
+	//'data:image/' . $file_ext . ';base64,' .
+	if (in_array($file_ext, $allowed_ext) === false) {
+		$errors[] = 'Extension not allowed ' . $file_ext;
+	}
+	if ($file_size > 2097152/2) {
+		$errors[] = 'File size must be under 1mb';
+	}
+	if (empty($errors)) {
+		if (move_uploaded_file($file_tmp, 'images/' . $file_name))
+			; {
+			echo 'File uploaded';
+		}
+	} else {
+		foreach ($errors as $error) {
+			echo $error, '<br/>';
+		}
+	}
+	$file_name1 = $_FILES['base64Insert']['name'];
+	$file_ext1 = strtolower(end(explode('.', $file_name1)));
+	$file_size1 = $_FILES['base64Insert']['size'];
+	$file_tmp1 = $_FILES['base64Insert']['tmp_name'];
+	echo $file_tmp1;
+	echo "<br>";
+	$type1 = pathinfo($file_tmp1, PATHINFO_EXTENSION);
+	$data1 = file_get_contents($file_tmp1);
+				
+	$base64 = NULL;
+	if($data != ""){
+		$base64 = $base64_1 ;
+	}
+	else if($data1 != ""){
+		$base64 = $data1;
+	}
+	echo $base64_1;
+	echo $data1;
+
+	$strSQL = "{call dbo.Q4_InsertFloor(?, ?, ?, ?)}";
+	$params = array(
+		array($fid, SQLSRV_PARAM_IN),
+		array($_POST["FloorZ"], SQLSRV_PARAM_IN),
+		array($base64, SQLSRV_PARAM_IN),
+		array($_POST["Summary"], SQLSRV_PARAM_IN)
+	);
+	$objQuery = sqlsrv_query($conn, $strSQL, $params);
+	$objRow = sqlsrv_fetch_array($objQuery);
+	if (!$objQuery) {
+		echo "Error Insert [";
+	print_r(sqlsrv_errors());
+	echo "]<br/>";
+	} else {
+		$url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
+		echo "<meta http-equiv='refresh' content='0; url=$url'>";
+	}
+}
+
 ?>
 
 
@@ -59,7 +219,25 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
 		<a href="../q4">Query 4</a>
-		<a href="../q4/editbfloors.php?fid=<?=$fid?>"> - Edit Floors</a>
+		<a href="../q5">Query 5</a>
+		<a href="../q5/editbuildings.php?cid=<?=$CampusID?>"> - Edit Buildings</a>
+		<a href="../q5/editbfloors.php?fid=<?=$fid?>"> -- Edit Floors</a>
+		<a href="../q6">Query 6</a>
+		<a href="../q7">Query 7</a>
+		<a href="../q8">Query 8</a>
+		<a href="../q9">Query 9</a>
+		<a href="../q10">Query 10</a>
+		<a href="../q11">Query 11</a>
+		<a href="../q12">Query 12</a>
+		<a href="../q13">Query 13</a>
+		<a href="../q14">Query 14</a>
+		<a href="../q15">Query 15</a>
+		<a href="../q16">Query 16</a>
+		<a href="../q17">Query 17</a>
+		<a href="../q18">Query 18</a>
+		<a href="../q19">Query 19</a>
+		<a href="../q20">Query 20</a>
+		<a href="../q21">Query 21</a>
 		<div class="disconnectForm">
 			<?php
             if (isset($_POST['disconnect'])) {
@@ -261,161 +439,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		</div>
 
 		<?php
-        // $time_start = microtime(true);
-        
-        //*** Update Condition ***//  
-        if ($_POST["hdnCmd"] == "Update") {
-			
-	        $errors = array();
-	        $allowed_ext = array('jpg', 'jpeg', 'png', 'gif');
-	        $file_name = $_FILES['image']['name'];
-	        $file_ext = strtolower(end(explode('.', $file_name)));
-	        $file_size = $_FILES['image']['size'];
-	        $file_tmp = $_FILES['image']['tmp_name'];
-	        echo $file_tmp;
-	        echo "<br>";
-	        $type = pathinfo($file_tmp, PATHINFO_EXTENSION);
-	        $data = file_get_contents($file_tmp);
-	        $base64_1 =  base64_encode($data);
-			//'data:image/' . $file_ext . ';base64,' .
-	        if (in_array($file_ext, $allowed_ext) === false) {
-		        $errors[] = 'Extension not allowed ' . $file_ext;
-	        }
-	        if ($file_size > 2097152/2) {
-		        $errors[] = 'File size must be under 1mb';
-	        }
-	        if (empty($errors)) {
-		        if (move_uploaded_file($file_tmp, 'images/' . $file_name))
-			        ; {
-			        echo 'File uploaded';
-		        }
-	        } else {
-		        foreach ($errors as $error) {
-			        echo $error, '<br/>';
-		        }
-	        }
-			$file_name1 = $_FILES['base64']['name'];
-	        $file_ext1 = strtolower(end(explode('.', $file_name1)));
-	        $file_size1 = $_FILES['base64']['size'];
-	        $file_tmp1 = $_FILES['base64']['tmp_name'];
-	        echo $file_tmp1;
-	        echo "<br>";
-	        $type1 = pathinfo($file_tmp1, PATHINFO_EXTENSION);
-	        $data1 = file_get_contents($file_tmp1);
-						
-			$base64 = "";
-			if($data != ""){
-				$base64 = $base64_1 ;
-			}
-			else if($data1 != ""){
-				$base64 = $data1;
-			}
-			else{
-				$base64 = $_POST["hdnimage"];
-			}
 
-	        $strSQL = "{call dbo.Q4_UpdateFloor(?, ?, ?, ?)}";
-	        $params = array(
-	        	array($_POST["hdnFloorID"], SQLSRV_PARAM_IN),
-	        	array($_POST["txtEditFloorZ"], SQLSRV_PARAM_IN),
-	        	array($base64, SQLSRV_PARAM_IN),
-	        	array($_POST["txtEditSummary"], SQLSRV_PARAM_IN)
-	        );
-	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	        $objRow = sqlsrv_fetch_array($objQuery);
-	        if (!$objQuery) {
-		        echo "Error Update [" . sqlsrv_errors() . "]";
-	        } else {
-		        $url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
-		        echo "<meta http-equiv='refresh' content='0; url=$url'>";
-        	}
-        }
-
-        //*** Delete Condition ***//  
-        if ($_POST["hdnCmd"] == "Delete") {
-	        $strSQL = "{call dbo.Q4_DeleteFloor(?)}";
-	        $params = array(
-	        	array($_POST["idpass"], SQLSRV_PARAM_IN),
-	        );
-	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	        $objRow = sqlsrv_fetch_array($objQuery);
-	        if (!$objQuery) {
-		        echo "Error Delete [" . sqlsrv_errors() . "]";
-	        } else {
-		        $url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
-		        echo "<meta http-equiv='refresh' content='0; url=$url'>";
-	        }
-        }
-
-        if ($_POST["hdnCmd"] == "Insert") {
-			$errors = array();
-	        $allowed_ext = array('jpg', 'jpeg', 'png', 'gif');
-	        $file_name = $_FILES['imageInsert']['name'];
-	        $file_ext = strtolower(end(explode('.', $file_name)));
-	        $file_size = $_FILES['imageInsert']['size'];
-	        $file_tmp = $_FILES['imageInsert']['tmp_name'];
-	        echo $file_tmp;
-	        echo "<br>";
-	        $type = pathinfo($file_tmp, PATHINFO_EXTENSION);
-	        $data = file_get_contents($file_tmp);
-	        $base64_1 =  base64_encode($data);
-			//'data:image/' . $file_ext . ';base64,' .
-	        if (in_array($file_ext, $allowed_ext) === false) {
-		        $errors[] = 'Extension not allowed ' . $file_ext;
-	        }
-	        if ($file_size > 2097152/2) {
-		        $errors[] = 'File size must be under 1mb';
-	        }
-	        if (empty($errors)) {
-		        if (move_uploaded_file($file_tmp, 'images/' . $file_name))
-			        ; {
-			        echo 'File uploaded';
-		        }
-	        } else {
-		        foreach ($errors as $error) {
-			        echo $error, '<br/>';
-		        }
-	        }
-			$file_name1 = $_FILES['base64Insert']['name'];
-	        $file_ext1 = strtolower(end(explode('.', $file_name1)));
-	        $file_size1 = $_FILES['base64Insert']['size'];
-	        $file_tmp1 = $_FILES['base64Insert']['tmp_name'];
-	        echo $file_tmp1;
-	        echo "<br>";
-	        $type1 = pathinfo($file_tmp1, PATHINFO_EXTENSION);
-	        $data1 = file_get_contents($file_tmp1);
-						
-			$base64 = NULL;
-			if($data != ""){
-				$base64 = $base64_1 ;
-			}
-			else if($data1 != ""){
-				$base64 = $data1;
-			}
-			echo $base64_1;
-			echo $data1;
-
-	        $strSQL = "{call dbo.Q4_InsertFloor(?, ?, ?, ?)}";
-	        $params = array(
-	        	array($fid, SQLSRV_PARAM_IN),
-	        	array($_POST["FloorZ"], SQLSRV_PARAM_IN),
-	        	array($base64, SQLSRV_PARAM_IN),
-	        	array($_POST["Summary"], SQLSRV_PARAM_IN)
-	        );
-	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	        $objRow = sqlsrv_fetch_array($objQuery);
-	        if (!$objQuery) {
-		        echo "Error Insert [";
-			print_r(sqlsrv_errors());
-			echo "]<br/>";
-	        } else {
-		        $url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
-		        echo "<meta http-equiv='refresh' content='0; url=$url'>";
-	        }
-        }
-
-        // $time_end = microtime(true);
-        
         $userTypes = array("System Admin", "Functions Admin", "Simple User");
         echo "Connecting to SQL server (" . $serverName . ")<br/>";
         echo "Database: " . $connectionOptions[Database] . ", SQL User: " . $connectionOptions[Uid] . "<br/>";
