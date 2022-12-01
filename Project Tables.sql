@@ -156,7 +156,6 @@ CREATE TABLE [dbo].ITEM
   ItemID INT IDENTITY(1,1) NOT NULL,
   TypeID int NOT NULL,
   FingerprintID INT NOT NULL,
-  IDescription NVARCHAR(50) NOT NULL,
   UserAdded INT,
   UserModified INT, 
   Date_Added DATE DEFAULT GETDATE(),
