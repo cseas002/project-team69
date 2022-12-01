@@ -201,6 +201,9 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 						<td align="center">
 							<?= $objResult["y"]; ?>
 						</td>
+						<td align="center">
+							<?= $objResult["RegDate"]; ?>
+						</td>
 						<td align="center" width="16%">
 							<input class="textbtn warning" name="btnEditItems" type="button" id="btnEditItems"
 								value="Edit Items"
@@ -236,7 +239,8 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
 	    	array($FloorZ, SQLSRV_PARAM_IN),
-	    	array($FloorID, SQLSRV_PARAM_IN)
+	    	array($FloorID, SQLSRV_PARAM_IN),
+			array($_POST["txtEditRegDate"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -271,7 +275,8 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 	    	array($_POST["x"], SQLSRV_PARAM_IN),
 	    	array($_POST["y"], SQLSRV_PARAM_IN),
 	    	array($FloorZ, SQLSRV_PARAM_IN),
-	    	array($FloorID, SQLSRV_PARAM_IN)
+	    	array($FloorID, SQLSRV_PARAM_IN),
+			array($_POST["RegDate"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -311,8 +316,9 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 		function insertValidation() {
 			var x = f1.x.value;
 			var y = f1.y.value;
+			var RegDate = f1.RegDate.value;
 
-			if (x.length > 0 && y.length > 0 ) {
+			if (x.length > 0 && y.length > 0 && RegDate.length>0) {
 				return true;
 			}
 			var str = "";
@@ -320,12 +326,15 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 				str += "x is empty\n";
 			if (y.length == 0)
 				str += "y is empty\n";
+			if (RegDate.length == 0)
+				str += "RegDate is empty\n";
 			alert(str);
 			return false;
 		}
 		function updateValidation() {
 			var x = frmMain.txtEditx.value;
 			var y = frmMain.txtEdity.value;
+			var RegDate = frmMain.txtEditRegDate.value;
 
 			if (x.length > 0 && y.length > 0) {
 				return true;

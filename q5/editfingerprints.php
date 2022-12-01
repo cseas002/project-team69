@@ -201,6 +201,9 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 						<td align="center">
 							<?= $objResult["y"]; ?>
 						</td>
+						<td align="center">
+							<?= $objResult["RegDate"]; ?>
+						</td>
 						<td align="center" width="16%">
 							<input class="textbtn warning" name="btnEditItems" type="button" id="btnEditItems"
 								value="Edit Items"
@@ -236,7 +239,8 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
 	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
 	    	array($FloorZ, SQLSRV_PARAM_IN),
-	    	array($FloorID, SQLSRV_PARAM_IN)
+	    	array($FloorID, SQLSRV_PARAM_IN),
+			array($_POST["txtEditRegDate"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
@@ -271,7 +275,8 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 	    	array($_POST["x"], SQLSRV_PARAM_IN),
 	    	array($_POST["y"], SQLSRV_PARAM_IN),
 	    	array($FloorZ, SQLSRV_PARAM_IN),
-	    	array($FloorID, SQLSRV_PARAM_IN)
+	    	array($FloorID, SQLSRV_PARAM_IN),
+			array($_POST["RegDate"], SQLSRV_PARAM_IN)
 	    );
 	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 	    $objRow = sqlsrv_fetch_array($objQuery);
