@@ -590,7 +590,7 @@ END;
 CREATE PROCEDURE dbo.Q8
 AS
 BEGIN
-	SELECT b.BCode AS Building, b.FloorZ AS [Floor in Building], COUNT(p.POIType) AS [POI Amount]
+	SELECT b.BCode AS BuildingID, b.FloorZ AS [Floor in Building], COUNT(p.POIType) AS [POI Amount]
 	FROM dbo.BFLOOR b , dbo.POI p 
 	WHERE p.FloorID = b.FloorID
 	GROUP BY b.BCode , b.FloorZ
