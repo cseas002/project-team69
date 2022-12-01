@@ -181,6 +181,46 @@ BEGIN
 		)
 END;
 
+CREATE PROCEDURE [dbo].[Q12_Test2]
+AS
+BEGIN
+	DROP TABLE #ValidFingeriprints
+	CREATE TABLE #ValidFingerprints (FingerprintID INT, cnt INT);
+	TRUNCATE TABLE #ValidFingerprints
+
+	INSERT INTO #ValidFingerprints 
+	SELECT i.FingerprintID, COUNT(DISTINCT(i.TypeID)) AS amt
+	FROM dbo.ITEM i
+	GROUP BY i.FingerprintID
+	--#ValidFingerprints has the fingerprints that have the same amount of types
+	
+	DROP TABLE #FingerprintsCombinations
+	CREATE TABLE #FingerprintsCombinations (f1 INT, f2 INT);
+	TRUNCATE TABLE #FingerprintsCombinations 
+
+	INSERT INTO #FingerprintsCombinations 
+	SELECT v1.FingerprintID AS f1, v2.FingerprintID AS f2
+	FROM #ValidFingerprints v1, #ValidFingerprints v2
+	WHERE v1.cnt = v2.cnt AND v1.FingerprintID != v2.FingerprintID 
+	--#FingerprintsCombinations has the possible fingerprints who have the same types
+	
+	SELECT * FROM #FingerprintsCombinations 
+	
+	EXCEPT (
+	SELECT f1, f2
+	FROM #FingerprintsCombinations fc, dbo.TYPES t
+	WHERE EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1) 
+	-- There is an item of that type that belongs to f1 
+	AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2)
+	-- But there is not an item of that type that belongs to f2
+	OR	EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2) 
+	-- There is an item of that type that belongs to f2 
+	AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1)
+	-- But there is not an item of that type that belongs to f1
+	) 
+END
+ 
+
 CREATE PROCEDURE dbo.Q13
 @fingerprint int
 AS
