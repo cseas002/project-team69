@@ -87,12 +87,12 @@ SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_B
 CREATE PROCEDURE dbo.Q10
 AS 
 BEGIN
-SELECT P.BCode, P.POIZ
-FROM dbo.POI as P
-GROUP BY P.BCode,P.POIZ
-HAVING COUNT(*) > (
-	SELECT COUNT(b.FloorZ) * 1.0 / COUNT(ptemp.POIID) -- Average POIs amount per floor
-	FROM dbo.POI as ptemp, dbo.BFLOOR as b)
+SELECT b.FloorID 
+FROM dbo.POI p JOIN dbo.BFLOOR b ON p.FloorID = b.FloorID
+GROUP BY b.FloorID 
+HAVING COUNT(p.POIID) > (
+	SELECT 1.0 * COUNT(b2.FloorID)/ COUNT(p2.POIID) -- Average POIs amount per floor
+	FROM dbo.POI p2, dbo.BFLOOR b2)
 END;
 
 CREATE PROCEDURE dbo.Q11
@@ -218,19 +218,19 @@ GROUP BY I.TypeID, T.Title, T.Model
 HAVING COUNT(DISTINCT FingerprintID) = (SELECT COUNT(*)
 FROM dbo.FINGERPRINT);
 
-CREATE PROCEDURE dbo.Q16
+ALTER PROCEDURE dbo.Q16
 @TypeID INT,
-@x1 DECIMAL(11,8),
-@y1 DECIMAL(11,8),
-@x2 DECIMAL(11,8),
-@y2 DECIMAL(11,8)
+@x1 DECIMAL(15,12),
+@y1 DECIMAL(15,12),
+@x2 DECIMAL(15,12),
+@y2 DECIMAL(15,12)
 AS
 SELECT *
 FROM dbo.ITEM AS I
 WHERE I.TypeID=@TypeID AND I.FingerprintID IN (
 	SELECT F.FingerprintID
 	FROM dbo.FINGERPRINT AS F
-	WHERE ((F.x>@x1 AND F.x<@x2)OR(F.x<@x1 AND F.x>@x2)) AND ((F.y>@y1 AND F.y<@y2)OR(F.y<@y1 AND F.y>@y2))
+	WHERE F.x BETWEEN @x1 AND @x2 AND F.y BETWEEN @y1 AND @y2--((F.x>=@x1 AND F.x<=@x2)OR(F.x<=@x1 AND F.x>=@x2)) AND ((F.y>=@y1 AND F.y<=@y2)OR(F.y<=@y1 AND F.y>=@y2))
 );
 
 CREATE PROCEDURE dbo.Q17
@@ -574,9 +574,9 @@ END;
 CREATE PROCEDURE dbo.Q7
 AS
 BEGIN
-SELECT t.Title
+SELECT t.Title, t.Model , t.TypeID 
 FROM dbo.ITEM i JOIN dbo.TYPES t ON t.TypeID = i.TypeID
-GROUP BY t.Title, t.TypeID -- Grouping by the types
+GROUP BY t.Title, t.TypeID, t.Model  -- Grouping by the types
 HAVING COUNT(DISTINCT i.FingerprintID) = 
 		(SELECT MAX(Fing_amt.FAmt)
 		 FROM (SELECT COUNT(DISTINCT i2.FingerprintID) AS FAmt
@@ -589,7 +589,7 @@ AS
 BEGIN
 	SELECT b.BCode AS Building, b.FloorZ AS [Floor in Building], COUNT(p.POIType) AS [POI Amount]
 	FROM dbo.BFLOOR b , dbo.POI p 
-	WHERE p.POIZ = b.FloorZ 
+	WHERE p.FloorID = b.FloorID 
 	GROUP BY b.BCode , b.FloorZ
 END;
 
@@ -599,7 +599,7 @@ AS
 -- Types that belong to two Models (e.g. COCO chair and UCY chair) are considered different
 BEGIN
 	SELECT TypesInFingerprints.TypeID, TypesInFingerprints.Title, (TypesInFingerprints.TypeCount * 1.0 / Fingerprints.FingerprintsAmt) AS [Average Occurences]
-	FROM (	SELECT t.TypeID, t.Title, COUNT(*) AS TypeCount
-		FROM dbo.ITEM i JOIN dbo.TYPES t ON i.TypeID = t.TypeID 
+	FROM (	SELECT t.TypeID, t.Title, COUNT(i.ItemID) AS TypeCount
+		FROM dbo.TYPES t LEFT JOIN dbo.ITEM i ON i.TypeID = t.TypeID -- Some Types might not be found on items
 		GROUP BY t.TypeID, t.Title  ) AS TypesInFingerprints, (SELECT COUNT(*) AS FingerprintsAmt FROM dbo.FINGERPRINT f ) AS Fingerprints
 END;
