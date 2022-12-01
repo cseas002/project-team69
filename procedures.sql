@@ -252,7 +252,7 @@ BEGIN
 	FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID  
 	WHERE dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) = 
 					( SELECT MIN(dbo.DISTANCE(p2.x, p2.y, f2.FloorZ, @x, @y, @z))
-					  FROM dbo.POI p2 JOIN dbo.BFLOOR f2 ON p.FloorID = f2.FloorID
+					  FROM dbo.POI p2 JOIN dbo.BFLOOR f2 ON p2.FloorID = f2.FloorID
 					)
 END;
 
