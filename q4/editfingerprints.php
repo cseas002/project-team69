@@ -37,7 +37,70 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 						$BName = $row["BName"];
 						$BCode = $row["BCode"];
 						$FloorID = $zid;
+
+
+						//*** Update Condition ***//  
+    if ($_POST["hdnCmd"] == "Update") {
+	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?, ?)}";
+
+		$timeNew = $_POST["RegDate"].":00";
+
+	    $params = array(
+	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
+	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
+	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
+	    	array($FloorZ, SQLSRV_PARAM_IN),
+	    	array($FloorID, SQLSRV_PARAM_IN),
+			array($timeNew, SQLSRV_PARAM_IN)
+	    );
+	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
+	    $objRow = sqlsrv_fetch_array($objQuery);
+	    if (!$objQuery) {
+			echo "Error Update [";
+			print_r(sqlsrv_errors());
+			echo "]<br/>";
+	    } 
+		else
+		    echo "<meta http-equiv='refresh' content='0'>";
+    }
+
+    //*** Delete Condition ***//  
+    if ($_POST["hdnCmd"] == "Delete") {
+	    $strSQL = "{call dbo.Q3_DeleteFingerprint(?)}";
+	    $params = array(
+	    	array($_POST["fidpass"], SQLSRV_PARAM_IN)
+	    );
+	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
+	    $objRow = sqlsrv_fetch_array($objQuery);
+	    if (!$objQuery) {
+		    echo "Error Delete [";
+			print_r(sqlsrv_errors());
+			echo "]<br/>";
+	    } else
+		    echo "<meta http-equiv='refresh' content='0'>";
+    }
+
+    if ($_POST["hdnCmd"] == "Insert") {
+	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?, ?)}";
+
+		$timeNew = $_POST["RegDate"].":00";
+
+	    $params = array(
+	    	array($_POST["x"], SQLSRV_PARAM_IN),
+	    	array($_POST["y"], SQLSRV_PARAM_IN),
+	    	array($FloorZ, SQLSRV_PARAM_IN),
+	    	array($FloorID, SQLSRV_PARAM_IN),
+			array($timeNew, SQLSRV_PARAM_IN)
+	    );
+	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
+	    $objRow = sqlsrv_fetch_array($objQuery);
+	    if (!$objQuery) {
+		    echo "Error Insert [" . sqlsrv_errors() . "]";
+	    } else
+		    echo "<meta http-equiv='refresh' content='0'>";
+    }
             ?>
+
 
 
 <html>
@@ -72,6 +135,23 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 		<a href="../q4">Query 4</a>
         <a href="../q4/editbfloors.php?fid=<?=$BCode?>"> - Edit Floors</a>
         <a href="../q4/editfingerprints.php?zid=<?=$zid?>"> -- Edit Fingerprints</a>
+		<a href="../q5">Query 5</a>
+		<a href="../q6">Query 6</a>
+		<a href="../q7">Query 7</a>
+		<a href="../q8">Query 8</a>
+		<a href="../q9">Query 9</a>
+		<a href="../q10">Query 10</a>
+		<a href="../q11">Query 11</a>
+		<a href="../q12">Query 12</a>
+		<a href="../q13">Query 13</a>
+		<a href="../q14">Query 14</a>
+		<a href="../q15">Query 15</a>
+		<a href="../q16">Query 16</a>
+		<a href="../q17">Query 17</a>
+		<a href="../q18">Query 18</a>
+		<a href="../q19">Query 19</a>
+		<a href="../q20">Query 20</a>
+		<a href="../q21">Query 21</a>
 		<div class="disconnectForm">
 			<?php
             if (isset($_POST['disconnect'])) {
@@ -115,7 +195,7 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 				<label> y: </label>
 				<input type="text" name="y" />
 				<label> RegDate: </label>
-				<input type="date" name="RegDate" />
+				<input type="datetime-local" name="RegDate" />
 				<input type="button" class="btn" value="Insert"
 					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
 				<button type="button" class="btn cancel"
@@ -176,7 +256,7 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 								name="txtEdity" value="<?= $objResult["y"]; ?>"></td>
 						<td align="center" style="height:40px;"><input
 								style="text-align:center; width:100%; height: 100%;" maxlength="40" type="datetime-local"
-								name="txtEditRegDate" value="<?= $objResult["RegDate"]; ?>"></td>
+								name="txtEditRegDate" value="<?=date("Y-m-d\TH:i:s", strtotime($objResult['RegDate']));?>"></td>
 						<td colspan="3" align="right">
 							<div align="center">
 								<input class="textbtn success" name="btnAdd" type="button" id="btnUpdate" value="Update"
@@ -229,64 +309,7 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 		</div>
 
 		<?php
-    // $time_start = microtime(true);
     
-    //*** Update Condition ***//  
-    if ($_POST["hdnCmd"] == "Update") {
-	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?)}";
-	    $params = array(
-	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
-	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
-	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
-	    	array($FloorZ, SQLSRV_PARAM_IN),
-	    	array($FloorID, SQLSRV_PARAM_IN),
-			array($_POST["txtEditRegDate"], SQLSRV_PARAM_IN)
-	    );
-	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	    $objRow = sqlsrv_fetch_array($objQuery);
-	    if (!$objQuery) {
-			echo "Error Update [";
-			print_r(sqlsrv_errors());
-			echo "]<br/>";
-	    } 
-		else
-		    echo "<meta http-equiv='refresh' content='0'>";
-    }
-
-    //*** Delete Condition ***//  
-    if ($_POST["hdnCmd"] == "Delete") {
-	    $strSQL = "{call dbo.Q3_DeleteFingerprint(?)}";
-	    $params = array(
-	    	array($_POST["fidpass"], SQLSRV_PARAM_IN)
-	    );
-	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	    $objRow = sqlsrv_fetch_array($objQuery);
-	    if (!$objQuery) {
-		    echo "Error Delete [";
-			print_r(sqlsrv_errors());
-			echo "]<br/>";
-	    } else
-		    echo "<meta http-equiv='refresh' content='0'>";
-    }
-
-    if ($_POST["hdnCmd"] == "Insert") {
-	    $strSQL = "{call dbo.Q3_InsertFingerprint(?, ?, ?, ?)}";
-	    $params = array(
-	    	array($_POST["x"], SQLSRV_PARAM_IN),
-	    	array($_POST["y"], SQLSRV_PARAM_IN),
-	    	array($FloorZ, SQLSRV_PARAM_IN),
-	    	array($FloorID, SQLSRV_PARAM_IN),
-			array($_POST["RegDate"], SQLSRV_PARAM_IN)
-	    );
-	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	    $objRow = sqlsrv_fetch_array($objQuery);
-	    if (!$objQuery) {
-		    echo "Error Insert [" . sqlsrv_errors() . "]";
-	    } else
-		    echo "<meta http-equiv='refresh' content='0'>";
-    }
-
-    // $time_end = microtime(true);
     
     $userTypes = array("System Admin", "Functions Admin", "Simple User");
     echo "Connecting to SQL server (" . $serverName . ")<br/>";
@@ -336,7 +359,7 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 			var y = frmMain.txtEdity.value;
 			var RegDate = frmMain.txtEditRegDate.value;
 
-			if (x.length > 0 && y.length > 0) {
+			if (x.length > 0 && y.length > 0 && RegDate.length>0) {
 				return true;
 			}
 			var str = "";
@@ -344,6 +367,9 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 				str += "x is empty\n";
 			if (y.length == 0)
 				str += "y is empty\n";
+				
+			if (RegDate.length == 0)
+				str += "RegDate is empty\n";
 			alert(str);
 			return false;
 		}  
