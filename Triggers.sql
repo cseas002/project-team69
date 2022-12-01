@@ -10,15 +10,13 @@ BEGIN
 	-- All the fingerprints that have at least one item before deletion
 	SET @countFinI = (SELECT COUNT(DISTINCT(i.FingerprintID)) FROM dbo.ITEM i WHERE i.ItemID NOT IN (SELECT ItemID FROM deleted))
 	-- All the fingerprints that have at least one item after deletion
-	
-	PRINT @countF
-	PRINT @countFinI
 
 	IF @countF - @countFinI > 0
 	BEGIN
       PRINT 'This deletion leaves a fingerprint without any items'
       ROLLBACK
      END
+     
 END;
 
 GO
