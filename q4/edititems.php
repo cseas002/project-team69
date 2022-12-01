@@ -72,6 +72,7 @@ $strSQL1 = "{call dbo.Q4_GetFingerprintByID(?)}";
 		<a href="../q4/editbfloors.php?fid=<?=$bcode?>"> - Edit Floors</a>
         <a href="../q4/editfingerprints.php?zid=<?=$floorid?>"> -- Edit Fingerprints</a>
 		<a href="../q4/edititems.php?fid=<?=$fid?>"> --- Edit Items</a>
+
 		<div class="disconnectForm">
 			<?php
             if (isset($_POST['disconnect'])) {
