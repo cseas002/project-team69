@@ -256,6 +256,7 @@ BEGIN
 					)
 END;
 
+--K first not showing more
 CREATE PROCEDURE dbo.Q19
 @x DECIMAL(15, 12),
 @y DECIMAL(15, 12),
