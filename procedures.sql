@@ -627,7 +627,7 @@ HAVING COUNT(DISTINCT i.FingerprintID) =
 END;
 --change from previous check again for sure
 -- COUNT DISTINCT POI TYPES
-ALTER PROCEDURE dbo.Q8
+CREATE PROCEDURE dbo.Q8
 AS
 BEGIN
 	SELECT b.BCode AS BuildingID, b.FloorZ AS [Floor in Building], COUNT(DISTINCT p.POIType) AS [POI Amount]
