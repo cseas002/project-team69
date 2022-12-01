@@ -184,7 +184,6 @@ END;
 CREATE PROCEDURE [dbo].[Q12_Test2]
 AS
 BEGIN
-	DROP TABLE #ValidFingeriprints
 	CREATE TABLE #ValidFingerprints (FingerprintID INT, cnt INT);
 	TRUNCATE TABLE #ValidFingerprints
 
@@ -194,7 +193,6 @@ BEGIN
 	GROUP BY i.FingerprintID
 	--#ValidFingerprints has the fingerprints that have the same amount of types
 	
-	DROP TABLE #FingerprintsCombinations
 	CREATE TABLE #FingerprintsCombinations (f1 INT, f2 INT);
 	TRUNCATE TABLE #FingerprintsCombinations 
 
@@ -216,6 +214,8 @@ BEGIN
 	-- There is an item of that type that belongs to f2 
 	-- AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1)
 	-- But there is not an item of that type that belongs to f1
+
+	-- This works because #FingerprintsCombinations have both combinations of fingerprints (e.g., 1 4 and 4 1)
 	) 
 END
  
