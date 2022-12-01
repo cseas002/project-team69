@@ -243,30 +243,31 @@ WHERE P.BCode = @BCode
 GROUP BY P.BCode;
 
 CREATE PROCEDURE dbo.Q18
-@x DECIMAL(11, 8),
-@y DECIMAL(11, 8),
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
 @z int
 AS
 BEGIN
 	SELECT *
-	FROM dbo.POI p
-	WHERE dbo.DISTANCE(p.x, p.y, p.POIZ, @x, @y, @z) = 
-					( SELECT MIN(dbo.DISTANCE(p2.x, p2.y, p2.POIZ, @x, @y, @z))
-					  FROM dbo.POI p2
+	FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID  
+	WHERE dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) = 
+					( SELECT MIN(dbo.DISTANCE(p2.x, p2.y, f2.FloorZ, @x, @y, @z))
+					  FROM dbo.POI p2 JOIN dbo.BFLOOR f2 ON p.FloorID = f2.FloorID
 					)
 END;
 
 CREATE PROCEDURE dbo.Q19
-@x DECIMAL(11, 8),
-@y DECIMAL(11, 8),
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
 @z int,
 @k int
 AS
 BEGIN
 	SELECT TOP (@k) *
-	FROM dbo.POI p
-	ORDER BY dbo.DISTANCE(p.x, p.y, p.POIZ, @x, @y, @z)
+	FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID 
+	ORDER BY dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z)
 END;
+
 
 CREATE PROCEDURE [dbo].[Q2_Delete]
 @TypeID int
@@ -297,17 +298,17 @@ UPDATE dbo.TYPES SET Title = @Title, Model = @Model WHERE TypeID = @TypeID
 END;
 
 CREATE PROCEDURE dbo.Q20
-@z int
+@floorID int
 AS
 BEGIN
 	SELECT p.POIID AS [POI 1], p2.POIID AS [POI 2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
 	FROM dbo.POI p, dbo.POI p2
-	WHERE p.POIZ = @z AND p2.POIZ = @z AND p.BCode = p2.BCode -- They belong to the same floor
+	WHERE p.FloorID = @floorID AND p2.FloorID = @floorID -- They belong to the same floor
 	AND p.POIID != p2.POIID -- And they are not the same	
 	AND dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) <= ALL -- The POI with smallest distance from p
 					( SELECT dbo.DISTANCE2D(p.x, p.y, p3.x, p3.y)
 					  FROM dbo.POI p3
-					  WHERE p.POIZ = @z AND p3.POIZ = @z AND p.BCode = p3.BCode AND p3.POIID != p.POIID)
+					  WHERE p.FloorID = @floorID AND p3.FloorID = @floorID AND p3.POIID != p.POIID)
 	
 END;
 
@@ -325,7 +326,7 @@ BEGIN
 	-- A valid destination is a fingerprint which has distance less than @x meters from another one
 			SELECT f1.FingerprintID, f2.FingerprintID
 			FROM dbo.FINGERPRINT f1, dbo.FINGERPRINT f2
-			WHERE f1.FingerprintID != f2.FingerprintID AND dbo.DISTANCE(f1.x, f1.y, f1.z, f2.x, f2.y, f2.z) < @x
+			WHERE f1.FingerprintID != f2.FingerprintID AND dbo.DISTANCE(f1.x, f1.y, f1.[Level], f2.x, f2.y, f2.[Level]) < @x
 
 	OPEN c
 	FETCH NEXT FROM c INTO @fingerprint -- We save the first fingerprint ID into @fingerprint variable
@@ -384,6 +385,7 @@ BEGIN
 	CLOSE c
 	DEALLOCATE c
 END;
+
 
 CREATE PROCEDURE [dbo].[Q3_DeleteFingerprint]
 @FingerprintID INT
