@@ -86,29 +86,29 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Number of Distinct POI Types per building floor</h2></td>
+		<td vAlign=center align=middle><h2>Floors with more than the avg. of POIs</h2></td>
 	</tr>
     </table>
 
 	<hr/>
+	
 		<table width="100%" border="1">  
 		<tr>  
-		<th width = "20%"> <div align="center">FloorID </div></th>  
-		<th width = "20%"> <div align="center">POI Type</div></th> 
-		<th width = "20%"> <div align="center">POIs Amount</div></th> 
+		<th width = "50%"> <div align="center">Fingerprint 1 </div></th>  
+		<th width = "50%"> <div align="center">Fingerprint 2</div></th> 
 		</tr>  
 		<?php 
-		$tsql="EXEC dbo.Q8";
+		$tsql="EXEC dbo.Q30";
 		$objQuery = sqlsrv_query($conn, $tsql);
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
+	        
 		?>
 
 		<tr>
-		<td><div id='row<?= $objResult["FloorID"]; ?>' align="center"><?=$objResult["FloorID"];?></div></td>
-		<td align="center"><?=$objResult["POIType"];?></td>
-		<td align="center"><?=$objResult["POI Amount"];?></td>
+		<td align="center"><?=$objResult["Fingerprint1"];?></td>
+		<td align="center"><?=$objResult["Fingerprint2"];?></td>
 		</tr>  
 		<?php 
 		}  

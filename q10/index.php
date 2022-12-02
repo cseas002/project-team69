@@ -94,9 +94,8 @@
 	
 		<table width="100%" border="1">  
 		<tr>  
-		<th width = "33%"> <div align="center">FloorID </div></th>  
-		<th width = "33%"> <div align="center">BCode</div></th> 
-		<th width = "33%"> <div align="center">FloorZ</div></th> 
+		<th width = "50%"> <div align="center">FloorID </div></th>  
+		<th width = "50%"> <div align="center">Count POIs</div></th> 
 		</tr>  
 		<?php 
 		$tsql="EXEC dbo.Q10";
@@ -108,8 +107,7 @@
 
 		<tr>
 		<td><div id='row<?= $objResult["FloorID"]; ?>' align="center"><?=$objResult["FloorID"];?></div></td>
-		<td align="center"><?=$objResult["BCode"];?></td>
-		<td align="center"><?=$objResult["FloorZ"];?></td>
+		<td align="center"><?=$objResult["CountAmnt"];?></td>
 		</tr>  
 		<?php 
 		}  
