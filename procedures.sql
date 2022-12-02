@@ -631,9 +631,9 @@ END;
 CREATE PROCEDURE [dbo].[Q8]
 AS
 BEGIN
-	SELECT b.FloorID, COUNT(p.POIType) AS [POI Amount]
-	FROM dbo.BFLOOR b , dbo.POI p 
-	WHERE p.FloorID = b.FloorID 
+	SELECT b.FloorID, COUNT(DISTINCT p.POIType) AS [POI Amount]
+	FROM dbo.BFLOOR b
+	LEFT JOIN dbo.POI AS p ON p.FloorID=b.FloorID
 	GROUP BY b.FloorID
 END;
 
