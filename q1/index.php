@@ -29,6 +29,76 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 //Establishes the connection
 $conn = sqlsrv_connect($serverName, $connectionOptions);
 
+//*** Update Condition ***//
+if ($_POST["hdnCmd"] == "Update") {
+	$strSQL = "{call dbo.Q1_Edit_User(?, ?, ?, ?, ?, ?, ?)}";
+	$params = array(
+		array($_POST["txtEditFName"], SQLSRV_PARAM_IN),
+		array($_POST["txtEditLName"], SQLSRV_PARAM_IN),
+		array($_POST["hdnEditUserID"], SQLSRV_PARAM_IN),
+		array($_POST["txtEditDOB"], SQLSRV_PARAM_IN),
+		array($_POST["txtEditGender"], SQLSRV_PARAM_IN),
+		array($_POST["txtEditUsername"], SQLSRV_PARAM_IN),
+		array($_POST["txtEditUserType"], SQLSRV_PARAM_IN)
+	);
+	$objQuery = sqlsrv_query($conn, $strSQL, $params);
+	$objRow = sqlsrv_fetch_array($objQuery);
+	if (!$objQuery) {
+		echo "Error Update [" . sqlsrv_errors() . "]";
+	} else
+		echo "<meta http-equiv='refresh' content='0'>";
+}
+
+//*** Update Password ***//
+if ($_POST["hdnCmd"] == "ChangePass") {
+	$strSQL = "{call dbo.Q1_Change_Password(?, ?)}";
+	$params = array(
+		array($_POST["userIDpass"], SQLSRV_PARAM_IN),
+		array($_POST["passwordpass"], SQLSRV_PARAM_IN)
+	);
+	$objQuery = sqlsrv_query($conn, $strSQL, $params);
+	$objRow = sqlsrv_fetch_array($objQuery);
+	if (!$objQuery) {
+		echo "Error Update [" . sqlsrv_errors() . "]";
+	} else
+		echo "<meta http-equiv='refresh' content='0'>";
+}
+
+if ($_POST["hdnCmd"] == "Delete") {
+	$strSQL = "{call dbo.Q1_Delete(?)}";
+	$params = array(
+		array($_POST["userIDpass"], SQLSRV_PARAM_IN),
+	);
+	$objQuery = sqlsrv_query($conn, $strSQL, $params);
+	$objRow = sqlsrv_fetch_array($objQuery);
+	if (!$objQuery) {
+		echo "Error Delete [" . sqlsrv_errors() . "]";
+	} else
+		echo "<meta http-equiv='refresh' content='0'>";
+}
+
+
+if ($_POST["hdnCmdInsert"] == "insert") {
+	$strSQL = "{call dbo.Q1_Insert_User(?, ?, ?, ?, ?, ?, ?)}";
+	$params = array(
+		array($_POST["FName"], SQLSRV_PARAM_IN),
+		array($_POST["LName"], SQLSRV_PARAM_IN),
+		array($_POST["Date_of_Birth"], SQLSRV_PARAM_IN),
+		array($_POST["Gender"], SQLSRV_PARAM_IN),
+		array($_POST["Username"], SQLSRV_PARAM_IN),
+		array($_POST["Password"], SQLSRV_PARAM_IN),
+		array($_POST["UserType"], SQLSRV_PARAM_IN)
+	);
+	$objQuery = sqlsrv_query($conn, $strSQL, $params);
+	$objRow = sqlsrv_fetch_array($objQuery);
+	if (!$objQuery) {
+		echo "Error Insert [" . sqlsrv_errors() . "]";
+	} else
+		echo "<meta http-equiv='refresh' content='0'>";
+}
+
+
+
 ?>
 
 
@@ -437,79 +507,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		</div>
 
 		<?php
-        // $time_start = microtime(true);
 
-        //*** Update Condition ***//
-        if ($_POST["hdnCmd"] == "Update") {
-	        $strSQL = "{call dbo.Q1_Edit_User(?, ?, ?, ?, ?, ?, ?)}";
-	        $params = array(
-	        	array($_POST["txtEditFName"], SQLSRV_PARAM_IN),
-	        	array($_POST["txtEditLName"], SQLSRV_PARAM_IN),
-	        	array($_POST["hdnEditUserID"], SQLSRV_PARAM_IN),
-	        	array($_POST["txtEditDOB"], SQLSRV_PARAM_IN),
-	        	array($_POST["txtEditGender"], SQLSRV_PARAM_IN),
-	        	array($_POST["txtEditUsername"], SQLSRV_PARAM_IN),
-	        	array($_POST["txtEditUserType"], SQLSRV_PARAM_IN)
-	        );
-	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	        $objRow = sqlsrv_fetch_array($objQuery);
-	        if (!$objQuery) {
-		        echo "Error Update [" . sqlsrv_errors() . "]";
-	        } else
-		        echo "<meta http-equiv='refresh' content='0'>";
-        }
-
-        //*** Update Password ***//
-        if ($_POST["hdnCmd"] == "ChangePass") {
-	        $strSQL = "{call dbo.Q1_Change_Password(?, ?)}";
-	        $params = array(
-	        	array($_POST["userIDpass"], SQLSRV_PARAM_IN),
-	        	array($_POST["passwordpass"], SQLSRV_PARAM_IN)
-	        );
-	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	        $objRow = sqlsrv_fetch_array($objQuery);
-	        if (!$objQuery) {
-		        echo "Error Update [" . sqlsrv_errors() . "]";
-	        } else
-		        echo "<meta http-equiv='refresh' content='0'>";
-        }
-
-		if ($_POST["hdnCmd"] == "Delete") {
-	        $strSQL = "{call dbo.Q1_Delete(?)}";
-	        $params = array(
-	        	array($_POST["userIDpass"], SQLSRV_PARAM_IN),
-	        );
-	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	        $objRow = sqlsrv_fetch_array($objQuery);
-	        if (!$objQuery) {
-		        echo "Error Delete [" . sqlsrv_errors() . "]";
-	        } else
-		        echo "<meta http-equiv='refresh' content='0'>";
-        }
-
-
-        if ($_POST["hdnCmdInsert"] == "insert") {
-	        $strSQL = "{call dbo.Q1_Insert_User(?, ?, ?, ?, ?, ?, ?)}";
-	        $params = array(
-	        	array($_POST["FName"], SQLSRV_PARAM_IN),
-	        	array($_POST["LName"], SQLSRV_PARAM_IN),
-	        	array($_POST["Date_of_Birth"], SQLSRV_PARAM_IN),
-	        	array($_POST["Gender"], SQLSRV_PARAM_IN),
-	        	array($_POST["Username"], SQLSRV_PARAM_IN),
-	        	array($_POST["Password"], SQLSRV_PARAM_IN),
-	        	array($_POST["UserType"], SQLSRV_PARAM_IN)
-	        );
-	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	        $objRow = sqlsrv_fetch_array($objQuery);
-	        if (!$objQuery) {
-		        echo "Error Insert [" . sqlsrv_errors() . "]";
-	        } else
-		        echo "<meta http-equiv='refresh' content='0'>";
-        }
-
-
-
-        // $time_end = microtime(true);
         $userTypes = array("System Admin", "Functions Admin", "Simple User");
         echo "Connecting to SQL server (" . $serverName . ")<br/>";
         echo "Database: " . $connectionOptions[Database] . ", SQL User: " . $connectionOptions[Uid] . "<br/>";

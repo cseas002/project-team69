@@ -86,31 +86,30 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Average Items per Type</h2></td>
+		<td vAlign=center align=middle><h2>Floors with more than the avg. of POIs</h2></td>
 	</tr>
     </table>
-	
+
 	<hr/>
+	
 		<table width="100%" border="1">  
 		<tr>  
-		<th width = "20%"> <div align="center">TypeID </div></th>  
-		<th width = "25%"> <div align="center">Title</div></th>  
-		<th width = "25%"> <div align="center">Average Occurences</div></th>  
+		<th width = "33%"> <div align="center">FloorID </div></th>  
+		<th width = "33%"> <div align="center">BCode</div></th> 
+		<th width = "33%"> <div align="center">FloorZ</div></th> 
 		</tr>  
 		<?php 
-		$tsql="EXEC dbo.Q9";
+		$tsql="EXEC dbo.Q10";
 		$objQuery = sqlsrv_query($conn, $tsql);
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
-			if (floatval($objResult["Average Occurences"]) < 1)
-				$objResult["Average Occurences"] = "0" + $objResult["Average Occurences"]
 		?>
 
 		<tr>
-		<td><div id='row<?= $objResult["TypeID"]; ?>' align="center"><?=$objResult["TypeID"];?></div></td>
-		<td align="center"><?=$objResult["Title"];?></td>
-		<td align="center"><?=$objResult["Average Occurences"];?></td>
+		<td><div id='row<?= $objResult["FloorID"]; ?>' align="center"><?=$objResult["FloorID"];?></div></td>
+		<td align="center"><?=$objResult["BCode"];?></td>
+		<td align="center"><?=$objResult["FloorZ"];?></td>
 		</tr>  
 		<?php 
 		}  

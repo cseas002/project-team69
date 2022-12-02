@@ -350,8 +350,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 	    if (!$objQuery) {
 		    echo "Error Insert [" . sqlsrv_errors() . "]";
 	    } 
-		// else
-		//     echo "<meta http-equiv='refresh' content='0'>";
+		else
+		    echo "<meta http-equiv='refresh' content='0'>";
     }
 
     // $time_end = microtime(true);
