@@ -98,8 +98,9 @@
 		<th width = "50%"> <div align="center">Fingerprint 2</div></th> 
 		</tr>  
 		<?php 
-		$tsql="EXEC dbo.Q30";
+		$tsql="EXEC dbo.Q12_Test2";
 		$objQuery = sqlsrv_query($conn, $tsql);
+
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{

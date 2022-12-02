@@ -24,9 +24,7 @@
 		die('<meta http-equiv="refresh" content="3; url=../index.php" />');
 	} 	
 	//Establishes the connection
-	echo "conection open";
 	$conn = sqlsrv_connect($serverName, $connectionOptions);
-echo "conection open";
 ?>
 
 
@@ -96,20 +94,24 @@ echo "conection open";
 	
 		<table width="100%" border="1">  
 		<tr>  
-		<th width = "50%"> <div align="center">FloorID </div></th>  
-		<th width = "50%"> <div align="center">Count POIs</div></th> 
+		<th width = "33%"> <div align="center">TypeID</div></th>  
+		<th width = "33%"> <div align="center">Title</div></th> 
+		<th width = "33%"> <div align="center">Model</div></th> 
 		</tr>  
 		<?php 
-		$tsql="EXEC dbo.Q10";
+		$tsql="EXEC dbo.Q15";
 		$objQuery = sqlsrv_query($conn, $tsql);
+
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
+	        
 		?>
 
 		<tr>
-		<td><div id='row<?= $objResult["FloorID"]; ?>' align="center"><?=$objResult["FloorID"];?></div></td>
-		<td align="center"><?=$objResult["CountAmnt"];?></td>
+		<td align="center"><?=$objResult["TypeID"];?></td>
+		<td align="center"><?=$objResult["Title"];?></td>
+		<td align="center"><?=$objResult["Model"];?></td>
 		</tr>  
 		<?php 
 		}  
