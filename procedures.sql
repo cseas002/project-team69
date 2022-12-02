@@ -86,12 +86,18 @@ SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_B
 CREATE PROCEDURE dbo.Q10
 AS 
 BEGIN
-SELECT b.FloorID 
-FROM dbo.POI p JOIN dbo.BFLOOR b ON p.FloorID = b.FloorID
-GROUP BY b.FloorID 
-HAVING COUNT(p.POIID) > (
-	SELECT 1.0 * COUNT(b2.FloorID)/ COUNT(p2.POIID) -- Average POIs amount per floor
-	FROM dbo.POI p2, dbo.BFLOOR b2)
+DECLARE @COUNT1 FLOAT 
+DECLARE @COUNT2 FLOAT 
+DECLARE @RESULT FLOAT
+SET @COUNT1=( SELECT 1.0 * COUNT(p2.POIID)  -- Average POIs amount per floor
+	FROM dbo.POI p2)
+SET @COUNT2=(SELECT  COUNT(b2.FloorID)
+	FROM DBO.BFLOOR b2)
+SET @RESULT = @COUNT1/@COUNT2 
+SELECT p.FloorID , COUNT(p.POIID)
+FROM dbo.POI p 
+GROUP BY p.FloorID
+HAVING COUNT(p.POIID) >@RESULT
 END;
 
 CREATE PROCEDURE dbo.Q11
@@ -631,9 +637,9 @@ END;
 CREATE PROCEDURE [dbo].[Q8]
 AS
 BEGIN
-	SELECT b.FloorID, COUNT(p.POIType) AS [POI Amount]
-	FROM dbo.BFLOOR b , dbo.POI p 
-	WHERE p.FloorID = b.FloorID 
+	SELECT b.FloorID, COUNT(DISTINCT p.POIType) AS [POI Amount]
+	FROM dbo.BFLOOR b
+	LEFT JOIN dbo.POI AS p ON p.FloorID=b.FloorID
 	GROUP BY b.FloorID
 END;
 

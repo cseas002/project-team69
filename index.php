@@ -1,11 +1,14 @@
 <html>  
+<!-- <div class = "login-background ">	 -->
 <head>  
     <title>PHP login system</title>   
     <link rel = "stylesheet" type = "text/css" href = "style.css">   
 </head>  
 
 
-<body>  
+
+<body style='background-blend-mode: unset;'>
+	 
 <?php
 	session_start(); 
 	if($_SESSION['userID']!=""){
@@ -66,16 +69,16 @@
 	<tr>
 		<td vAlign=top width=170>
 		<a href="http://www.ucy.ac.cy/"><img width="220px" alt=UCY src="images/logo_en.png"></a>
-		<h4>
+		<h4 style="display: inline;">
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h4>
 		</td>
 	</tr>
 	<tr>
-		<td vAlign=center align=middle><h2>Spatial Data Management System</h2></td>
+		<td vAlign=center align=middle><h2 style="color:#C68F06">Spatial Data Management System</h2></td>
 	</tr>
     </table>
-    <div class = "frm">  
+    <div class = "frm" >  
         <h1>Login</h1>  
         <form name="f1" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" onsubmit="return validation()"  method = "POST">  
             <p>  
@@ -114,7 +117,9 @@
 			}	
 	
 		}  
-    </script>  
+    </script> 
+	
 </body>     
+<!-- </div>  -->
 </html>  
 
