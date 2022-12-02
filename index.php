@@ -7,7 +7,7 @@
 
 
 
-<body style='background-blend-mode: unset;'>
+<body style='background-blend-mode: unset; background-image: url("./images/ucy_bannerq.jpg");'>
 	 
 <?php
 	session_start(); 
@@ -69,7 +69,7 @@
 	<tr>
 		<td vAlign=top width=170>
 		<a href="http://www.ucy.ac.cy/"><img width="220px" alt=UCY src="images/logo_en.png"></a>
-		<h4 style="display: inline;">
+		<h4 >
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h4>
 		</td>
@@ -78,20 +78,14 @@
 		<td vAlign=center align=middle><h2 style="color:#C68F06">Spatial Data Management System</h2></td>
 	</tr>
     </table>
-    <div class = "frm" >  
-        <h1>Login</h1>  
-        <form name="f1" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" onsubmit="return validation()"  method = "POST">  
-            <p>  
-                <label> Username: </label>  <br/> 
-                <input type = "text" id ="user" name  = "user" />  
-            </p>  
-            <p>  
-                <label> Password: </label> <br/>  
-                <input type = "password" id ="pass" name  = "pass" />  
-            </p>  
-            <p>     
-                <input type =  "submit" class = "btnUpForm" value = "Login" name = "connect"/>  
-            </p>  
+    <div  class = "frm" >  
+        <h1 style="text-align:center ;">Login</h1>  
+        <form class="form-container" style="background-color:transparent" name="f1" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" onsubmit="return validation()"  method = "POST">  
+                <label> Username: </label>
+                <input type = "text" id ="user" name  = "user" />  <br/>
+                <label> Password: </label>  
+                <input type = "password" id ="pass" name  = "pass" />  <br/><br/>
+                <input type =  "submit" class = "btn" value = "Login" name = "connect"/>  
         </form>  
     </div>   
     <script>  

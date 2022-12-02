@@ -128,11 +128,13 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<a href="../q1">Query 1</a>
+		<?php if ($userType == '1') { ?><a href="../q1">Query 1</a><?php }?>
+		<?php if ($userType != '3') { ?>
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
 		<a href="../q4">Query 4</a>
 		<a href="../q5">Query 5</a>
+		<?php }?>
 		<a href="../q6">Query 6</a>
 		<a href="../q7">Query 7</a>
 		<a href="../q8">Query 8</a>
@@ -175,9 +177,9 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 		<hr>
 
 		<!-- <div class="addRowBtn" value=""><i class="fa fa-plus" aria-hidden="true"></i></div> -->
-		<button id="btnInsertForm" class="addRowBtn" onclick="document.getElementById('myForm').style.display = 'block';" >+</button>
-		<button id="btnAdvSearchForm" class="btnUpForm" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
-		<button id="btnSearchForm" class="btnUpForm" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
+		<button id="btnInsertForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >+</button>
+		<button id="btnAdvSearchForm" class="button-20" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
+		<button id="btnSearchForm" class="button-20" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
 		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>			
 		
 		<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.hdnCmdInsert.value='insert';frmInsert.submit();}}"> 
@@ -511,7 +513,7 @@ if ($_POST["hdnCmdInsert"] == "insert") {
         $userTypes = array("System Admin", "Functions Admin", "Simple User");
         echo "Connecting to SQL server (" . $serverName . ")<br/>";
         echo "Database: " . $connectionOptions[Database] . ", SQL User: " . $connectionOptions[Uid] . "<br/>";
-        echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]] . "<br/>";
+        echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]-1] . "<br/>";
 
         /* Free connection resources. */
         sqlsrv_close($conn);

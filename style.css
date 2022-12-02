@@ -18,11 +18,11 @@ body{
 
 
 .frm{  
-    text-align: center;
+    /* text-align: center; */
     border: solid gray 1px; 
     width:25%;  
     border-radius: 5rem;  
-    margin: 20px auto;  
+    margin: auto;  
     background: #eee; 
     background-image: url("./images/TEPAK.png"); 
     background-repeat: no-repeat; 
@@ -34,14 +34,14 @@ body{
 
 .btn{  
     color: #fff;  
-    background: #337ab7;  
+    background: #8d9106;  
     padding: 7px;  
     cursor: pointer;
 }  
 .btnUpForm{  
     display:inline-block;
     color: #fff;  
-    background: #337ab7;  
+    background: #8d9106;  
     padding: 7px;  
     cursor: pointer;
     width: 100px;
@@ -59,7 +59,7 @@ body{
   height: 60px;
   left: 2rem;     
   /* font-size: 2rem;     */
-  background-color: #337ab7;   
+  background-color: #8d9106;   
   padding: 7px;  
   border-radius: 4rem; 
   /* z-index: 999999999999999;  */
@@ -71,16 +71,16 @@ body{
     position: fixed; 
     bottom:0%;
     width:170px; 
-    background-color: #C68F06; 
+    background-color: #8d9106; 
     opacity: 1;
 }
 .disconnectBtn{
-    background-color: #00afff;
+    background-color: #C68F06;
     margin-left: 20px;
     width: 120px;
     appearance: button;
     background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
-    border: 1px solid #00afff;
+    border: 1px solid #ae7f08;
     border-radius: 1rem;
     box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset,rgba(46, 54, 80, 0.075) 0 1px 1px;
     box-sizing: border-box;
@@ -178,7 +178,7 @@ transform: translate(-50%, -50%);
     padding: 10px;
     margin: 5px 0 12px 0;
     border: none;
-    background: #f1f1f1;
+    background: #dcdcdc;
   }
 
   .form-container label{
@@ -194,7 +194,7 @@ transform: translate(-50%, -50%);
   
   /* Set a style for the submit/login button */
   .form-container .btn {
-    background-color: #04AA6D;
+    background-color: #8d9106;
     color: white;
     padding: 16px 20px;
     border: none;
@@ -219,9 +219,9 @@ transform: translate(-50%, -50%);
   /* Menu buttons */
 .button-20 {
   appearance: button;
-  background-color: #00afff;
+  background-color: #8d9106;
   background-image: linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));
-  border: 1px solid #00afff;
+  border: 1px solid #858906;
   border-radius: 1rem;
   box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset,rgba(46, 54, 80, 0.075) 0 1px 1px;
   box-sizing: border-box;
@@ -235,7 +235,7 @@ transform: translate(-50%, -50%);
   margin: 10;
   padding: .5rem 1rem;
   height:50px;
-  width:100px;
+  /* width:100px; */
   text-align: center;
   text-transform: none;
   transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
@@ -251,25 +251,25 @@ transform: translate(-50%, -50%);
 }
 
 .button-20:hover {
-  background-color: #004fff;
-  border-color: #000fff;
+  background-color: #787b07;
+  border-color: #8d9106;
 }
 
 .button-20:focus {
-  background-color: #004fff;
-  border-color: #000fff;
+  background-color: #8d9106;
+  border-color: #7e8305;
   box-shadow: rgba(255, 255, 255, 0.15) 0 1px 0 inset, rgba(46, 54, 80, 0.075) 0 1px 1px, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
 }
 
 .button-20:active {
-  background-color: #000fff;
+  background-color: #858906;
   background-image: none;
-  border-color: #000fff;
+  border-color: #9ca108;
   box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset;
 }
 
 .button-20:active:focus {
-  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(104, 101, 235, 0.5) 0 0 0 .2rem;
+  box-shadow: rgba(46, 54, 80, 0.125) 0 3px 5px inset, rgba(112, 154, 34, 0.5) 0 0 0 .2rem;
 }
 
 .button-20:disabled {

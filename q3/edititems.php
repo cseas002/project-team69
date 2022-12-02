@@ -106,7 +106,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		</table>
 		<hr>
 
-		<button class="btnUpForm" onclick="document.getElementById('myForm').style.display = 'block';">Insert
+		<button class="button-20" onclick="document.getElementById('myForm').style.display = 'block';">Insert
 			Item</button>
 
 		<div class="form-popup" id="myForm"
@@ -327,7 +327,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
         $userTypes = array("System Admin", "Functions Admin", "Simple User");
         echo "Connecting to SQL server (" . $serverName . ")<br/>";
         echo "Database: " . $connectionOptions[Database] . ", SQL User: " . $connectionOptions[Uid] . "<br/>";
-        echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]] . "<br/>";
+        echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]-1] . "<br/>";
 
         /* Free connection resources. */
         sqlsrv_close($conn);

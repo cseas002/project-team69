@@ -91,6 +91,33 @@
     </table>
 
 	<hr/>
+
+	<div class="form-popup" id="myForm"
+			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
+			<form name="f1" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd" value="">
+				<h2 style="text-align:center;">Insert new POI</h2>
+                <h4 style="text-align:center;">Z is by default = <?=$FloorZ;?></h4>
+                <label> Name: </label>
+				<input type="text" name="POIName" />
+                <label> Summary: </label>
+				<input type="text" name="Summary" />
+                <label> Type: </label>
+				<input type="text" name="POIType" />
+                <label> Owner: </label>
+				<input type="text" name="POIOwner" />
+				<label> x: </label>
+				<input type="text" name="x" />
+				<label> y: </label>
+				<input type="text" name="y" />
+				<input type="button" class="btn" value="Insert"
+					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+
+		<hr/>
 	
 		<table width="100%" border="1">  
 		<tr>  
@@ -125,7 +152,7 @@
 	$userTypes=array("System Admin", "Functions Admin", "Simple User");
 	echo "Connecting to SQL server (" . $serverName . ")<br/>";
 	echo "Database: " . $connectionOptions[Database] . ", SQL User: " . $connectionOptions[Uid] . "<br/>";
-	echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]] . "<br/>";
+	echo "User: " . $_SESSION["userID"] . ", UserType: " . $userTypes[$_SESSION["userType"]-1] . "<br/>";
 
 	/* Free connection resources. */
 	sqlsrv_close( $conn);
