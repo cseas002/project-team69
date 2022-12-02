@@ -638,7 +638,7 @@ BEGIN
 END;
 
 
-CREATE PROCEDURE dbo.Q9
+CREATE PROCEDURE [dbo].[Q9]
 AS 
 -- We are calculating the total amount of types found in fingerprints / the total amount of fingerprints
 -- Types that belong to two Models (e.g. COCO chair and UCY chair) are considered different
@@ -647,4 +647,5 @@ BEGIN
 	FROM (	SELECT t.TypeID, t.Title, COUNT(i.ItemID) AS TypeCount
 		FROM dbo.TYPES t LEFT JOIN dbo.ITEM i ON i.TypeID = t.TypeID -- Some Types might not be found on items
 		GROUP BY t.TypeID, t.Title  ) AS TypesInFingerprints, (SELECT COUNT(*) AS FingerprintsAmt FROM dbo.FINGERPRINT f ) AS Fingerprints
+	ORDER BY [Average Occurences] DESC
 END;
