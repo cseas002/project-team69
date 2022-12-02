@@ -284,17 +284,24 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
         //*** Delete Condition ***//  
         if ($_POST["hdnCmd"] == "Delete") {
 	        $strSQL = "{call dbo.Q3_DeleteItem(?)}";
+			$id = intval($_POST["idpass"]);
+			echo $id . " ";
 	        $params = array(
-	        	array($_POST["idpass"], SQLSRV_PARAM_IN)
+	        	array($id, SQLSRV_PARAM_IN)
 	        );
 	        $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	        $objRow = sqlsrv_fetch_array($objQuery);
+	        $objRow = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC);
 	        if (!$objQuery) {
-		        echo "Error Delete [" . sqlsrv_errors() . "]";
-	        } else{
-		        $url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
-	        echo "<meta http-equiv='refresh' content='0; url=$url'>";
+		        echo "Error Delete [";
+	print_r(sqlsrv_errors());
+	echo "]<br/>";
+	        } 
+			else{
+				$url = $_SERVER['PHP_SELF'] . "?fid=" . $fid;
+				echo "<meta http-equiv='refresh' content='0; url=$url'>";   
 			}
+			
+				  
         }
 
         if ($_POST["hdnCmd"] == "Insert") {

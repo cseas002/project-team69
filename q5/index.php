@@ -277,7 +277,7 @@ if ($_POST["hdnCmd"] == "Delete") {
 }
 
 if ($_POST["hdnCmd"] == "Insert") {
-	$strSQL = "{call dbo.Q4_InsertBuilding(?, ?, ?, ?)}";
+	$strSQL = "{call dbo.Q5_InsertCampus(?, ?, ?, ?)}";
 	
 	
 	$params = array(

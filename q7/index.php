@@ -91,10 +91,7 @@
     </table>
 
 	
-	<div onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
-	<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">  
-		<input type="hidden" name="hdnCmd" value="">  
-		<input type="hidden" name="hdnTypeID" value="">
+	<hr/>
 		<table width="100%" border="1">  
 		<tr>  
 		<th width = "33%"> <div align="center">TypeID </div></th>  
@@ -119,8 +116,6 @@
 		?>  
  
 		</table>  
-		</form>
-	</div>
 
 	<?php
 	// $time_start = microtime(true);
