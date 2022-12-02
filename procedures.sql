@@ -649,3 +649,172 @@ BEGIN
 		GROUP BY t.TypeID, t.Title  ) AS TypesInFingerprints, (SELECT COUNT(*) AS FingerprintsAmt FROM dbo.FINGERPRINT f ) AS Fingerprints
 	ORDER BY [Average Occurences] DESC
 END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_BFLOOR
+@FloorID INT,
+@Summary [nvarchar](MAX), 
+@TopoPlan [nvarchar](MAX),
+@BCode INT
+AS
+BEGIN
+	IF @FloorID = 0 -- empty
+		IF @BCode = 0
+		SELECT FloorID, Summary, TopoPlan, BCode
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
+		+ '%'
+		ELSE
+		SELECT FloorID, Summary, TopoPlan, BCode
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
+		+ '%' AND BCode = @BCode
+	ELSE
+	IF @BCode = 0 -- empty
+	SELECT FloorID, Summary, TopoPlan, BCode
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
+		+ '%' AND FloorID = @FloorID
+	ELSE
+	SELECT FloorID, Summary, TopoPlan, BCode
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
+		+ '%' AND FloorID = @FloorID AND BCode = @BCode
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_BUILDING
+@BCode INT, 
+@BLDCode NVARCHAR(30),
+@BName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@BAddress NVARCHAR(30),
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
+@BOwner NVARCHAR(30),
+@RegDate VARCHAR(30),
+@CampusID INT
+AS
+BEGIN
+	SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , RegDate , CampusID 
+		FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @BCode + '%' AND BLDCode LIKE '%' + @BLDCode
+		+ '%' AND Summary LIKE '%' + @Summary + '%' AND BAddress LIKE '%' + @BAddress + '%' AND CAST(x AS NVARCHAR) 
+		LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND BOwner LIKE '%' + @BOwner + '%' AND 
+		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(CampusID AS NVARCHAR) LIKE '%' + @CampusID + '%'
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_CAMPUS
+@CampusID INT, 
+@CampusName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@RegDate VARCHAR(30),
+@Website NVARCHAR(2083)
+AS
+BEGIN
+	SELECT CampusID , CampusName , Summary , RegDate , Website
+		FROM dbo.CAMPUS WHERE CAST(CampusID AS NVARCHAR) LIKE '%' + @CampusID + '%' AND CampusName LIKE '%' + @CampusName
+		+ '%' AND Summary LIKE '%' + @Summary + '%'  AND 
+		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND Website LIKE '%' + @Website + '%'
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_FINGERPRINT
+@FingerprintID INT, 
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
+@Level INT,
+@RegDate VARCHAR(30),
+@FloorID INT
+AS
+BEGIN
+	SELECT FingerprintID , x, y, Level , RegDate , FloorID 
+	FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) 
+	LIKE '%' + @FingerprintID + '%' AND CAST(x AS NVARCHAR) 
+	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND CAST(Level AS NVARCHAR) LIKE '%' + @Level + '%' AND 
+	CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(FloorID AS NVARCHAR) LIKE '%' + @FloorID + '%'
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_ITEM
+@FingerprintID INT, 
+@Height DECIMAL(6, 3),
+@Width DECIMAL(6, 3),
+@TypeID INT,
+@ItemID INT
+AS
+BEGIN
+	SELECT FingerprintID , Height, Width, TypeID , ItemID 
+	FROM dbo.ITEM WHERE CAST(FingerprintID AS NVARCHAR) 
+	LIKE '%' + @FingerprintID + '%' AND CAST(Height AS NVARCHAR) 
+	LIKE '%' + @Height + '%' AND CAST(Width AS NVARCHAR) LIKE '%' + @Width + '%' AND CAST(TypeID AS NVARCHAR) 
+	LIKE '%' + @TypeID + '%' AND CAST(ItemID AS NVARCHAR) LIKE '%' + @ItemID + '%'
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_POI
+@POIID INT, 
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
+@FloorID INT,
+@POIName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@POIOwner NVARCHAR(30),
+@POIType NVARCHAR(30)
+AS
+BEGIN
+	SELECT POIID , x, y, FloorID , POIName, Summary , POIOwner , POIType  
+	FROM dbo.POI WHERE CAST(POIID AS NVARCHAR) 
+	LIKE '%' + @POIID + '%' AND CAST(x AS NVARCHAR) 
+	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND CAST(FloorID AS NVARCHAR) 
+	LIKE '%' + @FloorID + '%' AND POIName LIKE '%' + @POIName + '%' AND Summary LIKE '%' + @Summary + '%'
+	AND POIOwner LIKE '%' + @POIOwner + '%' AND POIType LIKE '%' + @POITYPE + '%'
+END;
+
+CREATE PROCEDURE dbo.Search_BFLOOR
+@Keyword nvarchar(MAX)
+AS
+SELECT FloorID, Summary, TopoPlan, BCode FROM dbo.BFLOOR WHERE FloorID LIKE '%' + @Keyword + '%' OR Summary LIKE '%' + @Keyword + '%' OR TopoPlan LIKE '%' + @Keyword 
+						+ '%' OR BCode LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_BUILDING
+@Keyword nvarchar(MAX)
+AS
+SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , RegDate , CampusID
+FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(BLDCode AS NVARCHAR) LIKE '%' 
+	+ @Keyword + '%' OR BName LIKE '%' + @Keyword + '%' OR Summary LIKE + '%' + @Keyword + '%' AND BAddress LIKE + 
+	'%' + @Keyword + '%' AND CAST(x AS NVARCHAR) LIKE + '%' + @Keyword + '%' AND CAST(y AS NVARCHAR) LIKE + '%' + 
+	@Keyword + '%' AND BOwner LIKE + '%' + @Keyword + '%' AND RegDate LIKE + '%' + @Keyword + '%' AND 
+	CAST(CampusID AS NVARCHAR) LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_CAMPUS
+@Keyword nvarchar(MAX)
+AS
+SELECT CampusID , CampusName , Summary , RegDate , Website
+FROM dbo.CAMPUS WHERE CampusID LIKE '%' + @Keyword + '%' OR CampusName LIKE '%' + @Keyword + '%' 
+OR Summary LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR CampusID 
+LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_FINGERPRINT
+@Keyword nvarchar(MAX)
+AS
+SELECT FingerprintID, x, y, Level, RegDate , FloorID
+FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE '%' + @Keyword + '%' 
+OR CAST(y AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR CAST(FloorID AS NVARCHAR)
+LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_ITEM
+@Keyword nvarchar(MAX)
+AS
+SELECT FingerprintID, Height, Width, TypeID, ItemID
+FROM dbo.ITEM WHERE CAST(FingerprintID AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(Height AS NVARCHAR) LIKE '%' + @Keyword + '%' 
+OR CAST(Width AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR CAST(ItemID AS NVARCHAR)
+LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_POI
+@Keyword nvarchar(MAX)
+AS
+SELECT POIID , x, y, FloorID , POIName, Summary , POIOwner , POIType 
+FROM dbo.POI WHERE CAST(FloorID AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR CAST(POIID AS NVARCHAR) LIKE 
+'%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(y AS NVARCHAR) LIKE + '%' + 
+@Keyword + '%' OR POIName LIKE + '%' + @Keyword + '%' OR Summary LIKE + '%' + @Keyword + '%' OR POIOwner 
+LIKE + '%' + @Keyword + '%' OR POIType LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.UserLogin
+@Username nvarchar(30),
+@UPassword nvarchar(30)
+AS
+BEGIN
+SELECT UserID, UserType FROM dbo.USERS WHERE Username = @Username AND UPassword = @UPassword
+END;
+
