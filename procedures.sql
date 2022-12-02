@@ -225,6 +225,33 @@ BEGIN
 	) 
 END
  
+ CREATE PROCEDURE [dbo].[Q12_Test3]
+AS
+BEGIN
+	SET NOCOUNT ON
+
+	DECLARE @ValidFingerprints TABLE (FingerprintID INT, cnt INT)
+	DECLARE @FingerprintsCombinations TABLE (f1 INT, f2 INT)
+
+	INSERT INTO @ValidFingerprints 
+	SELECT i.FingerprintID, COUNT(DISTINCT(i.TypeID)) AS amt
+	FROM dbo.ITEM i
+	GROUP BY i.FingerprintID
+	
+	INSERT INTO @FingerprintsCombinations
+	SELECT v1.FingerprintID AS f1, v2.FingerprintID AS f2 
+	FROM @ValidFingerprints v1, @ValidFingerprints v2
+	WHERE v1.cnt = v2.cnt AND v1.FingerprintID != v2.FingerprintID
+	
+	SELECT * FROM @FingerprintsCombinations 
+	EXCEPT (
+	SELECT f1, f2
+	FROM @FingerprintsCombinations fc, dbo.TYPES t
+	WHERE EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1) 
+	-- There is an item of that type that belongs to f1 
+	AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2)
+	)
+END
 
 CREATE PROCEDURE dbo.Q13
 @fingerprint int
