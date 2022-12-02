@@ -335,12 +335,13 @@ AS
 BEGIN 
 UPDATE dbo.TYPES SET Title = @Title, Model = @Model WHERE TypeID = @TypeID
 END;
-
-CREATE PROCEDURE dbo.Q20
-@floorID int
+--GETS THE NEAREST POI THATS WHY 16-8 BUT NO 8-16 BECAUSE 8-21
+CREATE PROCEDURE [dbo].[Q20]
+@floorID int,
+@k int
 AS
 BEGIN
-	SELECT p.POIID AS [POI 1], p2.POIID AS [POI 2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
+	SELECT TOP (@k) p.POIID AS [POI 1], p2.POIID AS [POI 2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
 	FROM dbo.POI p, dbo.POI p2
 	WHERE p.FloorID = @floorID AND p2.FloorID = @floorID -- They belong to the same floor
 	AND p.POIID != p2.POIID -- And they are not the same	
@@ -348,7 +349,7 @@ BEGIN
 					( SELECT dbo.DISTANCE2D(p.x, p.y, p3.x, p3.y)
 					  FROM dbo.POI p3
 					  WHERE p.FloorID = @floorID AND p3.FloorID = @floorID AND p3.POIID != p.POIID)
-	
+	ORDER BY Distance ASC
 END;
 
 CREATE PROCEDURE [dbo].[Q21]
