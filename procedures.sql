@@ -8,7 +8,6 @@ CREATE PROCEDURE [dbo].[Q1_Advanced_Select]
 @UserType [nvarchar](1)
 AS
 BEGIN
-	DECLARE @UserIDCheck nvarchar(20) 
 	IF @UserID = 0 -- empty
 		IF @Date_of_Birth = ''
 		SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType
@@ -182,6 +181,45 @@ BEGIN
 		)
 END;
 
+CREATE PROCEDURE [dbo].[Q12_Test2]
+AS
+BEGIN
+	CREATE TABLE #ValidFingerprints (FingerprintID INT, cnt INT);
+	TRUNCATE TABLE #ValidFingerprints
+
+	INSERT INTO #ValidFingerprints 
+	SELECT i.FingerprintID, COUNT(DISTINCT(i.TypeID)) AS amt
+	FROM dbo.ITEM i
+	GROUP BY i.FingerprintID
+	--#ValidFingerprints has the fingerprints that have the same amount of types
+	
+	CREATE TABLE #FingerprintsCombinations (f1 INT, f2 INT);
+	TRUNCATE TABLE #FingerprintsCombinations 
+
+	INSERT INTO #FingerprintsCombinations 
+	SELECT v1.FingerprintID AS f1, v2.FingerprintID AS f2
+	FROM #ValidFingerprints v1, #ValidFingerprints v2
+	WHERE v1.cnt = v2.cnt AND v1.FingerprintID != v2.FingerprintID 
+	--#FingerprintsCombinations has the possible fingerprints who have the same types
+	
+	SELECT * FROM #FingerprintsCombinations 
+	EXCEPT (
+	SELECT f1, f2
+	FROM #FingerprintsCombinations fc, dbo.TYPES t
+	WHERE EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1) 
+	-- There is an item of that type that belongs to f1 
+	AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2)
+	-- But there is not an item of that type that belongs to f2
+	-- OR	EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2) 
+	-- There is an item of that type that belongs to f2 
+	-- AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1)
+	-- But there is not an item of that type that belongs to f1
+
+	-- This works because #FingerprintsCombinations have both combinations of fingerprints (e.g., 1 4 and 4 1)
+	) 
+END
+ 
+
 CREATE PROCEDURE dbo.Q13
 @fingerprint int
 AS
@@ -218,7 +256,7 @@ GROUP BY I.TypeID, T.Title, T.Model
 HAVING COUNT(DISTINCT FingerprintID) = (SELECT COUNT(*)
 FROM dbo.FINGERPRINT);
 
-ALTER PROCEDURE dbo.Q16
+CREATE PROCEDURE dbo.Q16
 @TypeID INT,
 @x1 DECIMAL(15,12),
 @y1 DECIMAL(15,12),
@@ -230,42 +268,45 @@ FROM dbo.ITEM AS I
 WHERE I.TypeID=@TypeID AND I.FingerprintID IN (
 	SELECT F.FingerprintID
 	FROM dbo.FINGERPRINT AS F
-	WHERE F.x BETWEEN @x1 AND @x2 AND F.y BETWEEN @y1 AND @y2--((F.x>=@x1 AND F.x<=@x2)OR(F.x<=@x1 AND F.x>=@x2)) AND ((F.y>=@y1 AND F.y<=@y2)OR(F.y<=@y1 AND F.y>=@y2))
+	WHERE (F.x BETWEEN @x1 AND @x2 )AND (F.y BETWEEN @y1 AND @y2)--((F.x>=@x1 AND F.x<=@x2)OR(F.x<=@x1 AND F.x>=@x2)) AND ((F.y>=@y1 AND F.y<=@y2)OR(F.y<=@y1 AND F.y>=@y2))
 );
+
 
 CREATE PROCEDURE dbo.Q17
 @BCode INT
 AS
-SELECT P.BCode, MIN(P.x), MIN(P.y), MAX(P.x), MAX(P.y)
-FROM dbo.POI AS P
-WHERE P.BCode = @BCode
-GROUP BY P.BCode;
+SELECT B.BCode, MIN(P.x) AS [MIN X], MIN(P.y)AS [MIN Y], MAX(P.x)AS [MAX X], MAX(P.y)AS [MAX Y]
+FROM dbo.POI AS P ,BFLOOR B
+WHERE B.BCode = @BCode AND B.FloorID=P.FloorID
+GROUP BY B.BCode;
 
 CREATE PROCEDURE dbo.Q18
-@x DECIMAL(11, 8),
-@y DECIMAL(11, 8),
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
 @z int
 AS
 BEGIN
 	SELECT *
-	FROM dbo.POI p
-	WHERE dbo.DISTANCE(p.x, p.y, p.POIZ, @x, @y, @z) = 
-					( SELECT MIN(dbo.DISTANCE(p2.x, p2.y, p2.POIZ, @x, @y, @z))
-					  FROM dbo.POI p2
+	FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID  
+	WHERE dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) = 
+					( SELECT MIN(dbo.DISTANCE(p2.x, p2.y, f2.FloorZ, @x, @y, @z))
+					  FROM dbo.POI p2 JOIN dbo.BFLOOR f2 ON p2.FloorID = f2.FloorID
 					)
 END;
 
+--K first not showing more
 CREATE PROCEDURE dbo.Q19
-@x DECIMAL(11, 8),
-@y DECIMAL(11, 8),
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
 @z int,
 @k int
 AS
 BEGIN
 	SELECT TOP (@k) *
-	FROM dbo.POI p
-	ORDER BY dbo.DISTANCE(p.x, p.y, p.POIZ, @x, @y, @z)
+	FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID 
+	ORDER BY dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z)
 END;
+
 
 CREATE PROCEDURE [dbo].[Q2_Delete]
 @TypeID int
@@ -294,20 +335,21 @@ AS
 BEGIN 
 UPDATE dbo.TYPES SET Title = @Title, Model = @Model WHERE TypeID = @TypeID
 END;
-
-CREATE PROCEDURE dbo.Q20
-@z int
+--GETS THE NEAREST POI THATS WHY 16-8 BUT NO 8-16 BECAUSE 8-21
+CREATE PROCEDURE [dbo].[Q20]
+@floorID int,
+@k int
 AS
 BEGIN
-	SELECT p.POIID AS [POI 1], p2.POIID AS [POI 2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
+	SELECT TOP (@k) p.POIID AS [POI 1], p2.POIID AS [POI 2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
 	FROM dbo.POI p, dbo.POI p2
-	WHERE p.POIZ = @z AND p2.POIZ = @z AND p.BCode = p2.BCode -- They belong to the same floor
+	WHERE p.FloorID = @floorID AND p2.FloorID = @floorID -- They belong to the same floor
 	AND p.POIID != p2.POIID -- And they are not the same	
 	AND dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) <= ALL -- The POI with smallest distance from p
 					( SELECT dbo.DISTANCE2D(p.x, p.y, p3.x, p3.y)
 					  FROM dbo.POI p3
-					  WHERE p.POIZ = @z AND p3.POIZ = @z AND p.BCode = p3.BCode AND p3.POIID != p.POIID)
-	
+					  WHERE p.FloorID = @floorID AND p3.FloorID = @floorID AND p3.POIID != p.POIID)
+	ORDER BY Distance ASC
 END;
 
 CREATE PROCEDURE [dbo].[Q21]
@@ -324,7 +366,7 @@ BEGIN
 	-- A valid destination is a fingerprint which has distance less than @x meters from another one
 			SELECT f1.FingerprintID, f2.FingerprintID
 			FROM dbo.FINGERPRINT f1, dbo.FINGERPRINT f2
-			WHERE f1.FingerprintID != f2.FingerprintID AND dbo.DISTANCE(f1.x, f1.y, f1.z, f2.x, f2.y, f2.z) < @x
+			WHERE f1.FingerprintID != f2.FingerprintID AND dbo.DISTANCE(f1.x, f1.y, f1.[Level], f2.x, f2.y, f2.[Level]) < @x
 
 	OPEN c
 	FETCH NEXT FROM c INTO @fingerprint -- We save the first fingerprint ID into @fingerprint variable
@@ -383,6 +425,7 @@ BEGIN
 	CLOSE c
 	DEALLOCATE c
 END;
+
 
 CREATE PROCEDURE [dbo].[Q3_DeleteFingerprint]
 @FingerprintID INT
@@ -583,17 +626,19 @@ HAVING COUNT(DISTINCT i.FingerprintID) =
 				FROM dbo.ITEM i2
 				GROUP BY i2.TypeID) AS Fing_amt)
 END;
-
-CREATE PROCEDURE dbo.Q8
+--change from previous check again for sure
+-- COUNT DISTINCT POI TYPES
+CREATE PROCEDURE [dbo].[Q8]
 AS
 BEGIN
-	SELECT b.BCode AS Building, b.FloorZ AS [Floor in Building], COUNT(p.POIType) AS [POI Amount]
+	SELECT b.FloorID, COUNT(p.POIType) AS [POI Amount]
 	FROM dbo.BFLOOR b , dbo.POI p 
 	WHERE p.FloorID = b.FloorID 
-	GROUP BY b.BCode , b.FloorZ
+	GROUP BY b.FloorID
 END;
 
-CREATE PROCEDURE dbo.Q9
+
+CREATE PROCEDURE [dbo].[Q9]
 AS 
 -- We are calculating the total amount of types found in fingerprints / the total amount of fingerprints
 -- Types that belong to two Models (e.g. COCO chair and UCY chair) are considered different
@@ -602,4 +647,174 @@ BEGIN
 	FROM (	SELECT t.TypeID, t.Title, COUNT(i.ItemID) AS TypeCount
 		FROM dbo.TYPES t LEFT JOIN dbo.ITEM i ON i.TypeID = t.TypeID -- Some Types might not be found on items
 		GROUP BY t.TypeID, t.Title  ) AS TypesInFingerprints, (SELECT COUNT(*) AS FingerprintsAmt FROM dbo.FINGERPRINT f ) AS Fingerprints
+	ORDER BY [Average Occurences] DESC
 END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_BFLOOR
+@FloorID INT,
+@Summary [nvarchar](MAX), 
+@TopoPlan [nvarchar](MAX),
+@BCode INT
+AS
+BEGIN
+	IF @FloorID = 0 -- empty
+		IF @BCode = 0
+		SELECT FloorID, Summary, TopoPlan, BCode
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
+		+ '%'
+		ELSE
+		SELECT FloorID, Summary, TopoPlan, BCode
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
+		+ '%' AND BCode = @BCode
+	ELSE
+	IF @BCode = 0 -- empty
+	SELECT FloorID, Summary, TopoPlan, BCode
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
+		+ '%' AND FloorID = @FloorID
+	ELSE
+	SELECT FloorID, Summary, TopoPlan, BCode
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
+		+ '%' AND FloorID = @FloorID AND BCode = @BCode
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_BUILDING
+@BCode INT, 
+@BLDCode NVARCHAR(30),
+@BName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@BAddress NVARCHAR(30),
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
+@BOwner NVARCHAR(30),
+@RegDate VARCHAR(30),
+@CampusID INT
+AS
+BEGIN
+	SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , RegDate , CampusID 
+		FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @BCode + '%' AND BLDCode LIKE '%' + @BLDCode
+		+ '%' AND Summary LIKE '%' + @Summary + '%' AND BAddress LIKE '%' + @BAddress + '%' AND CAST(x AS NVARCHAR) 
+		LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND BOwner LIKE '%' + @BOwner + '%' AND 
+		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(CampusID AS NVARCHAR) LIKE '%' + @CampusID + '%'
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_CAMPUS
+@CampusID INT, 
+@CampusName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@RegDate VARCHAR(30),
+@Website NVARCHAR(2083)
+AS
+BEGIN
+	SELECT CampusID , CampusName , Summary , RegDate , Website
+		FROM dbo.CAMPUS WHERE CAST(CampusID AS NVARCHAR) LIKE '%' + @CampusID + '%' AND CampusName LIKE '%' + @CampusName
+		+ '%' AND Summary LIKE '%' + @Summary + '%'  AND 
+		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND Website LIKE '%' + @Website + '%'
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_FINGERPRINT
+@FingerprintID INT, 
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
+@Level INT,
+@RegDate VARCHAR(30),
+@FloorID INT
+AS
+BEGIN
+	SELECT FingerprintID , x, y, Level , RegDate , FloorID 
+	FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) 
+	LIKE '%' + @FingerprintID + '%' AND CAST(x AS NVARCHAR) 
+	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND CAST(Level AS NVARCHAR) LIKE '%' + @Level + '%' AND 
+	CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(FloorID AS NVARCHAR) LIKE '%' + @FloorID + '%'
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_ITEM
+@FingerprintID INT, 
+@Height DECIMAL(6, 3),
+@Width DECIMAL(6, 3),
+@TypeID INT,
+@ItemID INT
+AS
+BEGIN
+	SELECT FingerprintID , Height, Width, TypeID , ItemID 
+	FROM dbo.ITEM WHERE CAST(FingerprintID AS NVARCHAR) 
+	LIKE '%' + @FingerprintID + '%' AND CAST(Height AS NVARCHAR) 
+	LIKE '%' + @Height + '%' AND CAST(Width AS NVARCHAR) LIKE '%' + @Width + '%' AND CAST(TypeID AS NVARCHAR) 
+	LIKE '%' + @TypeID + '%' AND CAST(ItemID AS NVARCHAR) LIKE '%' + @ItemID + '%'
+END;
+
+CREATE PROCEDURE [dbo].Advanced_Search_POI
+@POIID INT, 
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
+@FloorID INT,
+@POIName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@POIOwner NVARCHAR(30),
+@POIType NVARCHAR(30)
+AS
+BEGIN
+	SELECT POIID , x, y, FloorID , POIName, Summary , POIOwner , POIType  
+	FROM dbo.POI WHERE CAST(POIID AS NVARCHAR) 
+	LIKE '%' + @POIID + '%' AND CAST(x AS NVARCHAR) 
+	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND CAST(FloorID AS NVARCHAR) 
+	LIKE '%' + @FloorID + '%' AND POIName LIKE '%' + @POIName + '%' AND Summary LIKE '%' + @Summary + '%'
+	AND POIOwner LIKE '%' + @POIOwner + '%' AND POIType LIKE '%' + @POITYPE + '%'
+END;
+
+CREATE PROCEDURE dbo.Search_BFLOOR
+@Keyword nvarchar(MAX)
+AS
+SELECT FloorID, Summary, TopoPlan, BCode FROM dbo.BFLOOR WHERE FloorID LIKE '%' + @Keyword + '%' OR Summary LIKE '%' + @Keyword + '%' OR TopoPlan LIKE '%' + @Keyword 
+						+ '%' OR BCode LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_BUILDING
+@Keyword nvarchar(MAX)
+AS
+SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , RegDate , CampusID
+FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(BLDCode AS NVARCHAR) LIKE '%' 
+	+ @Keyword + '%' OR BName LIKE '%' + @Keyword + '%' OR Summary LIKE + '%' + @Keyword + '%' AND BAddress LIKE + 
+	'%' + @Keyword + '%' AND CAST(x AS NVARCHAR) LIKE + '%' + @Keyword + '%' AND CAST(y AS NVARCHAR) LIKE + '%' + 
+	@Keyword + '%' AND BOwner LIKE + '%' + @Keyword + '%' AND RegDate LIKE + '%' + @Keyword + '%' AND 
+	CAST(CampusID AS NVARCHAR) LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_CAMPUS
+@Keyword nvarchar(MAX)
+AS
+SELECT CampusID , CampusName , Summary , RegDate , Website
+FROM dbo.CAMPUS WHERE CampusID LIKE '%' + @Keyword + '%' OR CampusName LIKE '%' + @Keyword + '%' 
+OR Summary LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR CampusID 
+LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_FINGERPRINT
+@Keyword nvarchar(MAX)
+AS
+SELECT FingerprintID, x, y, Level, RegDate , FloorID
+FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE '%' + @Keyword + '%' 
+OR CAST(y AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR CAST(FloorID AS NVARCHAR)
+LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_ITEM
+@Keyword nvarchar(MAX)
+AS
+SELECT FingerprintID, Height, Width, TypeID, ItemID
+FROM dbo.ITEM WHERE CAST(FingerprintID AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(Height AS NVARCHAR) LIKE '%' + @Keyword + '%' 
+OR CAST(Width AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR CAST(ItemID AS NVARCHAR)
+LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.Search_POI
+@Keyword nvarchar(MAX)
+AS
+SELECT POIID , x, y, FloorID , POIName, Summary , POIOwner , POIType 
+FROM dbo.POI WHERE CAST(FloorID AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR CAST(POIID AS NVARCHAR) LIKE 
+'%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(y AS NVARCHAR) LIKE + '%' + 
+@Keyword + '%' OR POIName LIKE + '%' + @Keyword + '%' OR Summary LIKE + '%' + @Keyword + '%' OR POIOwner 
+LIKE + '%' + @Keyword + '%' OR POIType LIKE + '%' + @Keyword + '%';
+
+CREATE PROCEDURE dbo.UserLogin
+@Username nvarchar(30),
+@UPassword nvarchar(30)
+AS
+BEGIN
+SELECT UserID, UserType FROM dbo.USERS WHERE Username = @Username AND UPassword = @UPassword
+END;
+

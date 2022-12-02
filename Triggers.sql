@@ -3,20 +3,23 @@ BEGIN
 	SET NOCOUNT ON
 
 	DECLARE @countF INT
-	DECLARE @countFinI INT
-
-	SET @countF = (SELECT COUNT(f.FingerprintID) FROM dbo.FINGERPRINT f)
+	DECLARE @countFinI INT;
+	
+	SET @countF = (SELECT COUNT(f.FingerprintID) FROM dbo.FINGERPRINT f WHERE f.FingerprintID IN 
+	(SELECT i2.FingerprintID FROM dbo.ITEM i2) OR f.FingerprintID IN (SELECT FingerprintID FROM deleted))
+	-- All the fingerprints that have at least one item before deletion
 	SET @countFinI = (SELECT COUNT(DISTINCT(i.FingerprintID)) FROM dbo.ITEM i WHERE i.ItemID NOT IN (SELECT ItemID FROM deleted))
+	-- All the fingerprints that have at least one item after deletion
 
-	PRINT @countF
-	PRINT @countFinI
-
+	--PRINT @countF
+	--PRINT @countFinI
 	IF @countF - @countFinI > 0
 	BEGIN
-      PRINT 'This deletion leaves a fingerprint without any items'
+      --PRINT 'This deletion leaves a fingerprint without any items';
       ROLLBACK
-  END
-END
+     END
+END;
+
 GO
 
 CREATE TRIGGER dbo.Items_Insert ON dbo.ITEM AFTER INSERT AS
@@ -44,7 +47,7 @@ BEGIN
 
   DISABLE TRIGGER dbo.BFLOOR_Update ON dbo.BFLOOR;
   UPDATE dbo.BFLOOR SET UserAdded = @user WHERE UserAdded IS NULL;
-  ENABLE TRIGGER dbo.BFLOOR_Update ON dbo.ITEM;
+  ENABLE TRIGGER dbo.BFLOOR_Update ON dbo.BFLOOR;
  END
  GO
 CREATE TRIGGER dbo.BFLOOR_Update ON dbo.BFLOOR AFTER UPDATE AS

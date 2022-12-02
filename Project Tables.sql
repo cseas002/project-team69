@@ -10,6 +10,15 @@ DROP TABLE [dbo].FValid
 DROP TABLE [dbo].FPassed
 DROP TABLE [dbo].UserID
 
+CREATE TABLE [dbo].FPassed (
+	f int NULL
+);
+
+CREATE TABLE [dbo].FValid (
+	f1 int NULL,
+	f2 int NULL
+);
+
 CREATE TABLE [dbo].USERS
 (
   UserID INT IDENTITY (1,1) NOT NULL,
@@ -147,7 +156,6 @@ CREATE TABLE [dbo].ITEM
   ItemID INT IDENTITY(1,1) NOT NULL,
   TypeID int NOT NULL,
   FingerprintID INT NOT NULL,
-  IDescription NVARCHAR(50) NOT NULL,
   UserAdded INT,
   UserModified INT, 
   Date_Added DATE DEFAULT GETDATE(),
