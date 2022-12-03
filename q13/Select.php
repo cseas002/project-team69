@@ -65,6 +65,7 @@
 		<a href="../q19">Query 19</a>
 		<a href="../q20">Query 20</a>
 		<a href="../q21">Query 21</a>
+		
 		<div class="disconnectForm">
 			<?php
         if (isset($_POST['disconnect'])) {
@@ -86,34 +87,41 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Floors with more than the avg. of POIs</h2></td>
+		<td vAlign=center align=middle><h2>Other fingerprints with (at least) the same type</h2></td>
 	</tr>
     </table>
 
+	<button class="button-20" onclick="document.getElementById('myForm').style.display = 'block';">Back</button>
 	<hr/>
 	
 		<table width="100%" border="1">  
 		<tr>  
-		<th width = "50%"> <div align="center">Fingerprint 1 </div></th>  
+		<th width = "50%"> <div align="center">Fingerprint 1</div></th>  
 		<th width = "50%"> <div align="center">Fingerprint 2</div></th> 
 		</tr>  
 		<?php 
-		$tsql="EXEC dbo.Q12_Test2";
-		$objQuery = sqlsrv_query($conn, $tsql);
+		$tsql = "{call dbo.Q13(?)}";
+        $params = array(
+            array($_GET["row"], SQLSRV_PARAM_IN)
+        );
 
-
+        $objQuery = sqlsrv_query($conn, $tsql, $params);
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
-	        
 		?>
 
 		<tr>
-		<td align="center"><?=$objResult["f1"];?></td>
-		<td align="center"><?=$objResult["f2"];?></td>
+		<td><div id='row<?= $objResult["Argument"]; ?>' align="center"><?=$objResult["Argument"];?></div></td>
+        <td><div id='row<?= $objResult["FingerprintID"]; ?>' align="center"><?=$objResult["FingerprintID"];?></div></td>
 		</tr>  
 		<?php 
 		}  
 		?>  
+
+		<tr>
+		<td align="center"><?=$objResult["Argument"];?></td>
+		<td align="center"><?=$objResult["FingerprintID"];?></td>
+		</tr>  
  
 		</table>  
 

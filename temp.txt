@@ -1,0 +1,2 @@
+<input class="textbtn warning" name="btnSelect" type="button" id="btnSelect" value="Select"
+								OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?Action=Select&id=<?= $objResult["FingerprintID"]; ?>#row<?= $objResult["FingerprintID"]; ?>';"> */
