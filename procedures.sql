@@ -1,3 +1,9 @@
+CREATE TYPE [dbo].[TableType] AS TABLE(
+	[fid] [int] NULL,
+	[cnt] [int] NULL
+)
+GO
+
 CREATE PROCEDURE [dbo].[Q1_Advanced_Select]
 @FName [nvarchar](30),
 @LName [nvarchar](30), 
@@ -8,6 +14,7 @@ CREATE PROCEDURE [dbo].[Q1_Advanced_Select]
 @UserType [nvarchar](1)
 AS
 BEGIN
+SET NOCOUNT ON
 	IF @UserID = 0 -- empty
 		IF @Date_of_Birth = ''
 		SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType
@@ -31,19 +38,24 @@ BEGIN
 							AND UserID = @UserID AND Date_of_Birth = @Date_of_Birth;
 END;
 
+GO
 CREATE PROCEDURE dbo.Q1_Change_Password
 @UserID int,
 @UPassword nvarchar(30)
 AS
+SET NOCOUNT ON
 UPDATE dbo.USERS SET UPassword = @UPassword WHERE UserID = @UserID;
 
+GO
 CREATE PROCEDURE [dbo].[Q1_Delete]
 @UserID int
 AS
 BEGIN 
+SET NOCOUNT ON
 DELETE FROM dbo.USERS WHERE UserID = @UserID
 END;
 
+GO
 CREATE PROCEDURE [dbo].[Q1_Edit_User]
 @FName [nvarchar](30),
 @LName [nvarchar](30), 
@@ -54,10 +66,12 @@ CREATE PROCEDURE [dbo].[Q1_Edit_User]
 @UserType [nvarchar](1)
 AS
 BEGIN
+SET NOCOUNT ON
 	UPDATE dbo.USERS SET FName = @FName, LName = @LName, Date_of_Birth = @Date_of_Birth, Gender = @Gender, Username = @Username, UserType = @UserType
 	WHERE UserID = @UserID;
 END;
 
+GO
 CREATE PROCEDURE [dbo].[Q1_Insert_User]
 @FName [nvarchar](30),
 @LName [nvarchar](30), 
@@ -68,24 +82,31 @@ CREATE PROCEDURE [dbo].[Q1_Insert_User]
 @UserType [nvarchar](1)
 AS
 BEGIN
+SET NOCOUNT ON
 	INSERT INTO dbo.USERS(FName, LName, Date_of_Birth, Gender, Username, UPassword, UserType) VALUES (@FName, @LName, @Date_of_Birth, 
 							@Gender, @Username, @UPassword, @UserType)
 END;
 
+GO
 CREATE PROCEDURE [dbo].[Q1_Select]
 AS
+SET NOCOUNT ON
 SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType FROM dbo.USERS;
 
+GO
 CREATE PROCEDURE dbo.Q1_Simple_Select
 @Keyword nvarchar(30)
 AS
+SET NOCOUNT ON
 SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType FROM dbo.USERS WHERE FName LIKE '%' + @Keyword + '%' OR LName LIKE '%' + @Keyword + '%' OR Gender LIKE '%' + @Keyword 
 						+ '%' OR Username LIKE + '%' + @Keyword + '%' OR UserType LIKE + '%' + @Keyword	
 						OR Username LIKE + '%' + @Keyword + '%' OR CAST(Date_of_Birth AS nvarchar) LIKE + '%' + @Keyword + '%';
 
+GO
 CREATE PROCEDURE dbo.Q10
 AS 
 BEGIN
+SET NOCOUNT ON
 DECLARE @COUNT1 FLOAT 
 DECLARE @COUNT2 FLOAT 
 DECLARE @RESULT FLOAT
@@ -100,104 +121,38 @@ GROUP BY p.FloorID
 HAVING COUNT(p.POIID) >@RESULT
 END;
 
-
-CREATE PROCEDURE dbo.Q12
+GO
+CREATE PROCEDURE [dbo].[Q11]
 AS
 BEGIN
-	DECLARE @fingerprint int
-	CREATE TABLE #temp (f1 int, f2 int)
-	DECLARE c CURSOR FAST_FORWARD FOR SELECT f.FingerprintID FROM dbo.FINGERPRINT f
- 
-	OPEN c
-	FETCH NEXT FROM c INTO @fingerprint
- 
-	WHILE @@FETCH_STATUS = 0
-	BEGIN
-		INSERT INTO #temp (f1, f2) EXEC dbo.Q12_2 @fingerprint
-		FETCH NEXT FROM c INTO @fingerprint
-	END
-	CLOSE c
-	DEALLOCATE c
-	SELECT * FROM #temp
+	SELECT P.FloorID
+	FROM dbo.POI as P
+	GROUP BY P.FloorID
+	HAVING COUNT(*) <= ALL (
+		SELECT COUNT(*)
+		FROM dbo.POI as P
+		GROUP BY P.FloorID)
 END;
 
-CREATE PROCEDURE dbo.Q12_2
-@fingerprint int
+
+ALTER PROCEDURE [dbo].[Q12_Test2]
 AS
 BEGIN
-	SELECT @fingerprint, f.FingerprintID
-	FROM dbo.FINGERPRINT f
-	WHERE @fingerprint != f.FingerprintID AND NOT EXISTS ((
-				(SELECT i.TypeID
-				FROM dbo.ITEM i
-				WHERE i.FingerprintID = @fingerprint)
-				EXCEPT 
-				(SELECT i.TypeID
-				FROM dbo.ITEM i
-				WHERE i.FingerprintID = f.FingerprintID)
-				)
-				UNION ALL (
-				(SELECT i.TypeID
-				FROM dbo.ITEM i
-				WHERE i.FingerprintID = f.FingerprintID)
-				EXCEPT 
-				(SELECT i.TypeID
-				FROM dbo.ITEM i
-				WHERE i.FingerprintID = @fingerprint) )
-			)
-END;
-
-CREATE PROCEDURE [dbo].[Q12_Test]
-AS
-BEGIN
-	SELECT f2.FingerprintID AS F1, f1.FingerprintID AS F2
-	FROM dbo.FINGERPRINT f1 , dbo.FINGERPRINT f2
-	WHERE f1.FingerprintID != f2.FingerprintID AND NOT EXISTS (
-			(SELECT * 
-			FROM dbo.ITEM i
-			WHERE (i.TypeID IN (SELECT i2.TypeID 
-								FROM dbo.ITEM i2
-								WHERE i2.FingerprintID = f1.FingerprintID)
-			AND i.TypeID NOT IN (
-								(SELECT i3.TypeID 
-								FROM dbo.ITEM i3
-								WHERE i3.FingerprintID = f2.FingerprintID))	)
-			-- There is a type that belongs to f1 but not in f2
-			OR 
-				(i.TypeID IN (SELECT i4.TypeID 
-								FROM dbo.ITEM i4
-								WHERE i4.FingerprintID = f2.FingerprintID)
-			AND i.TypeID NOT IN (
-								(SELECT i5.TypeID 
-								FROM dbo.ITEM i5
-								WHERE i5.FingerprintID = f1.FingerprintID))	)
-			-- There is a type that belongs to f2 but not f1
-			)
-		)
-END;
-
-CREATE PROCEDURE [dbo].[Q12_Test2]
-AS
-BEGIN
-	CREATE TABLE #ValidFingerprints (FingerprintID INT, cnt INT);
-	TRUNCATE TABLE #ValidFingerprints
-
-	INSERT INTO #ValidFingerprints 
-	SELECT i.FingerprintID, COUNT(DISTINCT(i.TypeID)) AS amt
+	SET NOCOUNT ON
+		 
+	SELECT i.FingerprintID, COUNT(DISTINCT(i.TypeID)) AS cnt
+	INTO #ValidFingerprints
 	FROM dbo.ITEM i
 	GROUP BY i.FingerprintID
 	--#ValidFingerprints has the fingerprints that have the same amount of types
-	
-	CREATE TABLE #FingerprintsCombinations (f1 INT, f2 INT);
-	TRUNCATE TABLE #FingerprintsCombinations 
 
-	INSERT INTO #FingerprintsCombinations 
 	SELECT v1.FingerprintID AS f1, v2.FingerprintID AS f2
+	INTO #FingerprintsCombinations 
 	FROM #ValidFingerprints v1, #ValidFingerprints v2
 	WHERE v1.cnt = v2.cnt AND v1.FingerprintID != v2.FingerprintID 
 	--#FingerprintsCombinations has the possible fingerprints who have the same types
 	
-	SELECT * FROM #FingerprintsCombinations 
+	SELECT f1 as Fingerprint1, f2 as Fingerprint2 FROM #FingerprintsCombinations 
 	EXCEPT (
 	SELECT f1, f2
 	FROM #FingerprintsCombinations fc, dbo.TYPES t
@@ -205,47 +160,17 @@ BEGIN
 	-- There is an item of that type that belongs to f1 
 	AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2)
 	-- But there is not an item of that type that belongs to f2
-	-- OR	EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2) 
-	-- There is an item of that type that belongs to f2 
-	-- AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1)
-	-- But there is not an item of that type that belongs to f1
-
-	-- This works because #FingerprintsCombinations have both combinations of fingerprints (e.g., 1 4 and 4 1)
 	) 
-END
- 
- CREATE PROCEDURE [dbo].[Q12_Test3]
-AS
-BEGIN
-	SET NOCOUNT ON
-
-	DECLARE @ValidFingerprints TABLE (FingerprintID INT, cnt INT)
-	DECLARE @FingerprintsCombinations TABLE (f1 INT, f2 INT)
-
-	INSERT INTO @ValidFingerprints 
-	SELECT i.FingerprintID, COUNT(DISTINCT(i.TypeID)) AS amt
-	FROM dbo.ITEM i
-	GROUP BY i.FingerprintID
-	
-	INSERT INTO @FingerprintsCombinations
-	SELECT v1.FingerprintID AS f1, v2.FingerprintID AS f2 
-	FROM @ValidFingerprints v1, @ValidFingerprints v2
-	WHERE v1.cnt = v2.cnt AND v1.FingerprintID != v2.FingerprintID
-	
-	SELECT * FROM @FingerprintsCombinations 
-	EXCEPT (
-	SELECT f1, f2
-	FROM @FingerprintsCombinations fc, dbo.TYPES t
-	WHERE EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f1) 
-	-- There is an item of that type that belongs to f1 
-	AND NOT EXISTS (SELECT * FROM dbo.ITEM i WHERE i.TypeID = t.TypeID AND i.FingerprintID = fc.f2)
-	)
+	ORDER BY Fingerprint1
+	SET NOCOUNT OFF
 END
 
+GO
 CREATE PROCEDURE dbo.Q13
 @fingerprint int
 AS
 BEGIN
+SET NOCOUNT ON
 	CREATE TABLE #FTypes(TypeID INT)
 	INSERT INTO #FTypes SELECT i.TypeID FROM dbo.ITEM i WHERE i.FingerprintID = @fingerprint
 	-- The types of the specific fingerprint
@@ -260,16 +185,20 @@ BEGIN
 		)
 END;
 
+GO
 CREATE PROCEDURE dbo.[Q14]
 @num int
 AS
+SET NOCOUNT ON
 SELECT TOP (@num) I.TypeID, COUNT(DISTINCT I.FingerprintID) AS cnt
 FROM dbo.ITEM AS I
 GROUP BY I.TypeID
-ORDER BY COUNT(DISTINCT I.FingerprintID) asc;
+ORDER BY cnt asc;
 
+GO
 CREATE PROCEDURE dbo.Q15
 AS
+SET NOCOUNT ON
 SELECT I.TypeID, T.Title, T.Model
 FROM dbo.ITEM I
 JOIN dbo.TYPES AS T ON T.TypeID=I.TypeID
@@ -277,37 +206,41 @@ GROUP BY I.TypeID, T.Title, T.Model
 HAVING COUNT(DISTINCT FingerprintID) = (SELECT COUNT(*)
 FROM dbo.FINGERPRINT);
 
-CREATE PROCEDURE dbo.Q16
+GO
+CREATE PROCEDURE [dbo].[Q16]
 @TypeID INT,
 @x1 DECIMAL(15,12),
 @y1 DECIMAL(15,12),
 @x2 DECIMAL(15,12),
 @y2 DECIMAL(15,12)
 AS
+SET NOCOUNT ON
 SELECT COUNT(*) AS cnt
 FROM dbo.ITEM AS I
 WHERE I.TypeID=@TypeID AND I.FingerprintID IN (
 	SELECT F.FingerprintID
 	FROM dbo.FINGERPRINT AS F
-	WHERE (F.x BETWEEN @x1 AND @x2 )AND (F.y BETWEEN @y1 AND @y2)--((F.x>=@x1 AND F.x<=@x2)OR(F.x<=@x1 AND F.x>=@x2)) AND ((F.y>=@y1 AND F.y<=@y2)OR(F.y<=@y1 AND F.y>=@y2))
+	WHERE F.x BETWEEN @x1 AND @x2 AND F.y BETWEEN @y1 AND @y2--((F.x>=@x1 AND F.x<=@x2)OR(F.x<=@x1 AND F.x>=@x2)) AND ((F.y>=@y1 AND F.y<=@y2)OR(F.y<=@y1 AND F.y>=@y2))
 );
 
-
-CREATE PROCEDURE dbo.Q17
+GO
+CREATE PROCEDURE [dbo].[Q17]
 @BCode INT
 AS
-SELECT B.BCode, MIN(P.x) AS [MIN X], MIN(P.y)AS [MIN Y], MAX(P.x)AS [MAX X], MAX(P.y)AS [MAX Y]
+SET NOCOUNT ON
+SELECT MIN(P.x) AS [MINX], MIN(P.y)AS [MINY], MAX(P.x)AS [MAXX], MAX(P.y)AS [MAXY]
 FROM dbo.POI AS P ,BFLOOR B
-WHERE B.BCode = @BCode AND B.FloorID=P.FloorID
-GROUP BY B.BCode;
+WHERE B.BCode = @BCode AND B.FloorID=P.FloorID;
 
-CREATE PROCEDURE dbo.Q18
+GO
+CREATE PROCEDURE [dbo].[Q18]
 @x DECIMAL(15, 12),
 @y DECIMAL(15, 12),
 @z int
 AS
 BEGIN
-	SELECT *
+SET NOCOUNT ON
+	SELECT p.POIID, p.POIName
 	FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID  
 	WHERE dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) = 
 					( SELECT MIN(dbo.DISTANCE(p2.x, p2.y, f2.FloorZ, @x, @y, @z))
@@ -316,52 +249,66 @@ BEGIN
 END;
 
 --K first not showing more
-CREATE PROCEDURE dbo.Q19
+GO
+CREATE PROCEDURE [dbo].[Q19]
 @x DECIMAL(15, 12),
 @y DECIMAL(15, 12),
 @z int,
 @k int
 AS
 BEGIN
-	SELECT TOP (@k) *
+SET NOCOUNT ON
+	SELECT TOP (@k) p.POIID, p.POIName
 	FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID 
 	ORDER BY dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z)
 END;
 
 
+GO
 CREATE PROCEDURE [dbo].[Q2_Delete]
 @TypeID int
 AS
 BEGIN 
+SET NOCOUNT ON
 DELETE FROM dbo.TYPES WHERE TypeID = @TypeID
 END;
 
+GO
 CREATE PROCEDURE [dbo].[Q2_Insert]
 @Title nvarchar(40),
 @Model nvarchar(30)
 AS
 BEGIN 
+SET NOCOUNT ON
 INSERT INTO dbo.TYPES(Title, Model) VALUES(@Title, @Model)
 END;
 
+GO
 CREATE PROCEDURE [dbo].[Q2_Select]
 AS
+SET NOCOUNT ON
 SELECT * FROM dbo.TYPES ORDER BY TypeID ASC;
 
+GO
 CREATE PROCEDURE [dbo].[Q2_Update]
 @Title nvarchar(40),
 @Model nvarchar(30),
 @TypeID int
 AS
 BEGIN 
+SET NOCOUNT ON
 UPDATE dbo.TYPES SET Title = @Title, Model = @Model WHERE TypeID = @TypeID
 END;
+
+
+GO
+CREATE PROCEDURE dbo.Q20
 --GETS THE NEAREST POI THATS WHY 16-8 BUT NO 8-16 BECAUSE 8-21
-CREATE PROCEDURE [dbo].[Q20]
-@floorID int,
-@k int
+@floorID INT,
+@k INT
 AS
 BEGIN
+SET NOCOUNT ON
 	SELECT TOP (@k) p.POIID AS [POI 1], p2.POIID AS [POI 2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
 	FROM dbo.POI p, dbo.POI p2
 	WHERE p.FloorID = @floorID AND p2.FloorID = @floorID -- They belong to the same floor
@@ -370,10 +317,12 @@ BEGIN
 					( SELECT dbo.DISTANCE2D(p.x, p.y, p3.x, p3.y)
 					  FROM dbo.POI p3
 					  WHERE p.FloorID = @floorID AND p3.FloorID = @floorID AND p3.POIID != p.POIID)
-	ORDER BY Distance ASC
+	
 END;
 
 
+
+GO
 CREATE PROCEDURE [dbo].[Q21_CTE] 
 -- This is the recursive procedure
 @fingerprint INT, -- The origin fingerprint
@@ -417,6 +366,7 @@ BEGIN
 END;
 
 
+GO
 CREATE PROCEDURE [dbo].[Q21_N2] 
 @fingerprint INT, -- The origin fingerprint
 @x DECIMAL(15,12), -- The origin fingerprint
@@ -482,32 +432,37 @@ SET NOCOUNT ON -- We don't want to see the rows changed
 	SET NOCOUNT OFF
 END;
 
-
-
+GO
 CREATE PROCEDURE [dbo].[Q3_DeleteFingerprint]
 @FingerprintID INT
 AS
+SET NOCOUNT ON
 DELETE FROM [dbo].FINGERPRINT
 WHERE FingerprintID=@FingerprintID;
 
+GO
 CREATE PROCEDURE [dbo].[Q3_DeleteItem]
 @ItemID INT
 AS
+SET NOCOUNT ON
 DELETE FROM [dbo].ITEM
 WHERE ItemID=@ItemID;
 
+GO
 CREATE PROCEDURE [dbo].[Q3_EditFingerprint]
 @FingerprintID INT,
 @x DECIMAL(15,12),
 @y DECIMAL(15,12),
 @level INT,
 @FloorID INT,
-@RegDate SMALLDATETIME
+@RegDate NVARCHAR(40)
 AS
+SET NOCOUNT ON
 UPDATE [dbo].FINGERPRINT
 SET x=@x, y=@y, [Level]=@level, FloorID=@FloorID, RegDate=@RegDate
 WHERE FingerprintID=@FingerprintID;
 
+GO
 CREATE PROCEDURE [dbo].[Q3_EditItem]
 @ItemID INT,
 @TypeID INT,
@@ -515,63 +470,89 @@ CREATE PROCEDURE [dbo].[Q3_EditItem]
 @Width DECIMAL(6,3),
 @FingerprintID INT
 AS
+SET NOCOUNT ON
 UPDATE [dbo].ITEM
 SET TypeID=@TypeID, Height=@Height, Width=@Width, FingerprintID=@FingerprintID
 WHERE ItemID=@ItemID;
 
+GO
 CREATE PROCEDURE [dbo].[Q3_InsertFingerprint]
 @x DECIMAL(15,12),
 @y DECIMAL(15,12),
 @level INT,
 @FloorID INT,
-@RegDate SMALLDATETIME
+@RegDate VARCHAR(40)
 AS
+SET NOCOUNT ON
 INSERT INTO [dbo].FINGERPRINT(x, y, Level, FloorID, RegDate) VALUES (@x, @y, @level, @FloorID, @RegDate);
 
+GO
 CREATE PROCEDURE [dbo].[Q3_InsertItem]
 @TypeID INT,
 @Height DECIMAL(6,3),
 @Width DECIMAL(6,3),
 @FingerprintID INT
 AS
+SET NOCOUNT ON
 INSERT INTO [dbo].ITEM(TypeID, Height, Width, FingerprintID) VALUES (@TypeID, @Height, @Width, @FingerprintID);
 
+GO
 CREATE PROCEDURE [dbo].[Q3_SelectBuildings]
 AS
+SET NOCOUNT ON
 SELECT B.FloorID, B.FloorZ, BU.BName
 FROM dbo.BFLOOR AS B
 JOIN dbo.BUILDING AS BU ON BU.BCode=B.BCode;
 
+GO
 CREATE PROCEDURE [dbo].[Q3_SelectFingerprints]
 AS
-SELECT *
-FROM [dbo].FINGERPRINT;
+SET NOCOUNT ON
+SELECT F.FingerprintID, F.x, F.y, F.FloorID, F.Level, CAST(F.RegDate AS VARCHAR) AS RegDate
+FROM [dbo].FINGERPRINT AS F;
 
+GO
 CREATE PROCEDURE [dbo].[Q3_SelectFloorsByID]
 @FloorID INT
 AS
+SET NOCOUNT ON
 SELECT B.FloorID, B.FloorZ, BU.BName, B.BCode
 FROM dbo.BFLOOR AS B
 JOIN dbo.BUILDING AS BU ON BU.BCode=B.BCode
 WHERE B.FloorID=@FloorID;
 
+GO
 CREATE PROCEDURE [dbo].[Q3_SelectItemsOfFingerprint]
 @FingerprintID INT
 AS
+SET NOCOUNT ON
 SELECT *
 FROM [dbo].ITEM AS I
 WHERE I.FingerprintID = @FingerprintID;
 
+GO
 CREATE PROCEDURE [dbo].Q4_DeleteBuilding
 @BCode INT
 AS
+SET NOCOUNT ON
 DELETE FROM dbo.BUILDING WHERE BCode=@BCode;
 
+GO
 CREATE PROCEDURE [dbo].[Q4_DeleteFloor]
 @FloorID INT
 AS
+SET NOCOUNT ON
 DELETE FROM dbo.BFLOOR WHERE FloorID=@FloorID;
 
+GO
+CREATE PROCEDURE [dbo].[Q4_DeletePOI]
+@POIID INT
+AS
+SET NOCOUNT ON
+DELETE FROM [dbo].POI
+WHERE POIID=@POIID;
+
+GO
 CREATE PROCEDURE [dbo].[Q4_EditBuilding]
 @BCode INT,
 @BLDCode NVARCHAR(30),
@@ -584,10 +565,12 @@ CREATE PROCEDURE [dbo].[Q4_EditBuilding]
 @CampusID INT,
 @RegDate NVARCHAR(30)
 AS
+SET NOCOUNT ON
 UPDATE [dbo].[BUILDING] 
 SET BLDCode=@BLDCode, BName=@BName, x=@x, y=@y, BAddress=@BAddress, Summary=@Summary, BOwner=@BOwner, CampusID=@CampusID, RegDate=@RegDate
 WHERE BCode=@BCode;
 
+GO
 CREATE PROCEDURE [dbo].[Q4_EditPOI]
 @POIID INT,
 @POIName NVARCHAR(30),
@@ -598,15 +581,22 @@ CREATE PROCEDURE [dbo].[Q4_EditPOI]
 @y DECIMAL(15,12),
 @FloorID INT
 AS
+SET NOCOUNT ON
 UPDATE [dbo].POI
 SET POIName=@POIName, Summary=@Summary, POIType=@POIType, POIOwner=@POIOwner, x=@x, y=@y, FloorID=@FloorID
 WHERE POIID=@POIID;
 
-Create PROCEDURE [dbo].[Q4_GetFingerprintByID]
+GO
+CREATE PROCEDURE [dbo].[Q4_GetFingerprintByID]
 @FingerprintID INT
 AS
-SELECT * FROM dbo.FINGERPRINT AS F WHERE F.FingerprintID=@FingerprintID;
+SET NOCOUNT ON
+SELECT F.FloorID, B.BCode
+FROM dbo.FINGERPRINT AS F 
+JOIN dbo.BFLOOR AS B ON B.FloorID=F.FloorID
+WHERE F.FingerprintID=@FingerprintID;
 
+GO
 CREATE PROCEDURE [dbo].[Q4_InsertBuilding]
 @BLDCode NVARCHAR(30),
 @BName NVARCHAR(30),
@@ -618,62 +608,168 @@ CREATE PROCEDURE [dbo].[Q4_InsertBuilding]
 @CampusID INT,
 @RegDate NVARCHAR(30)
 AS
+SET NOCOUNT ON
 INSERT INTO dbo.BUILDING(BLDCode, BName, x, y, BAddress, Summary, BOwner, CampusID, RegDate) 
 VALUES (@BLDCode,@BName, @x, @y, @BAddress, @Summary, @BOwner, @CampusID, @RegDate);
 
+GO
 CREATE PROCEDURE [dbo].[Q4_InsertFloor]
 @BCode INT,
 @FloorZ INT,
 @TopoPlan VARCHAR(MAX),
 @Summary NVARCHAR(MAX)
 AS
+SET NOCOUNT ON
 INSERT INTO dbo.BFLOOR (BCode, FloorZ, TopoPlan, Summary)
 VALUES (@BCode, @FloorZ, @TopoPlan, @Summary);
 
+GO
+CREATE PROCEDURE [dbo].[Q4_InsertPOI]
+@POIName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@POIType NVARCHAR(30),
+@POIOwner NVARCHAR(30),
+@x DECIMAL(15,12),
+@y DECIMAL(15,12),
+@FloorID INT
+AS
+SET NOCOUNT ON
+INSERT INTO [dbo].POI (POIName, Summary, POIType, POIOwner, x, y, FloorID) VALUES (@POIName, @Summary, @POIType, @POIOwner, @x, @y, @FloorID);
+
+GO
 CREATE PROCEDURE [dbo].[Q4_SelectBuilding]
 AS
+SET NOCOUNT ON
 SELECT B.BAddress, B.BCode, B.BName, B.BOwner, B.CampusID, CAST(B.RegDate AS VARCHAR) AS RegDate , B.Summary, B.x, B.y, B.BLDCode
 FROM [dbo].[BUILDING] AS B;
 
+GO
 CREATE PROCEDURE [dbo].Q4_SelectCampus
 AS
+SET NOCOUNT ON
 SELECT CampusID, CampusName FROM dbo.CAMPUS;
 
+GO
 CREATE PROCEDURE [dbo].[Q4_SelectFingerprintsOfFloor]
 @FloorID INT
 AS
-SELECT * FROM dbo.FINGERPRINT AS F WHERE F.FloorID=@FloorID;
+SET NOCOUNT ON
+SELECT F.FingerprintID, F.x, F.y, F.FloorID, F.Level, CAST(F.RegDate AS VARCHAR) AS RegDate FROM dbo.FINGERPRINT AS F WHERE F.FloorID=@FloorID;
 
+GO
 CREATE PROCEDURE [dbo].[Q4_SelectFloorOfBuilding]
 @BCode INT
 AS
+SET NOCOUNT ON
 SELECT * 
 FROM dbo.BFLOOR AS B
 WHERE B.BCode = @BCode;
 
+GO
 CREATE PROCEDURE [dbo].[Q4_SelectPOIsOfFloor]
 @FloorID INT
 AS
+SET NOCOUNT ON
 SELECT * FROM dbo.POI AS P WHERE P.FloorID=@FloorID;
 
+GO
 CREATE PROCEDURE [dbo].[Q4_UpdateFloor]
 @FloorID INT,
 @FloorZ INT,
 @TopoPlan VARCHAR(MAX),
 @Summary NVARCHAR(MAX)
 AS
+SET NOCOUNT ON
 UPDATE dbo.BFLOOR SET FloorZ=@FloorZ, TopoPlan=@TopoPlan, Summary=@Summary WHERE FloorID=@FloorID;
 
+GO
+CREATE PROCEDURE [dbo].[Q5_DeleteCampus]
+@CampusID INT
+AS
+SET NOCOUNT ON
+DELETE FROM [dbo].CAMPUS
+WHERE CampusID=@CampusID;
+
+GO
+CREATE PROCEDURE [dbo].[Q5_EditCampus]
+@CampusID INT,
+@Name NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@Website NVARCHAR(2083),
+@RegDate NVARCHAR(40)
+AS
+SET NOCOUNT ON
+UPDATE [dbo].CAMPUS
+SET CampusName=@Name, Summary=@Summary, Website=@Website, RegDate=@RegDate
+WHERE CampusID=@CampusID;
+
+GO
+CREATE PROCEDURE [dbo].[Q5_GetDetailsOfBuilding]
+@BCode INT
+AS
+SET NOCOUNT ON
+SELECT BU.CampusID, BU.BName
+FROM dbo.BUILDING AS BU
+WHERE BU.BCode=@BCode;
+
+GO
+CREATE PROCEDURE [dbo].[Q5_GetDetailsOfFingerprint]
+@FingerprintID INT
+AS
+SET NOCOUNT ON
+SELECT F.FloorID, B.BCode, BU.CampusID
+FROM dbo.FINGERPRINT AS F 
+JOIN dbo.BFLOOR AS B ON B.FloorID=F.FloorID
+JOIN dbo.BUILDING AS BU ON B.BCode=BU.BCode
+WHERE F.FingerprintID=@FingerprintID;
+
+GO
+CREATE PROCEDURE [dbo].[Q5_GetDetailsOfFloor]
+@FloorID INT
+AS
+SET NOCOUNT ON
+SELECT BU.CampusID, BU.BName, BFL.BCode, BFL.FloorZ
+FROM dbo.BFLOOR AS BFL
+JOIN dbo.BUILDING AS BU ON BU.BCode=BFL.BCode
+WHERE BFL.FloorID=@FloorID;
+
+GO
+CREATE PROCEDURE [dbo].[Q5_InsertCampus]
+@Name NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@Website NVARCHAR(2083),
+@RegDate NVARCHAR(40)
+AS
+SET NOCOUNT ON
+INSERT INTO [dbo].CAMPUS (CampusName, Summary, Website, RegDate) VALUES (@Name, @Summary, @Website, @RegDate);
+
+GO
+CREATE PROCEDURE [dbo].[Q5_SelectBuildingOfCampus]
+@CampusID INT
+AS
+SET NOCOUNT ON
+SELECT B.BAddress, B.BCode, B.BName, B.BOwner, B.CampusID, CAST(B.RegDate AS VARCHAR) AS RegDate , B.Summary, B.x, B.y, B.BLDCode FROM dbo.BUILDING AS B WHERE B.CampusID=@CampusID;
+
+GO
+CREATE PROCEDURE [dbo].[Q5_SelectCampus]
+AS
+SET NOCOUNT ON
+SELECT C.CampusID, C.CampusName, C.Summary, C.Website, CAST(C.RegDate AS VARCHAR) AS RegDate FROM dbo.CAMPUS AS C;
+
+GO
 CREATE PROCEDURE dbo.Q6
 AS
 BEGIN
-	SELECT t.FingerprintID, TypesAmt, x, y, z
+SET NOCOUNT ON
+	SELECT t.FingerprintID, TypesAmt, x, y, [Level]
 	FROM (SELECT i.FingerprintID, COUNT(*) AS TypesAmt FROM dbo.ITEM i GROUP BY i.FingerprintID) AS t JOIN dbo.FINGERPRINT f ON t.FingerprintID = f.FingerprintID
 END;
 
+GO
 CREATE PROCEDURE dbo.Q7
 AS
 BEGIN
+SET NOCOUNT ON
 SELECT t.Title, t.Model , t.TypeID 
 FROM dbo.ITEM i JOIN dbo.TYPES t ON t.TypeID = i.TypeID
 GROUP BY t.Title, t.TypeID, t.Model  -- Grouping by the types
@@ -685,21 +781,26 @@ HAVING COUNT(DISTINCT i.FingerprintID) =
 END;
 --change from previous check again for sure
 -- COUNT DISTINCT POI TYPES
+GO
 CREATE PROCEDURE [dbo].[Q8]
 AS
 BEGIN
-	SELECT b.FloorID, COUNT(DISTINCT p.POIType) AS [POI Amount]
+SET NOCOUNT ON
+	SELECT b.FloorID,p.POIType, COUNT(DISTINCT p.POIID) AS [POI Amount]
 	FROM dbo.BFLOOR b
 	LEFT JOIN dbo.POI AS p ON p.FloorID=b.FloorID
-	GROUP BY b.FloorID
+	GROUP BY b.FloorID, p.POIType
+	ORDER BY [POI Amount] DESC
 END;
 
 
+GO
 CREATE PROCEDURE [dbo].[Q9]
 AS 
 -- We are calculating the total amount of types found in fingerprints / the total amount of fingerprints
 -- Types that belong to two Models (e.g. COCO chair and UCY chair) are considered different
 BEGIN
+SET NOCOUNT ON
 	SELECT TypesInFingerprints.TypeID, TypesInFingerprints.Title, (TypesInFingerprints.TypeCount * 1.0 / Fingerprints.FingerprintsAmt) AS [Average Occurences]
 	FROM (	SELECT t.TypeID, t.Title, COUNT(i.ItemID) AS TypeCount
 		FROM dbo.TYPES t LEFT JOIN dbo.ITEM i ON i.TypeID = t.TypeID -- Some Types might not be found on items
@@ -710,6 +811,7 @@ END;
 
 -- END OF QUERIES
 
+GO
 CREATE PROCEDURE [dbo].Advanced_Search_BFLOOR
 @FloorID INT,
 @Summary [nvarchar](MAX), 
@@ -717,6 +819,7 @@ CREATE PROCEDURE [dbo].Advanced_Search_BFLOOR
 @BCode INT
 AS
 BEGIN
+SET NOCOUNT ON
 	IF @FloorID = 0 -- empty
 		IF @BCode = 0
 		SELECT FloorID, Summary, TopoPlan, BCode
@@ -737,6 +840,7 @@ BEGIN
 		+ '%' AND FloorID = @FloorID AND BCode = @BCode
 END;
 
+GO
 CREATE PROCEDURE [dbo].Advanced_Search_BUILDING
 @BCode INT, 
 @BLDCode NVARCHAR(30),
@@ -750,6 +854,7 @@ CREATE PROCEDURE [dbo].Advanced_Search_BUILDING
 @CampusID INT
 AS
 BEGIN
+SET NOCOUNT ON
 	SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , RegDate , CampusID 
 		FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @BCode + '%' AND BLDCode LIKE '%' + @BLDCode
 		+ '%' AND Summary LIKE '%' + @Summary + '%' AND BAddress LIKE '%' + @BAddress + '%' AND CAST(x AS NVARCHAR) 
@@ -757,6 +862,7 @@ BEGIN
 		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(CampusID AS NVARCHAR) LIKE '%' + @CampusID + '%'
 END;
 
+GO
 CREATE PROCEDURE [dbo].Advanced_Search_CAMPUS
 @CampusID INT, 
 @CampusName NVARCHAR(30),
@@ -765,12 +871,14 @@ CREATE PROCEDURE [dbo].Advanced_Search_CAMPUS
 @Website NVARCHAR(2083)
 AS
 BEGIN
+SET NOCOUNT ON
 	SELECT CampusID , CampusName , Summary , RegDate , Website
 		FROM dbo.CAMPUS WHERE CAST(CampusID AS NVARCHAR) LIKE '%' + @CampusID + '%' AND CampusName LIKE '%' + @CampusName
 		+ '%' AND Summary LIKE '%' + @Summary + '%'  AND 
 		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND Website LIKE '%' + @Website + '%'
 END;
 
+GO
 CREATE PROCEDURE [dbo].Advanced_Search_FINGERPRINT
 @FingerprintID INT, 
 @x DECIMAL(15, 12),
@@ -780,6 +888,7 @@ CREATE PROCEDURE [dbo].Advanced_Search_FINGERPRINT
 @FloorID INT
 AS
 BEGIN
+SET NOCOUNT ON
 	SELECT FingerprintID , x, y, Level , RegDate , FloorID 
 	FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) 
 	LIKE '%' + @FingerprintID + '%' AND CAST(x AS NVARCHAR) 
@@ -787,6 +896,7 @@ BEGIN
 	CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(FloorID AS NVARCHAR) LIKE '%' + @FloorID + '%'
 END;
 
+GO
 CREATE PROCEDURE [dbo].Advanced_Search_ITEM
 @FingerprintID INT, 
 @Height DECIMAL(6, 3),
@@ -795,6 +905,7 @@ CREATE PROCEDURE [dbo].Advanced_Search_ITEM
 @ItemID INT
 AS
 BEGIN
+SET NOCOUNT ON
 	SELECT FingerprintID , Height, Width, TypeID , ItemID 
 	FROM dbo.ITEM WHERE CAST(FingerprintID AS NVARCHAR) 
 	LIKE '%' + @FingerprintID + '%' AND CAST(Height AS NVARCHAR) 
@@ -802,6 +913,7 @@ BEGIN
 	LIKE '%' + @TypeID + '%' AND CAST(ItemID AS NVARCHAR) LIKE '%' + @ItemID + '%'
 END;
 
+GO
 CREATE PROCEDURE [dbo].Advanced_Search_POI
 @POIID INT, 
 @x DECIMAL(15, 12),
@@ -813,6 +925,7 @@ CREATE PROCEDURE [dbo].Advanced_Search_POI
 @POIType NVARCHAR(30)
 AS
 BEGIN
+SET NOCOUNT ON
 	SELECT POIID , x, y, FloorID , POIName, Summary , POIOwner , POIType  
 	FROM dbo.POI WHERE CAST(POIID AS NVARCHAR) 
 	LIKE '%' + @POIID + '%' AND CAST(x AS NVARCHAR) 
@@ -821,15 +934,19 @@ BEGIN
 	AND POIOwner LIKE '%' + @POIOwner + '%' AND POIType LIKE '%' + @POITYPE + '%'
 END;
 
+GO
 CREATE PROCEDURE dbo.Search_BFLOOR
 @Keyword nvarchar(MAX)
 AS
+SET NOCOUNT ON
 SELECT FloorID, Summary, TopoPlan, BCode FROM dbo.BFLOOR WHERE FloorID LIKE '%' + @Keyword + '%' OR Summary LIKE '%' + @Keyword + '%' OR TopoPlan LIKE '%' + @Keyword 
 						+ '%' OR BCode LIKE + '%' + @Keyword + '%';
 
+GO
 CREATE PROCEDURE dbo.Search_BUILDING
 @Keyword nvarchar(MAX)
 AS
+SET NOCOUNT ON
 SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , RegDate , CampusID
 FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(BLDCode AS NVARCHAR) LIKE '%' 
 	+ @Keyword + '%' OR BName LIKE '%' + @Keyword + '%' OR Summary LIKE + '%' + @Keyword + '%' AND BAddress LIKE + 
@@ -837,80 +954,106 @@ FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAS
 	@Keyword + '%' AND BOwner LIKE + '%' + @Keyword + '%' AND RegDate LIKE + '%' + @Keyword + '%' AND 
 	CAST(CampusID AS NVARCHAR) LIKE + '%' + @Keyword + '%';
 
+GO
 CREATE PROCEDURE dbo.Search_CAMPUS
 @Keyword nvarchar(MAX)
 AS
+SET NOCOUNT ON
 SELECT CampusID , CampusName , Summary , RegDate , Website
 FROM dbo.CAMPUS WHERE CampusID LIKE '%' + @Keyword + '%' OR CampusName LIKE '%' + @Keyword + '%' 
 OR Summary LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR CampusID 
 LIKE + '%' + @Keyword + '%';
 
+GO
 CREATE PROCEDURE dbo.Search_FINGERPRINT
 @Keyword nvarchar(MAX)
 AS
+SET NOCOUNT ON
 SELECT FingerprintID, x, y, Level, RegDate , FloorID
 FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE '%' + @Keyword + '%' 
 OR CAST(y AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR CAST(FloorID AS NVARCHAR)
 LIKE + '%' + @Keyword + '%';
 
+GO
 CREATE PROCEDURE dbo.Search_ITEM
 @Keyword nvarchar(MAX)
 AS
+SET NOCOUNT ON
 SELECT FingerprintID, Height, Width, TypeID, ItemID
 FROM dbo.ITEM WHERE CAST(FingerprintID AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(Height AS NVARCHAR) LIKE '%' + @Keyword + '%' 
 OR CAST(Width AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR CAST(ItemID AS NVARCHAR)
 LIKE + '%' + @Keyword + '%';
 
+GO
 CREATE PROCEDURE dbo.Search_POI
 @Keyword nvarchar(MAX)
 AS
+SET NOCOUNT ON
 SELECT POIID , x, y, FloorID , POIName, Summary , POIOwner , POIType 
 FROM dbo.POI WHERE CAST(FloorID AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR CAST(POIID AS NVARCHAR) LIKE 
 '%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(y AS NVARCHAR) LIKE + '%' + 
 @Keyword + '%' OR POIName LIKE + '%' + @Keyword + '%' OR Summary LIKE + '%' + @Keyword + '%' OR POIOwner 
 LIKE + '%' + @Keyword + '%' OR POIType LIKE + '%' + @Keyword + '%';
 
-CREATE PROCEDURE dbo.UserLogin
+GO
+CREATE PROCEDURE [dbo].[UserLogin]
 @Username nvarchar(30),
 @UPassword nvarchar(30)
 AS
 BEGIN
+SET NOCOUNT ON
 SELECT UserID, UserType FROM dbo.USERS WHERE Username = @Username AND UPassword = @UPassword
+TRUNCATE TABLE dbo.UserID
+INSERT INTO dbo.UserID SELECT UserID FROM dbo.USERS WHERE Username = @Username AND UPassword = @UPassword
+SET NOCOUNT OFF
 END;
-
 -- LOG PROCEDURES
 
+GO
 CREATE PROCEDURE dbo.BFLOOR_LOG 
 AS
-SELECT FloorID, UserAdded , UserModified , Date_Added , Date_Modified 
+SET NOCOUNT ON
+SELECT FloorID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
 FROM dbo.BFLOOR  
 
+GO
 CREATE PROCEDURE dbo.BUILDING_LOG 
 AS
-SELECT BCode , UserAdded , UserModified , Date_Added , Date_Modified 
+SET NOCOUNT ON
+SELECT BCode AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
 FROM dbo.BUILDING
 
+GO
 CREATE PROCEDURE dbo.CAMPUS_LOG 
 AS
-SELECT CampusID, UserAdded , UserModified , Date_Added , Date_Modified 
+SET NOCOUNT ON
+SELECT CampusID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
 FROM dbo.CAMPUS
 
+GO
 CREATE PROCEDURE dbo.FINGERPRINT_LOG 
 AS
-SELECT FingerprintID, UserAdded , UserModified , Date_Added , Date_Modified 
+SET NOCOUNT ON
+SELECT FingerprintID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
 FROM dbo.FINGERPRINT 
 
+GO
 CREATE PROCEDURE dbo.ITEM_LOG 
 AS
-SELECT ItemID, UserAdded , UserModified , Date_Added , Date_Modified 
+SET NOCOUNT ON
+SELECT ItemID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
 FROM dbo.ITEM
 
+GO
 CREATE PROCEDURE dbo.POI_LOG 
 AS
-SELECT POIID, UserAdded , UserModified , Date_Added , Date_Modified 
+SET NOCOUNT ON
+SELECT POIID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified 
 FROM dbo.POI 
 
+GO
 CREATE PROCEDURE dbo.TYPES_LOG 
 AS
-SELECT TypeID, UserAdded , UserModified , Date_Added , Date_Modified 
+SET NOCOUNT ON
+SELECT TypeID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
 FROM dbo.TYPES

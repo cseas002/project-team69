@@ -55,11 +55,16 @@
 
 
 </style>
-	
 	<hr>
 	<h3 style="color: #C68F06;">Queries Explained</h3>
+	<?php if ($userType == '1') { ?>
+	<button class="button-20" role="button" onclick="document.location.href='./log'">Logs </button> 
+	<p style="display:inline; color: #C68F06;" >Προβολή των Logs</p><br>
+
 	<button class="button-20" role="button" onclick="document.location.href='./q1'">Query 1 </button> 
 	<p style="display:inline; color: #C68F06;" >Προσθήκη/Διόρθωση/Εµφάνιση στοιχείων ΔΛ και ΑΧ</p><br>
+	<?php } 
+	if ($userType != '3') { ?>
 	<button class="button-20" role="button" onclick="document.location.href='./q2'">Query 2 </button> 
 	<p style="display:inline; color: #C68F06;">Διαχείριση τύπων αντικειµένων</p><br>
 	<button class="button-20" role="button" onclick="document.location.href='./q3'">Query 3 </button>
@@ -68,6 +73,8 @@
 	<p style="display:inline; color: #C68F06;">Διαχείριση κτηρίων/ορόφων</p><br>
 	<button class="button-20" role="button" onclick="document.location.href='./q5'">Query 5</button>
 	<p style="display:inline; color: #C68F06;">Διαχείριση εγκαταστάσεων</p><br>
+	<?php }?>
+
 	<button class="button-20" role="button" onclick="document.location.href='./q6'">Query 6 </button>
 	<p style="display:inline; color: #C68F06;">Λίστα fingerprints</p><br>
 	<button class="button-20" role="button" onclick="document.location.href='./q7'">Query 7 </button>

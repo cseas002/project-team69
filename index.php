@@ -20,12 +20,15 @@
 				
 		$_SESSION["serverName"] = "mssql.cs.ucy.ac.cy";
 		$_SESSION["connectionOptions"] = array(
-			"Database" => "cseas002",
-			"Uid" => "cseas002",
-			"PWD" => "hdX8VtLW",
+			// "Database" => "cseas002",
+			// "Uid" => "cseas002",
+			// "PWD" => "hdX8VtLW",
 			// "Database" => "gchora01",
 			// "Uid" => "gchora01",
 			// "PWD" => "w5hU2k6Y",
+			"Database" => "ldiony01",
+			"Uid" => "ldiony01",
+			"PWD" => "WJK3tBmc",
 			"CharacterSet"=>"UTF-8"
 		);
 

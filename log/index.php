@@ -44,6 +44,7 @@
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
+		<a href="../log">Log</a>
 		<a href="../q1">Query 1</a>
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
@@ -86,7 +87,7 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Fingerprint Path</h2></td>
+		<td vAlign=center align=middle><h2>Log Files</h2></td>
 	</tr>
     </table>
 
@@ -109,9 +110,7 @@
 				<option value="5">Items</option>
 				<option value="6">Item Types</option>
 				</select>
-				<input type="button" class="btn" value="Search with CTE"
-					onclick="if(insertValidation()){f1.submit();}" />
-					<input type="button" class="btn" value="Search with cursor"
+				<input type="button" class="btn" value="Show log"
 					onclick="if(insertValidation()){f1.submit();}" />
 				<button type="button" class="btn cancel"
 					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
@@ -126,25 +125,28 @@
 			?>
 		<table width="100%" border="1">
 		<tr>  
-			<th width = 50%> <div align="center">Path</div></th>  
-			<th width = 50%> <div align="center">Item Amount</div></th> 
+			<th width = 20%> <div align="center">ID</div></th> 
+			<th width = 20%> <div align="center">User Added</div></th>  
+			<th width = 20%> <div align="center">Date Added</div></th> 
+			<th width = 20%> <div align="center">User Modified</div></th>  
+			<th width = 20%> <div align="center">Date Modified</div></th> 
 		</tr>  
 		
 		<?php
 
 		if ($_POST["tname"] == '0')
 			$strSQL = "{call dbo.CAMPUS_LOG()}";
-		else if ($_POST["tname"] == '0')
+		else if ($_POST["tname"] == '1')
 			$strSQL = "{call dbo.BUILDING_LOG()}";
-		else if ($_POST["tname"] == '0')
+		else if ($_POST["tname"] == '2')
 			$strSQL = "{call dbo.BFLOOR_LOG()}";
-		else if ($_POST["tname"] == '0')
+		else if ($_POST["tname"] == '3')
 			$strSQL = "{call dbo.FINGERPRINT_LOG()}";
-		else if ($_POST["tname"] == '0')
+		else if ($_POST["tname"] == '4')
 			$strSQL = "{call dbo.POI_LOG()}";
-		else if ($_POST["tname"] == '0')
+		else if ($_POST["tname"] == '5')
 			$strSQL = "{call dbo.ITEM_LOG()}";
-			else if ($_POST["tname"] == '0')
+			else if ($_POST["tname"] == '6')
 			$strSQL = "{call dbo.TYPES_LOG()}";
 
 		
@@ -154,10 +156,11 @@
 		{
 			?>
 			<tr>
+				<td align="center"><?=$objResult["ID"];?></td>
 				<td align="center"><?=$objResult["UserAdded"];?></td>
 				<td align="center"><?=$objResult["DateAdded"];?></td>
 				<td align="center"><?=$objResult["UserModified"];?></td>
-				<td align="center"><?=$objResult["cnt"];?></td>
+				<td align="center"><?=$objResult["DateModified"];?></td>
 			</tr>
 
 		<?php 
@@ -172,17 +175,14 @@
 		<script>
 
 			function insertValidation()  {
-				var fingerprintID=f1.fingerprintID.value;
-				var distance=f1.distance.value;
+				var tname=f1.tname.value;
 
-				if(fingerprintID.length > 0 && distance.length > 0){
+				if(tname.length > 0){
 					return true;
 				}
 				var str="";
-				if(fingerprintID.length == 0)
-					str+="Fingerprint ID is empty\n";
-				if(distance.length == 0)
-					str+="Distance empty\n";
+				if(tname.length == 0)
+					str+="Table name is empty\n";
 				alert(str);
 				return false;
 			}

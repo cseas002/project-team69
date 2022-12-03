@@ -40,6 +40,24 @@ BEGIN
   UPDATE dbo.ITEM SET UserModified = @user, Date_Modified = GETDATE() WHERE ItemID IN (SELECT ItemID FROM inserted) 
  END
  GO
+ CREATE TRIGGER dbo.BUILDING_Insert ON dbo.BUILDING AFTER INSERT AS
+BEGIN
+  DECLARE @user INT;
+  SET @user = (SELECT TOP 1 * FROM dbo.UserID);
+
+  DISABLE TRIGGER dbo.BUILDING_Update ON dbo.BUILDING;
+  UPDATE dbo.BUILDING SET UserAdded = @user WHERE UserAdded IS NULL;   
+  ENABLE TRIGGER dbo.BUILDING_Update ON dbo.BUILDING;
+ END
+ GO
+CREATE TRIGGER dbo.BUILDING_Update ON dbo.BUILDING AFTER UPDATE AS
+BEGIN
+  DECLARE @user INT;
+  SET @user = (SELECT TOP 1 * FROM dbo.UserID)
+
+  UPDATE dbo.BUILDING SET UserModified = @user, Date_Modified = GETDATE() WHERE BCode IN (SELECT BCode FROM inserted) 
+ END
+ GO
  CREATE TRIGGER dbo.BFLOOR_Insert ON dbo.BFLOOR AFTER INSERT AS
 BEGIN
   DECLARE @user INT;
@@ -55,7 +73,7 @@ BEGIN
   DECLARE @user INT;
   SET @user = (SELECT TOP 1 * FROM dbo.UserID)
 
-  UPDATE dbo.BFLOOR SET UserModified = @user, Date_Modified = GETDATE() WHERE BCode IN (SELECT BCode FROM inserted) 
+  UPDATE dbo.BFLOOR SET UserModified = @user, Date_Modified = GETDATE() WHERE FloorID IN (SELECT FloorID FROM inserted) 
  END
  GO
  CREATE TRIGGER dbo.CAMPUS_Insert ON dbo.CAMPUS AFTER INSERT AS

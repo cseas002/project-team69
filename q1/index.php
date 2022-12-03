@@ -128,7 +128,7 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<?php if ($userType == '1') { ?><a href="../q1">Query 1</a><?php }?>
+		<?php if ($userType == '1') { ?><a href="../log">Log</a><a href="../q1">Query 1</a><?php }?>
 		<?php if ($userType != '3') { ?>
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
