@@ -92,26 +92,24 @@
 
 	<hr/>
 
+	<button id="btnInsertForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Input parameters</button>
+		
 	<div class="form-popup" id="myForm"
-			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
+			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.submit();}}">
 			<form name="f1" method="POST" class="form-container">
-				<input type="hidden" name="hdnCmd" value="">
-				<h2 style="text-align:center;">Insert new POI</h2>
-                <h4 style="text-align:center;">Z is by default = <?=$FloorZ;?></h4>
-                <label> Name: </label>
-				<input type="text" name="POIName" />
-                <label> Summary: </label>
-				<input type="text" name="Summary" />
-                <label> Type: </label>
-				<input type="text" name="POIType" />
-                <label> Owner: </label>
-				<input type="text" name="POIOwner" />
-				<label> x: </label>
-				<input type="text" name="x" />
-				<label> y: </label>
-				<input type="text" name="y" />
-				<input type="button" class="btn" value="Insert"
-					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
+				<h2 style="text-align:center;">Insert parameters</h2>
+                <label> TypeID: </label>
+				<input type="text" name="TypeID" />
+                <label> x1: </label>
+				<input type="text" name="x1" />
+                <label> y1: </label>
+				<input type="text" name="y1" />
+                <label> x2: </label>
+				<input type="text" name="x2" />
+				<label> y2: </label>
+				<input type="text" name="y2" />
+				<input type="button" class="btn" value="Go"
+					onclick="if(insertValidation()){f1.submit();}" />
 				<button type="button" class="btn cancel"
 					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 			</form>
@@ -119,34 +117,75 @@
 
 		<hr/>
 	
-		<table width="100%" border="1">  
-		<tr>  
-		<th width = "33%"> <div align="center">TypeID</div></th>  
-		<th width = "33%"> <div align="center">Title</div></th> 
-		<th width = "33%"> <div align="center">Model</div></th> 
-		</tr>  
+		
 		<?php 
-		$tsql="EXEC dbo.Q15";
-		$objQuery = sqlsrv_query($conn, $tsql);
+		if (isset($_POST["TypeID"])) {
+			?>
+				<script>
+						document.getElementById("btnAdvSearchForm").classList.add("warningb");
+						document.getElementById("btnReset").style="display:inline-block;";
+					</script>
+			<?php
+			$strSQL = "{call dbo.Q16(?, ?, ?, ?, ?)}";
+			$params = array(
+				array($_POST["TypeID"], SQLSRV_PARAM_IN),
+				array($_POST["x1"], SQLSRV_PARAM_IN),
+				array($_POST["y1"], SQLSRV_PARAM_IN),
+				array($_POST["x2"], SQLSRV_PARAM_IN),
+				array($_POST["y2"], SQLSRV_PARAM_IN)
+			);
+			$objQuery = sqlsrv_query($conn, $strSQL, $params);
 
 
-		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
-		{
+
+		$objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC);
 	        
 		?>
-
-		<tr>
-		<td align="center"><?=$objResult["TypeID"];?></td>
-		<td align="center"><?=$objResult["Title"];?></td>
-		<td align="center"><?=$objResult["Model"];?></td>
+		<table width="100%" border="1">  
+		<tr>  
+		<th> <div align="center">Count</div></th>  
 		</tr>  
-		<?php 
-		}  
-		?>  
+		<tr>
+		<td align="center"><?=$objResult["cnt"];?></td>
+		</tr>
  
 		</table>  
 
+		<?php
+		}
+		?>
+
+		<script>
+
+			function insertValidation()  {
+				var TypeID=f1.TypeID.value;
+				var x1=f1.x1.value;
+				var y1=f1.y1.value;
+				var x2=f1.x2.value;
+				var y2=f1.y2.value;
+
+				if(TypeID.length>0 && x1.length>0 && y1.length>0 && x2.length>0 && y2.length>0){
+					return true;
+				}
+				var str="";
+				if(TypeID.length==0)
+					str+="TypeID is empty\n";
+				if(x1.length==0)
+					str+="x1 is empty\n";
+				if(y1.length==0)
+					str+="y1 is empty\n";
+				if(x2.length==0)
+					str+="x2 is empty\n";
+				if(y2.length==0)
+					str+="y2 is empty\n";
+				alert(str);
+				return false;
+			}
+		</script>
+
 	<?php
+
+	
 	// $time_start = microtime(true);
 
 	$userTypes=array("System Admin", "Functions Admin", "Simple User");
