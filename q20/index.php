@@ -76,37 +76,95 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Number of Distinct POI Types per building floor</h2></td>
+		<td vAlign=center align=middle><h2>All k Nearest Neighbor - AkNN)</h2></td>
 	</tr>
     </table>
 
 	<hr/>
-		<table width="100%" border="1">  
-		<tr>  
-		<th width = "20%"> <div align="center">FloorID </div></th>  
-		<th width = "20%"> <div align="center">POI Type</div></th> 
-		<th width = "20%"> <div align="center">POIs Amount</div></th> 
-		</tr>  
+
+	<button id="btnInsertForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Input parameters</button>
+		
+	<div class="form-popup" id="myForm"
+			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.submit();}}">
+			<form name="f1" method="POST" class="form-container">
+				<h2 style="text-align:center;">Insert parameters</h2>
+                <label> Floor ID: </label>
+				<input type="text" name="floorID" />
+				<label> Result Amount (k): </label>
+				<input type="text" name="k" />
+				<input type="button" class="btn" value="Go"
+					onclick="if(insertValidation()){f1.submit();}" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+
+		<hr/>
+	
+		
 		<?php 
-		$tsql="EXEC dbo.Q8";
-		$objQuery = sqlsrv_query($conn, $tsql);
+		if (isset($_POST["floorID"])) {
+			?>
+		<table width="100%" border="1">
+		<tr>  
+			<th width = 33%> <div align="center">POI 1</div></th>  
+			<th width = 33%> <div align="center">POI 2</div></th> 
+			<th width = 33%> <div align="center">Distance</div></th> 
+		</tr>  
+		
+		<?php
+
+
+		$strSQL = "{call dbo.Q20(?, ?)}";
+		$params = array(
+			array($_POST["floorID"], SQLSRV_PARAM_IN),
+			array($_POST["k"], SQLSRV_PARAM_IN)
+		);
+		
+		$objQuery = sqlsrv_query($conn, $strSQL, $params);
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
-		?>
+			$objResult["Distance"] = number_format((float)$objResult["Distance"], 2, '.', '')
+			?>
+			<tr>
+				<td align="center"><?=$objResult["POI1"];?></td>
+				<td align="center"><?=$objResult["POI2"];?></td>
+				<td align="center"><?=$objResult["Distance"];?></td>
+			</tr>
 
-		<tr>
-		<td><div id='row<?= $objResult["FloorID"]; ?>' align="center"><?=$objResult["FloorID"];?></div></td>
-		<td align="center"><?=$objResult["POIType"];?></td>
-		<td align="center"><?=$objResult["POI Amount"];?></td>
-		</tr>  
 		<?php 
 		}  
-		?>  
- 
-		</table>  
+
+		if (!$objQuery) {
+			echo "Error [" . sqlsrv_errors() . "]";
+		} 
+	}
+		?>
+		</table>
+
+		<script>
+
+			function insertValidation()  {
+				var floorID=f1.floorID.value;
+				var k=f1.k.value;
+
+				if(floorID.length > 0 && k.length > 0){
+					return true;
+				}
+				var str="";
+				if(floorID.length == 0)
+					str+="Floor ID is empty\n";
+				if(k.length == 0)
+					str+="k is empty\n";
+				alert(str);
+				return false;
+			}
+		</script>
 
 	<?php
+
+	
 	// $time_start = microtime(true);
 
 	$userTypes=array("System Admin", "Functions Admin", "Simple User");

@@ -6,7 +6,6 @@
 		$connectionOptions = $_SESSION["connectionOptions"];
 		$userID = $_SESSION["userID"];
 		$userType = $_SESSION["userType"];
-
 	} else {
 		session_unset();
 		session_destroy();
@@ -76,37 +75,95 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Number of Distinct POI Types per building floor</h2></td>
+		<td vAlign=center align=middle><h2>Floors with more than the avg. of POIs</h2></td>
 	</tr>
     </table>
 
 	<hr/>
+
+	<button id="btnInsertForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Input parameters</button>
+		
+	<div class="form-popup" id="myForm"
+			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.submit();}}">
+			<form name="f1" method="POST" class="form-container">
+				<h2 style="text-align:center;">Insert parameters</h2>
+                <label> BuildingID: </label>
+				<input type="text" name="BCode" />
+				<input type="button" class="btn" value="Go"
+					onclick="if(insertValidation()){f1.submit();}" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+
+		<hr/>
+	
+		
+		<?php 
+		if (isset($_POST["BCode"])) {
+			
+			$strSQL = "{call dbo.Q17(?)}";
+			$params = array(
+				array($_POST["BCode"], SQLSRV_PARAM_IN)
+			);
+			$objQuery = sqlsrv_query($conn, $strSQL, $params);
+
+
+
+		$objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC);
+	        
+		?>
 		<table width="100%" border="1">  
 		<tr>  
-		<th width = "20%"> <div align="center">FloorID </div></th>  
-		<th width = "20%"> <div align="center">POI Type</div></th> 
-		<th width = "20%"> <div align="center">POIs Amount</div></th> 
+		<th> <div align="center">MIN X</div></th>  
+		<th> <div align="center">MIN Y</div></th>
+		<th> <div align="center">MAX X</div></th>
+		<th> <div align="center">MAX Y</div></th>
 		</tr>  
-		<?php 
-		$tsql="EXEC dbo.Q8";
-		$objQuery = sqlsrv_query($conn, $tsql);
+		<tr>
+		<td align="center"><?=$objResult["MINX"];?></td>
+		<td align="center"><?=$objResult["MINY"];?></td>
+		<td align="center"><?=$objResult["MAXX"];?></td>
+		<td align="center"><?=$objResult["MAXY"];?></td>
+		</tr>
+		</table>  
+		<hr/>
 
-		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
-		{
+		<?php
+		}
 		?>
 
-		<tr>
-		<td><div id='row<?= $objResult["FloorID"]; ?>' align="center"><?=$objResult["FloorID"];?></div></td>
-		<td align="center"><?=$objResult["POIType"];?></td>
-		<td align="center"><?=$objResult["POI Amount"];?></td>
-		</tr>  
-		<?php 
-		}  
-		?>  
- 
-		</table>  
+		<script>
+
+			function insertValidation()  {
+				var TypeID=f1.TypeID.value;
+				var x1=f1.x1.value;
+				var y1=f1.y1.value;
+				var x2=f1.x2.value;
+				var y2=f1.y2.value;
+
+				if(TypeID.length>0 && x1.length>0 && y1.length>0 && x2.length>0 && y2.length>0){
+					return true;
+				}
+				var str="";
+				if(TypeID.length==0)
+					str+="TypeID is empty\n";
+				if(x1.length==0)
+					str+="x1 is empty\n";
+				if(y1.length==0)
+					str+="y1 is empty\n";
+				if(x2.length==0)
+					str+="x2 is empty\n";
+				if(y2.length==0)
+					str+="y2 is empty\n";
+				alert(str);
+				return false;
+			}
+		</script>
 
 	<?php
+
+	
 	// $time_start = microtime(true);
 
 	$userTypes=array("System Admin", "Functions Admin", "Simple User");

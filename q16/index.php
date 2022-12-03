@@ -7,16 +7,6 @@
 		$userID = $_SESSION["userID"];
 		$userType = $_SESSION["userType"];
 
-		if($userType == '2'){
-			?>
-			<script>
-			alert("Simple users can't insert/modify/delete types.");
-			</script>
-			<?php
-			die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
-			
-		}
-
 	} else {
 		session_unset();
 		session_destroy();
@@ -120,12 +110,7 @@
 		
 		<?php 
 		if (isset($_POST["TypeID"])) {
-			?>
-				<script>
-						document.getElementById("btnAdvSearchForm").classList.add("warningb");
-						document.getElementById("btnReset").style="display:inline-block;";
-					</script>
-			<?php
+			
 			$strSQL = "{call dbo.Q16(?, ?, ?, ?, ?)}";
 			$params = array(
 				array($_POST["TypeID"], SQLSRV_PARAM_IN),

@@ -7,16 +7,6 @@
 		$userID = $_SESSION["userID"];
 		$userType = $_SESSION["userType"];
 
-		if($userType == '2'){
-			?>
-			<script>
-			alert("Simple users can't insert/modify/delete types.");
-			</script>
-			<?php
-			die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
-			
-		}
-
 	} else {
 		session_unset();
 		session_destroy();
@@ -86,7 +76,7 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Most Famous Type</h2></td>
+		<td vAlign=center align=middle><h2>Λίστα fingerprints</h2></td>
 	</tr>
     </table>
 <hr/>

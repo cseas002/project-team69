@@ -142,6 +142,7 @@ body{
   .danger {color: red;}
   .default {color: black;}
   .blue {color: blue;}
+  .ucygreen {color: #8d9106;}
 
   .tablePaddedRows td{
     padding-top: 5px;
@@ -195,7 +196,7 @@ transform: translate(-50%, -50%);
   
   /* Set a style for the submit/login button */
   .form-container .btn {
-    background-color: #8d9106;
+    background-color: #04AA6D;
     color: white;
     padding: 16px 20px;
     border: none;

@@ -7,7 +7,7 @@ $connectionOptions = $_SESSION["connectionOptions"];
 $userID = $_SESSION["userID"];
 $userType = $_SESSION["userType"];
 
-if ($userType == '2') {
+if ($userType == '3') {
 ?>
 <script>
 alert("Simple users can't insert/modify/delete fingerprints.");

@@ -6,7 +6,6 @@
 		$connectionOptions = $_SESSION["connectionOptions"];
 		$userID = $_SESSION["userID"];
 		$userType = $_SESSION["userType"];
-
 	} else {
 		session_unset();
 		session_destroy();
@@ -76,37 +75,90 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Number of Distinct POI Types per building floor</h2></td>
+		<td vAlign=center align=middle><h2>Floors with more than the avg. of POIs</h2></td>
 	</tr>
     </table>
 
 	<hr/>
+
+	<button id="btnInsertForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Input parameters</button>
+		
+	<div class="form-popup" id="myForm"
+			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.submit();}}">
+			<form name="f1" method="POST" class="form-container">
+				<h2 style="text-align:center;">Insert parameters</h2>
+                <label> x: </label>
+				<input type="text" name="x" />
+				<label> y: </label>
+				<input type="text" name="y" />
+				<label> z: </label>
+				<input type="text" name="z" />
+				<input type="button" class="btn" value="Go"
+					onclick="if(insertValidation()){f1.submit();}" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+
+		<hr/>
+	
+		
+		<?php 
+		if (isset($_POST["x"])) {
+			$strSQL = "{call dbo.Q18(?, ?, ?)}";
+			$params = array(
+				array($_POST["x"], SQLSRV_PARAM_IN),
+				array($_POST["y"], SQLSRV_PARAM_IN),
+				array($_POST["z"], SQLSRV_PARAM_IN)
+			);
+			$objQuery = sqlsrv_query($conn, $strSQL, $params);
+
+
+
+		$objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC);
+	        
+		?>
 		<table width="100%" border="1">  
 		<tr>  
-		<th width = "20%"> <div align="center">FloorID </div></th>  
-		<th width = "20%"> <div align="center">POI Type</div></th> 
-		<th width = "20%"> <div align="center">POIs Amount</div></th> 
+		<th> <div align="center">POI ID</div></th>  
+		<th> <div align="center">POI Name</div></th>
 		</tr>  
-		<?php 
-		$tsql="EXEC dbo.Q8";
-		$objQuery = sqlsrv_query($conn, $tsql);
+		<tr>
+		<td align="center"><?=$objResult["POIID"];?></td>
+		<td align="center"><?=$objResult["POIName"];?></td>
+		</tr>
+		</table>  
+		<hr/>
 
-		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
-		{
+		<?php
+		}
 		?>
 
-		<tr>
-		<td><div id='row<?= $objResult["FloorID"]; ?>' align="center"><?=$objResult["FloorID"];?></div></td>
-		<td align="center"><?=$objResult["POIType"];?></td>
-		<td align="center"><?=$objResult["POI Amount"];?></td>
-		</tr>  
-		<?php 
-		}  
-		?>  
- 
-		</table>  
+		<script>
+
+			function insertValidation()  {
+				var x=f1.x.value;
+				var y=f1.y.value;
+				var z=f1.z.value;
+
+				if(x.length>0 && y.length>0 && z.length>0){
+					return true;
+				}
+				var str="";
+				if(x.length==0)
+					str+="x is empty\n";
+				if(y.length==0)
+					str+="y is empty\n";
+				if(z.length==0)
+					str+="z is empty\n";
+				alert(str);
+				return false;
+			}
+		</script>
 
 	<?php
+
+	
 	// $time_start = microtime(true);
 
 	$userTypes=array("System Admin", "Functions Admin", "Simple User");

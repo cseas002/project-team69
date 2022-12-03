@@ -86,27 +86,27 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
 				<td vAlign=center align=middle>
-					<h2>Select Fingerprint</h2>
+					<h2>Find k item types with the least participations</h2>
 				</td>
 			</tr>
 		</table>
 
-		<button id="btnSelectForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Select</button>
 
 	<?php
     
-	//*** When the user searches for a fingerprint ***//
-	if (isset($_POST["FingerprintID"])) {
+	//*** When the user types a number ***//
+	if (isset($_POST["num"])) {
 		?>
 		<table width="100%" border="1">
 		<tr>  
-			<th width = "50%"> <div align="center">Fingerprint ID</div></th>  
+			<th width = "50%"> <div align="center">Type ID</div></th>  
+			<th width = "50%"> <div align="center">Amount</div></th> 
 		</tr>  
 		
 		<?php
-		$strSQL = "{call dbo.Q13(?)}";
+		$strSQL = "{call dbo.Q14(?)}";
 		$params = array(
-			array($_POST["FingerprintID"], SQLSRV_PARAM_IN)
+			array($_POST["num"], SQLSRV_PARAM_IN)
 		);
 
 		$objQuery = sqlsrv_query($conn, $strSQL, $params);
@@ -115,7 +115,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 		{
 			?>
 		<tr>
-		<td><div id='row<?= $objResult["FingerprintID"]; ?>' align="center"><?=$objResult["FingerprintID"];?></div></td>
+		<td><div align="center"><?=$objResult["TypeID"];?></div></td>
+		<td><div align="center"><?=$objResult["cnt"];?></div></td>
 		</tr>
 
 		<?php 
@@ -127,13 +128,14 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 	}
  ?>
 	</table> 
+ 	<button id="btnSelectForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Number</button>
 	
 	<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.submit();}}"> 
 		
 	<form name="frmInsert" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
 			<h3>Select a fingerprint</h3>
-			<label>Fingerprint ID:</label>
-			<input maxlength="40" type="text" name="FingerprintID" /><br/>
+			<label>Number:</label>
+			<input maxlength="40" type="text" name="num" /><br/>
 			
 
 			<input name="btnInsert" type="button" class="btn" value="Go" onclick="if(insertValidation()){frmInsert.submit();}">
@@ -143,13 +145,13 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 
 		<script>
 			function insertValidation()  {
-				var fingerprint=frmInsert.FingerprintID.value;
-
-				if(fingerprint.length > 0){
+				var num=frmInsert.num.value;
+				var str = "";
+				if(num.length > 0){
 					return true;
 				}
-				if(fingerprint.length==0)
-					var str="Cannot select an empty fingerprint\n";
+				else
+					str="Cannot select an empty fingerprint\n";
 				alert(str);
 				return false;
 			}

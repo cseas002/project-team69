@@ -7,6 +7,16 @@
 		$userID = $_SESSION["userID"];
 		$userType = $_SESSION["userType"];
 
+		if($userType == '2'){
+			?>
+			<script>
+			alert("Simple users can't insert/modify/delete types.");
+			</script>
+			<?php
+			die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
+			
+		}
+
 	} else {
 		session_unset();
 		session_destroy();
@@ -76,37 +86,111 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Number of Distinct POI Types per building floor</h2></td>
+		<td vAlign=center align=middle><h2>Fingerprint Path</h2></td>
 	</tr>
     </table>
 
 	<hr/>
-		<table width="100%" border="1">  
-		<tr>  
-		<th width = "20%"> <div align="center">FloorID </div></th>  
-		<th width = "20%"> <div align="center">POI Type</div></th> 
-		<th width = "20%"> <div align="center">POIs Amount</div></th> 
-		</tr>  
+
+	<button id="btnInsertForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Choose table</button>
+		
+	<div class="form-popup" id="myForm"
+			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.submit();}}">
+			<form name="f1" method="POST" class="form-container">
+				<h2 style="text-align:center;">Choose table</h2>
+                <label> Table name: </label>
+				<select name="tname" id="tname"><br/>
+				<option value=""> </option>
+				<option value="0">Campus</option>
+				<option value="1">Buildings</option>
+				<option value="2">Building floors</option>
+				<option value="3">Fingerprints</option>
+				<option value="4">POIS</option>
+				<option value="5">Items</option>
+				<option value="6">Item Types</option>
+				</select>
+				<input type="button" class="btn" value="Search with CTE"
+					onclick="if(insertValidation()){f1.submit();}" />
+					<input type="button" class="btn" value="Search with cursor"
+					onclick="if(insertValidation()){f1.submit();}" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+
+		<hr/>
+	
+		
 		<?php 
-		$tsql="EXEC dbo.Q8";
-		$objQuery = sqlsrv_query($conn, $tsql);
+		if (isset($_POST["tname"])) {
+			?>
+		<table width="100%" border="1">
+		<tr>  
+			<th width = 50%> <div align="center">Path</div></th>  
+			<th width = 50%> <div align="center">Item Amount</div></th> 
+		</tr>  
+		
+		<?php
+
+		if ($_POST["tname"] == '0')
+			$strSQL = "{call dbo.CAMPUS_LOG()}";
+		else if ($_POST["tname"] == '0')
+			$strSQL = "{call dbo.BUILDING_LOG()}";
+		else if ($_POST["tname"] == '0')
+			$strSQL = "{call dbo.BFLOOR_LOG()}";
+		else if ($_POST["tname"] == '0')
+			$strSQL = "{call dbo.FINGERPRINT_LOG()}";
+		else if ($_POST["tname"] == '0')
+			$strSQL = "{call dbo.POI_LOG()}";
+		else if ($_POST["tname"] == '0')
+			$strSQL = "{call dbo.ITEM_LOG()}";
+			else if ($_POST["tname"] == '0')
+			$strSQL = "{call dbo.TYPES_LOG()}";
+
+		
+		$objQuery = sqlsrv_query($conn, $strSQL);
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
-		?>
+			?>
+			<tr>
+				<td align="center"><?=$objResult["UserAdded"];?></td>
+				<td align="center"><?=$objResult["DateAdded"];?></td>
+				<td align="center"><?=$objResult["UserModified"];?></td>
+				<td align="center"><?=$objResult["cnt"];?></td>
+			</tr>
 
-		<tr>
-		<td><div id='row<?= $objResult["FloorID"]; ?>' align="center"><?=$objResult["FloorID"];?></div></td>
-		<td align="center"><?=$objResult["POIType"];?></td>
-		<td align="center"><?=$objResult["POI Amount"];?></td>
-		</tr>  
 		<?php 
 		}  
-		?>  
- 
-		</table>  
+
+		if (!$objQuery) {
+			echo "Error [" . sqlsrv_errors() . "]";
+		} 
+	}
+		?>
+		</table>
+		<script>
+
+			function insertValidation()  {
+				var fingerprintID=f1.fingerprintID.value;
+				var distance=f1.distance.value;
+
+				if(fingerprintID.length > 0 && distance.length > 0){
+					return true;
+				}
+				var str="";
+				if(fingerprintID.length == 0)
+					str+="Fingerprint ID is empty\n";
+				if(distance.length == 0)
+					str+="Distance empty\n";
+				alert(str);
+				return false;
+			}
+		</script>
 
 	<?php
+
+	
 	// $time_start = microtime(true);
 
 	$userTypes=array("System Admin", "Functions Admin", "Simple User");

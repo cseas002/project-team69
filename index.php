@@ -20,12 +20,12 @@
 				
 		$_SESSION["serverName"] = "mssql.cs.ucy.ac.cy";
 		$_SESSION["connectionOptions"] = array(
-			// "Database" => "cseas002",
-			// "Uid" => "cseas002",
-			// "PWD" => "hdX8VtLW",
-			"Database" => "gchora01",
-			"Uid" => "gchora01",
-			"PWD" => "w5hU2k6Y",
+			"Database" => "cseas002",
+			"Uid" => "cseas002",
+			"PWD" => "hdX8VtLW",
+			// "Database" => "gchora01",
+			// "Uid" => "gchora01",
+			// "PWD" => "w5hU2k6Y",
 			"CharacterSet"=>"UTF-8"
 		);
 
@@ -85,7 +85,7 @@
                 <input type = "text" id ="user" name  = "user" />  <br/>
                 <label> Password: </label>  
                 <input type = "password" id ="pass" name  = "pass" />  <br/><br/>
-                <input type =  "submit" class = "btn" value = "Login" name = "connect"/>  
+                <input type =  "submit" class = "btn ucygreen" value = "Login" name = "connect"/>  
         </form>  
     </div>   
     <script>  

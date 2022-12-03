@@ -246,25 +246,24 @@ CREATE PROCEDURE dbo.Q13
 @fingerprint int
 AS
 BEGIN
+	CREATE TABLE #FTypes(TypeID INT)
+	INSERT INTO #FTypes SELECT i.TypeID FROM dbo.ITEM i WHERE i.FingerprintID = @fingerprint
+	-- The types of the specific fingerprint
+	
 	SELECT f.FingerprintID 
 	FROM dbo.FINGERPRINT f
-	WHERE @fingerprint != f.FingerprintID AND NOT EXISTS (
-				(SELECT i.TypeID
-				FROM dbo.ITEM i
-				WHERE i.FingerprintID = @fingerprint)
-				EXCEPT 
-				(SELECT i.TypeID
-				FROM dbo.ITEM i
-				WHERE i.FingerprintID = f.FingerprintID)
-			
-				
-			)
+	WHERE f.FingerprintID != @fingerprint AND NOT EXISTS 
+		(SELECT * FROM #FTypes ft WHERE ft.TypeID -- A type which belongs to the specific fingerprint
+		NOT IN (
+		SELECT i.TypeID FROM dbo.ITEM i WHERE i.FingerprintID = f.FingerprintID) 
+		-- But doesn't belong to the other fingerprint
+		)
 END;
 
 CREATE PROCEDURE dbo.[Q14]
 @num int
 AS
-SELECT TOP (@num) I.TypeID, COUNT(DISTINCT I.FingerprintID)
+SELECT TOP (@num) I.TypeID, COUNT(DISTINCT I.FingerprintID) AS cnt
 FROM dbo.ITEM AS I
 GROUP BY I.TypeID
 ORDER BY COUNT(DISTINCT I.FingerprintID) asc;
@@ -374,52 +373,78 @@ BEGIN
 	ORDER BY Distance ASC
 END;
 
-CREATE PROCEDURE [dbo].[Q21]
-@x DECIMAL(20, 8)
+
+CREATE PROCEDURE [dbo].[Q21_CTE] 
+-- This is the recursive procedure
+@fingerprint INT, -- The origin fingerprint
+@x DECIMAL(15, 12) -- The distance
 AS
 BEGIN
 	SET NOCOUNT ON -- We don't want to see the rows changed
-	DECLARE @fingerprint INT
-	DECLARE c CURSOR LOCAL FAST_FORWARD FOR SELECT f.FingerprintID FROM dbo.FINGERPRINT f
 
-	TRUNCATE TABLE dbo.FPassed -- We delete everything from FPassed and FValid tables
-	TRUNCATE TABLE dbo.FValid  
-	INSERT INTO dbo.FValid(f1, f2) -- We insert the valid destinations for each fingerprint
+	DECLARE @myTable TableType
+	INSERT INTO @myTable(fid, cnt) SELECT i.FingerprintID as fid, COUNT(*) as cnt FROM dbo.ITEM i GROUP BY i.FingerprintID
+
+	CREATE TABLE #FValid (f1 INT, f2 INT)
+	INSERT INTO #FValid(f1, f2) -- We insert the valid destinations for each fingerprint
 	-- A valid destination is a fingerprint which has distance less than @x meters from another one
 			SELECT f1.FingerprintID, f2.FingerprintID
 			FROM dbo.FINGERPRINT f1, dbo.FINGERPRINT f2
-			WHERE f1.FingerprintID != f2.FingerprintID AND dbo.DISTANCE(f1.x, f1.y, f1.[Level], f2.x, f2.y, f2.[Level]) < @x
+			WHERE f1.FingerprintID != f2.FingerprintID AND f1.[Level] = f2.[Level] AND
+			dbo.DISTANCE(f1.x, f1.y, f1.[Level], f2.x, f2.y, f2.[Level]) < @x;
+	
+	
+	DECLARE @emptystr NVARCHAR(MAX)
+	SET @emptystr = ' ' + CAST(@fingerprint AS NVARCHAR);
+	WITH FPath (f1, prev, d)
+	AS
+	(
+	 SELECT @fingerprint, @emptystr, 0
+	 
+	UNION ALL
+	SELECT a.f2, CASE WHEN EXISTS (SELECT * FROM #FValid t WHERE t.f1=a.f2 AND t.f2 NOT IN (SELECT value FROM STRING_SPLIT(a.prev, ' '))) THEN a.prev ELSE  a.prev + ' -1' END, a.d
+	FROM(
+    SELECT f.f2, fp.prev + ' ' + CAST(f.f2 AS NVARCHAR) AS prev, fp.d+1 as d
+    FROM #FValid f JOIN FPath fp ON fp.f1 = f.f1 
+	WHERE f.f2 NOT IN (SELECT value FROM STRING_SPLIT(fp.prev, ' ')) AND d<32
+	) AS a
+	)
+	SELECT TOP 1000 f.prev as pth, dbo.CALCULATESUM(f.prev, @myTable) as cnt
+	FROM FPath f 
+	WHERE RIGHT(f.prev,2) = '-1';
 
-	OPEN c
-	FETCH NEXT FROM c INTO @fingerprint -- We save the first fingerprint ID into @fingerprint variable
-	DECLARE @string NVARCHAR(30) -- We declare a string variable to print the paths 
-	SET @string = '' 
-	WHILE @@FETCH_STATUS = 0 -- For each fingerprint
-	BEGIN
-		EXEC dbo.Q21_2 @fingerprint, @string -- Execute the recursive procedure
-		-- This procedure finds the fingerprints that the current fingerprint can go, and recursively follows them
-		-- until there is no fingerprint possible to go. A valid fingerprint is a fingerprint which has not been passed 
-		-- and has distance from its previous fingerprint less than @x meters. 
-		FETCH NEXT FROM c INTO @fingerprint -- We save each fingerprint ID into @fingerprint variable
-	END
-	CLOSE c
-	DEALLOCATE c
+	DROP TABLE #FValid
 END;
 
-CREATE PROCEDURE [dbo].Q21_2 
--- This is the recursive procedure
+
+CREATE PROCEDURE [dbo].[Q21_N2] 
 @fingerprint INT, -- The origin fingerprint
-@string NVARCHAR(30) -- The string to be printed
+@x DECIMAL(15,12), -- The origin fingerprint
+@string NVARCHAR(MAX) = ''
 AS
+
 BEGIN
-	SET NOCOUNT ON -- We don't want to see the rows changed
+SET NOCOUNT ON -- We don't want to see the rows changed
+	IF @@NESTLEVEL = 1
+	BEGIN
+		CREATE TABLE #Result (f VARCHAR(MAX))
+		CREATE TABLE #FPassed (f int)
+		SELECT f1.FingerprintID as f1, f2.FingerprintID as f2
+		INTO #FValid
+		FROM dbo.FINGERPRINT f1, dbo.FINGERPRINT f2
+		WHERE f1.FingerprintID != f2.FingerprintID AND f1.[Level]=f2.[Level] AND dbo.DISTANCE2D(f1.x, f1.y, f2.x, f2.y) < @x
+
+	END
+	IF @@NESTLEVEL < 32
+	BEGIN
+	
 	DECLARE @fingerprint2 INT -- The destination fingerprint
 	DECLARE @toPrint BIT -- Value that indicates that our path is complete and needs to be printed
 	-- A path is complete when we can't find a possible destination fingerprint for a fingerprint
 	SET @toPrint = 1 -- We initialize this value to 1, and if there is at least one possible destination fingerprint we change this
 	-- value to 0
 
-	DECLARE c CURSOR LOCAL FAST_FORWARD FOR SELECT f2 FROM dbo.FValid WHERE f1 = @fingerprint AND f2 NOT IN (SELECT * FROM dbo.FPassed) 
+	DECLARE c CURSOR LOCAL FAST_FORWARD FOR SELECT f2 FROM #FValid WHERE f1 = @fingerprint AND f2 NOT IN (SELECT * FROM #FPassed) 
 	-- For each fingerprint that we did not already passed
 
 	OPEN c
@@ -430,12 +455,12 @@ BEGIN
 	WHILE @@FETCH_STATUS = 0
 	BEGIN
 		SET @toPrint = 0
-		INSERT INTO dbo.FPassed(f) SELECT @fingerprint -- We now passed this fingerprint so we save it to a table 
+		INSERT INTO #FPassed(f) SELECT @fingerprint -- We now passed this fingerprint so we save it to a table 
 		-- in order to restrict the next fingerprints to go back to this
 
-		EXEC dbo.Q21_2 @fingerprint2, @string -- We now execute the procedure with fingerprint 2 as the source fingerprint
+		EXEC dbo.Q21_N2 @fingerprint2, @x, @string -- We now execute the procedure with fingerprint 2 as the source fingerprint
 
-		DELETE FROM dbo.FPassed WHERE f = @fingerprint -- Remove the previous "passed" record. The other fingerprints can now
+		DELETE FROM #FPassed WHERE f = @fingerprint -- Remove the previous "passed" record. The other fingerprints can now
 		-- pass from this. It will not be their next destination because we are currently testing this fingerprint as their next 
 		-- destination (It's the current fetch).
 
@@ -443,10 +468,20 @@ BEGIN
 		FETCH NEXT FROM c INTO @fingerprint2
 	END
 	IF @toPrint = 1
-		PRINT @string
+		INSERT INTO #Result SELECT @string
+	IF @@NESTLEVEL = 1
+		BEGIN
+		DECLARE @myTable TableType
+		INSERT INTO @myTable(fid, cnt) SELECT i.FingerprintID as fid, COUNT(*) as cnt FROM dbo.ITEM i GROUP BY i.FingerprintID
+
+		SELECT TOP 1000 R.f as pth, dbo.CALCULATESUM(R.f, @myTable) as cnt FROM #Result AS R
+		END
 	CLOSE c
 	DEALLOCATE c
+	END
+	SET NOCOUNT OFF
 END;
+
 
 
 CREATE PROCEDURE [dbo].[Q3_DeleteFingerprint]
@@ -672,6 +707,9 @@ BEGIN
 	ORDER BY [Average Occurences] DESC
 END;
 
+
+-- END OF QUERIES
+
 CREATE PROCEDURE [dbo].Advanced_Search_BFLOOR
 @FloorID INT,
 @Summary [nvarchar](MAX), 
@@ -840,3 +878,39 @@ BEGIN
 SELECT UserID, UserType FROM dbo.USERS WHERE Username = @Username AND UPassword = @UPassword
 END;
 
+-- LOG PROCEDURES
+
+CREATE PROCEDURE dbo.BFLOOR_LOG 
+AS
+SELECT FloorID, UserAdded , UserModified , Date_Added , Date_Modified 
+FROM dbo.BFLOOR  
+
+CREATE PROCEDURE dbo.BUILDING_LOG 
+AS
+SELECT BCode , UserAdded , UserModified , Date_Added , Date_Modified 
+FROM dbo.BUILDING
+
+CREATE PROCEDURE dbo.CAMPUS_LOG 
+AS
+SELECT CampusID, UserAdded , UserModified , Date_Added , Date_Modified 
+FROM dbo.CAMPUS
+
+CREATE PROCEDURE dbo.FINGERPRINT_LOG 
+AS
+SELECT FingerprintID, UserAdded , UserModified , Date_Added , Date_Modified 
+FROM dbo.FINGERPRINT 
+
+CREATE PROCEDURE dbo.ITEM_LOG 
+AS
+SELECT ItemID, UserAdded , UserModified , Date_Added , Date_Modified 
+FROM dbo.ITEM
+
+CREATE PROCEDURE dbo.POI_LOG 
+AS
+SELECT POIID, UserAdded , UserModified , Date_Added , Date_Modified 
+FROM dbo.POI 
+
+CREATE PROCEDURE dbo.TYPES_LOG 
+AS
+SELECT TypeID, UserAdded , UserModified , Date_Added , Date_Modified 
+FROM dbo.TYPES

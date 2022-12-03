@@ -76,37 +76,99 @@
 
 	<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 	<tr>
-		<td vAlign=center align=middle><h2>Number of Distinct POI Types per building floor</h2></td>
+		<td vAlign=center align=middle><h2>Fingerprint Path</h2></td>
 	</tr>
     </table>
 
 	<hr/>
-		<table width="100%" border="1">  
-		<tr>  
-		<th width = "20%"> <div align="center">FloorID </div></th>  
-		<th width = "20%"> <div align="center">POI Type</div></th> 
-		<th width = "20%"> <div align="center">POIs Amount</div></th> 
-		</tr>  
+
+	<button id="btnInsertForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Input parameters</button>
+		
+	<div class="form-popup" id="myForm"
+			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdn.value='1'; f1.submit();}}">
+			<form name="f1" method="POST" class="form-container">
+				<input type="hidden" name="hdn" />
+				<h2 style="text-align:center;">Insert parameters</h2>
+                <label> Fingerprint ID: </label>
+				<input type="text" name="fingerprintID" />
+				<label> Distance: </label>
+				<input type="text" name="distance" />
+				<input type="button" class="btn" value="Search with CTE"
+					onclick="if(insertValidation()){f1.hdn.value='1'; f1.submit();}" />
+					<input type="button" class="btn" value="Search with cursor"
+					onclick="if(insertValidation()){f1.hdn.value='2'; f1.submit();}" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+
+		<hr/>
+	
+		
 		<?php 
-		$tsql="EXEC dbo.Q8";
-		$objQuery = sqlsrv_query($conn, $tsql);
+		if (isset($_POST["fingerprintID"])) {
+			?>
+		<table width="100%" border="1">
+		<tr>  
+			<th width = 50%> <div align="center">Path</div></th>  
+			<th width = 50%> <div align="center">Item Amount</div></th> 
+		</tr>  
+		
+		<?php
+
+		if ($_POST["hdn"] == 1)
+			$strSQL = "{call dbo.Q21_CTE(?, ?)}";
+		else
+			$strSQL = "{call dbo.Q21_N2(?, ?)}";
+
+		$params = array(
+			array($_POST["fingerprintID"], SQLSRV_PARAM_IN),
+			array($_POST["distance"], SQLSRV_PARAM_IN)
+		);
+		
+		$objQuery = sqlsrv_query($conn, $strSQL, $params);
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
-		?>
+			if ($_POST["hdn"] == 1)
+				$objResult["pth"] = substr($objResult["pth"], 0, -2); 
+			?>
+			<tr>
+				<td align="center"><?=$objResult["pth"];?></td>
+				<td align="center"><?=$objResult["cnt"];?></td>
+			</tr>
 
-		<tr>
-		<td><div id='row<?= $objResult["FloorID"]; ?>' align="center"><?=$objResult["FloorID"];?></div></td>
-		<td align="center"><?=$objResult["POIType"];?></td>
-		<td align="center"><?=$objResult["POI Amount"];?></td>
-		</tr>  
 		<?php 
 		}  
-		?>  
- 
-		</table>  
+
+		if (!$objQuery) {
+			echo "Error [" . sqlsrv_errors() . "]";
+		} 
+	}
+		?>
+		</table>
+		<script>
+
+			function insertValidation()  {
+				var fingerprintID=f1.fingerprintID.value;
+				var distance=f1.distance.value;
+
+				if(fingerprintID.length > 0 && distance.length > 0){
+					return true;
+				}
+				var str="";
+				if(fingerprintID.length == 0)
+					str+="Fingerprint ID is empty\n";
+				if(distance.length == 0)
+					str+="Distance empty\n";
+				alert(str);
+				return false;
+			}
+		</script>
 
 	<?php
+
+	
 	// $time_start = microtime(true);
 
 	$userTypes=array("System Admin", "Functions Admin", "Simple User");

@@ -7,16 +7,6 @@
 		$userID = $_SESSION["userID"];
 		$userType = $_SESSION["userType"];
 
-		if($userType == '2'){
-			?>
-			<script>
-			alert("Simple users can't insert/modify/delete types.");
-			</script>
-			<?php
-			die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
-			
-		}
-
 	} else {
 		session_unset();
 		session_destroy();
@@ -103,8 +93,10 @@
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
-			if (floatval($objResult["Average Occurences"]) < 1)
-				$objResult["Average Occurences"] = "0" + $objResult["Average Occurences"]
+	        if (floatval($objResult["Average Occurences"]) < 1)
+		        $objResult["Average Occurences"] = "0" + $objResult["Average Occurences"];
+
+			$objResult["Average Occurences"] = number_format((float)$objResult["Average Occurences"], 2, '.', '')
 		?>
 
 		<tr>
