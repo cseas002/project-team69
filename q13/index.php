@@ -14,44 +14,7 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	die('<meta http-equiv="refresh" content="3; url=../index.php" />');
 }
 //Establishes the connection
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-
-
-    //*** Update Condition ***//  
-    if ($_POST["hdnCmd"] == "Update") {
-	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?, ?)}";
-
-		$fz = $_POST["txtEditz"];
-		$flid = NULL;
-		if($_POST["txtEditFloorID"] != ''){
-			$array = explode("?", $_POST["txtEditFloorID"]);
-			$fz = $array[1];
-			$flid = $array[0];
-		}
-
-		
-		$timeNew = $_POST["txtEditRegDate"].":00";
-		//echo $_POST["hdnEditFingerprintID"] . " " . $_POST["txtEditx"] ." " .  $_POST["txtEdity"] . " ".$fz. " ". $flid . " ". $timeNew;
-
-	    $params = array(
-	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
-	    	array($_POST["txtEditx"], SQLSRV_PARAM_IN),
-	    	array($_POST["txtEdity"], SQLSRV_PARAM_IN),
-			array($fz, SQLSRV_PARAM_IN),
-	    	array($flid, SQLSRV_PARAM_IN),
-			array($timeNew, SQLSRV_PARAM_IN)
-	    );
-	    $objQuery = sqlsrv_query($conn, $strSQL, $params);
-	    $objRow = sqlsrv_fetch_array($objQuery);
-	    if (!$objQuery) {
-			echo "Error Update [";
-			print_r(sqlsrv_errors());
-			echo "]<br/>";
-	    } 
-		else
-		    echo "<meta http-equiv='refresh' content='0'>";
-    }
-            ?>
+$conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 
 
 <html>
@@ -123,140 +86,77 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
 				<td vAlign=center align=middle>
-					<h2>Insert / Edit / Delete Fingerprints</h2>
+					<h2>Select Fingerprint</h2>
 				</td>
 			</tr>
 		</table>
-		<hr>
 
-		
 
-		<div class="form-popup" id="myForm"
-			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
-			<form name="f1" method="POST" class="form-container">
-				<input type="hidden" name="hdnCmd" value="">
-				<h2 style="text-align:center;">Insert new fingerprint</h2>
-				<label> x: </label>
-				<input type="text" name="x" />
-				<label> y: </label>
-				<input type="text" name="y" />
-				<label> Level: </label>
-				<input type="text" name="z" />
-				<label> Building/Floor: </label>
-				<select name="FloorID" id="FloorID">
-					<option value=''> </option>
-					<?php
-                $strSQL = "{call dbo.Q3_SelectBuildings()}";
-                $objQuery = sqlsrv_query($conn, $strSQL);
-                while ($row = sqlsrv_fetch_array($objQuery)) {
-                ?>
-					<option value='<?= $row["FloorID"] . "?" . $row["FloorZ"] ?>'>
-						<?= $row["BName"] . " - " . $row["FloorZ"] ?>
-					</option>
-					<?php
-                }
-                        ?>
-				</select>
-				<label> RegDate: </label>
-				<input type="datetime-local" name="RegDate" />
-				<input type="button" class="btn" value="Insert"
-					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
-				<button type="button" class="btn cancel"
-					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
-			</form>
-		</div>
-		<hr />
-		<div
-			onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
-			<h2>List of all fingerprints</h2>
-			<form name="frmMain" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-				<input type="hidden" name="hdnCmd" value="">
-				<input type="hidden" name="fidpass" value="">
-				<table width="100%" border="1">
-					<tr>
-						<th width="13%">
-							<div align="center">FingerprintID </div>
-						</th>
-						<th width="13%">
-							<div align="center">x</div>
-						</th>
-						<th width="13%">
-							<div align="center">y</div>
-						</th>
-						<th width="13%">
-							<div align="center">Level</div>
-						</th>
-						<th width="13%">
-							<div align="center">Building - Floor</div>
-						</th>
-						<th width="13%">
-							<div align="center">RegDate</div>
-						</th>
-						<th width="22%" colspan="3">
-							<div align="center">Actions</div>
-						</th>
-					</tr>
-					<?php
-        $tsql = "EXEC dbo.Q3_SelectFingerprints";
-        $objQuery = sqlsrv_query($conn, $tsql);
-
-        while ($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC)) {
-        ?>
-			<tr>
-					<tr>
-						<td>
-							<div id='row<?= $objResult["FingerprintID"]; ?>' align="center">
-								<?= $objResult["FingerprintID"]; ?>
-							</div>
-						</td>
-						<td align="center">
-							<?= $objResult["x"]; ?>
-						</td>
-						<td align="center">
-							<?= $objResult["y"]; ?>
-						</td>
-						<td align="center">
-							<?= $objResult["Level"]; ?>
-						</td>
-						<?php
-						$FloorLabel = '';
-						if($objResult["FloorID"] != ''){
-						$strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
-						$params = array(
-							array($objResult["FloorID"], SQLSRV_PARAM_IN)
-						);
-						$objQuery1 = sqlsrv_query($conn, $strSQL1, $params);
-						$row = sqlsrv_fetch_array($objQuery1);
-						$FloorZ = $row["FloorZ"];
-						$BName = $row["BName"];
-						$FloorID = $row["FloorID"];
-						$FloorLabel = $BName . " - " . $FloorZ;
-						}
-						?>
-						<td align="center">
-							<?= $FloorLabel; ?>
-						</td>
-						<td align="center">
-							<?= $objResult["RegDate"]; ?>
-						</td>
-						<td align="center" width="7%">
-							<?php
-		                    echo '<a href="';
-							echo "Select.php?Action=Select&id={$objResult['FingerprintID']}&row={$objResult['FingerprintID']}";
-							echo '">Select</a>';
-								?>
-						</td>
-						
-					</tr>
-					<?php
-	        }
-        ?>
-				</table>
-			</form>
-		</div>
-
-		<?php
+	<?php
     
+	//*** When the user searches for a fingerprint ***//
+	if (isset($_POST["FingerprintID"])) {
+		?>
+		<table width="100%" border="1">
+		<tr>  
+			<th width = "50%"> <div align="center">Fingerprint ID</div></th>  
+		</tr>  
+		
+		<?php
+		$strSQL = "{call dbo.Q13(?)}";
+		$params = array(
+			array($_POST["FingerprintID"], SQLSRV_PARAM_IN)
+		);
+
+		$objQuery = sqlsrv_query($conn, $strSQL, $params);
+
+		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
+		{
+			?>
+		<tr>
+		<td><div id='row<?= $objResult["FingerprintID"]; ?>' align="center"><?=$objResult["FingerprintID"];?></div></td>
+		</tr>
+
+		<?php 
+		}  
+
+		if (!$objQuery) {
+			echo "Error [" . sqlsrv_errors() . "]";
+		} 
+	}
+ ?>
+	</table> 
+ 	<button id="btnSelectForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Select</button>
+	
+	<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.submit();}}"> 
+		
+	<form name="frmInsert" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+			<h3>Select a fingerprint</h3>
+			<label>Fingerprint ID:</label>
+			<input maxlength="40" type="text" name="FingerprintID" /><br/>
+			
+
+			<input name="btnInsert" type="button" class="btn" value="Go" onclick="if(insertValidation()){frmInsert.submit();}">
+			<button type ="button" class = "btn cancel" onclick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
+		</form>
+		</div>
+
+		<script>
+			function insertValidation()  {
+				var fingerprint=frmInsert.FingerprintID.value;
+
+				if(fingerprint.length > 0){
+					return true;
+				}
+				if(fingerprint.length==0)
+					var str="Cannot select an empty fingerprint\n";
+				alert(str);
+				return false;
+			}
+		</script>
+
+
+<?php
     $userTypes = array("System Admin", "Functions Admin", "Simple User");
     echo "Connecting to SQL server (" . $serverName . ")<br/>";
     echo "Database: " . $connectionOptions[Database] . ", SQL User: " . $connectionOptions[Uid] . "<br/>";
