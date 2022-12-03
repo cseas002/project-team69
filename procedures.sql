@@ -246,7 +246,7 @@ CREATE PROCEDURE dbo.Q13
 @fingerprint int
 AS
 BEGIN
-	SELECT @fingerprint AS Argument, f.FingerprintID 
+	SELECT f.FingerprintID 
 	FROM dbo.FINGERPRINT f
 	WHERE @fingerprint != f.FingerprintID AND NOT EXISTS (
 				(SELECT i.TypeID
