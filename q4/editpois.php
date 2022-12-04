@@ -169,8 +169,12 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 				<input type="text" name="x1" value="<?=$_POST['x1']?>"/>
 				<label> y: </label>
 				<input type="text" name="y1" value="<?=$_POST['y1']?>" />
-				<label> RegDate: </label>
-				<input type="datetime-local" name="RegDate1"/>
+				<label> y: </label>
+				<input type="text" name="y1" value="<?=$_POST['y1']?>" />
+				<label> y: </label>
+				<input type="text" name="y1" value="<?=$_POST['y1']?>" />
+				<label> y: </label>
+				<input type="text" name="y1" value="<?=$_POST['y1']?>" />
 				<input type="button" class="btn" value="AdvSearch"
 					onclick="formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();" />
 				<button type="button" class="btn cancel"
