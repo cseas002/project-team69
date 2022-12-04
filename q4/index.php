@@ -211,37 +211,37 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			<input type="hidden" name="fidpass" value="">
 			<table width="100%" border="1">
 				<tr>
-					<th width="8%">
+					<th width="5%">
 						<div align="center">Building ID </div>
 					</th>
-					<th width="8%">
+					<th width="7%">
 						<div align="center">Building Code </div>
 					</th>
-					<th width="9%">
+					<th width="8%">
 						<div align="center">Name</div>
 					</th>
-					<th width="9%">
+					<th width="8%">
 						<div align="center">x</div>
 					</th>
-					<th width="9%">
+					<th width="8%">
 						<div align="center">y</div>
 					</th>
 					<th width="9%">
 						<div align="center">Address</div>
 					</th>
-					<th width="10%">
+					<th width="9%">
 						<div align="center">Summary</div>
 					</th>
-					<th width="9%">
+					<th width="8%">
 						<div align="center">Owner</div>
 					</th>
 					<th width="9%">
 						<div align="center">Campus</div>
 					</th>
-					<th width="9%">
+					<th width="8%">
 							<div align="center">RegDate</div>
 						</th>
-					<th width="20%" colspan="3">
+					<th width="15%" colspan="3">
 						<div align="center">Actions</div>
 					</th>
 				</tr>
@@ -394,11 +394,11 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 							value="Edit Floors"
 							OnClick="window.location='editbfloors.php?fid=<?= $objResult["BCode"]; ?>';">
 					</td>
-					<td align="center" width="6%">
+					<td align="center" width="4%">
 						<input class="textbtn warning" name="btnEdit" type="button" id="btnEdit" value="Edit"
 							OnClick="window.location='<?= $_SERVER["PHP_SELF"]; ?>?Action=Edit&id=<?= $objResult["BCode"]; ?>#row<?= $objResult["BCode"]; ?>';">
 					</td>
-					<td align="center" width="6%">
+					<td align="center" width="4%">
 						<input class="textbtn danger" name="btnDelete" type="button" id="btnChange" value="Delete"
 							OnClick="if(confirm('Confirm Delete?')==true){frmMain.hdnCmd.value='Delete';frmMain.fidpass.value='<?= $objResult["BCode"] ?>';frmMain.submit();}">
 					</td>

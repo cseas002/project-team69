@@ -153,10 +153,10 @@ if ($_POST["hdnCmd"] == "Insert") {
 	$file_ext1 = strtolower(end(explode('.', $file_name1)));
 	$file_size1 = $_FILES['base64Insert']['size'];
 	$file_tmp1 = $_FILES['base64Insert']['tmp_name'];
-	echo $file_tmp1;
-	echo "<br>";
-	$type1 = pathinfo($file_tmp1, PATHINFO_EXTENSION);
-	$data1 = file_get_contents($file_tmp1);
+	//echo $file_tmp1;
+	//echo "<br>";
+	//$type1 = pathinfo($file_tmp1, PATHINFO_EXTENSION);
+	//$data1 = file_get_contents($file_tmp1);
 				
 	$base64 = NULL;
 	if($data != ""){
@@ -165,8 +165,8 @@ if ($_POST["hdnCmd"] == "Insert") {
 	else if($data1 != ""){
 		$base64 = $data1;
 	}
-	echo $base64_1;
-	echo $data1;
+	//echo $base64_1;
+	//echo $data1;
 
 	$strSQL = "{call dbo.Q4_InsertFloor(?, ?, ?, ?)}";
 	$params = array(
