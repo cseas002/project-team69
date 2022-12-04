@@ -1,7 +1,7 @@
 <?php
 session_start();
 // Get the DB connection info from the session
-if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset($_SESSION["userID"]) && isset($_SESSION["userType"]) && isset($_GET["fid"])) {
+if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset($_SESSION["userID"]) && isset($_SESSION["userType"])) {
 	$serverName = $_SESSION["serverName"];
 	$connectionOptions = $_SESSION["connectionOptions"];
 	$userID = $_SESSION["userID"];
@@ -16,6 +16,15 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 <?php
 		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 
+	}
+
+	if(!isset($_GET["fid"])){
+		?>
+<script>
+	alert("Building ID is not set. Redirecting you back to menu page.");
+</script>
+<?php
+		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 	}
 
 } else {
@@ -269,6 +278,10 @@ if ($_POST["hdnCmd"] == "Insert") {
 
 		<button class="button-20" onclick="document.getElementById('myForm').style.display = 'block';">Insert
 			Floor</button>
+			<button id="btnAdvSearchForm" class="button-20" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
+		<button id="btnSearchForm" class="button-20" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
+		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>?fid=<?=$fid?>';">Reset</button>
+
 
 		<div class="form-popup" id="myForm"
 			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
@@ -306,6 +319,36 @@ if ($_POST["hdnCmd"] == "Insert") {
 					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 			</form>
 		</div>
+		<div class="form-popup" id="myForm1"
+			onkeypress="if(event.keyCode==13){formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();}">
+			<form name="formAdvS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd1" value="">
+				<h2 style="text-align:center;">Advanced Search</h2>
+				<label> Floor ID: </label>
+				<input type="text" name="FloorID1" value="<?=$_POST['FloorID1']?>"/>
+				<label> Summary: </label>
+				<input type="text" name="Summary1" value="<?=$_POST['Summary1']?>"/>
+				<label> FloorZ </label>
+				<input type="text" name="FloorZ1" value="<?=$_POST['FloorZ1']?>" />
+				<input type="button" class="btn" value="AdvSearch"
+					onclick="formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm1').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+		<div class="form-popup" id="myForm2"
+			onkeypress="if(event.keyCode==13){formS.hdnCmd2.value='Search';formS.submit();}">
+			<form name="formS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd2" value="">
+				<h2 style="text-align:center;">Search</h2>
+				<label> Keyword: </label>
+				<input type="text" name="keyword" value="<?=$_POST['keyword']?>"/>
+				<input type="button" class="btn" value="Search"
+					onclick="formS.hdnCmd2.value='AdvSearch';formS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm2').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
 		<hr />
 		<div
 			onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
@@ -334,11 +377,41 @@ if ($_POST["hdnCmd"] == "Insert") {
 						</th>
 					</tr>
 					<?php
-                    $tsql = "{CALL dbo.Q4_SelectFloorOfBuilding(?)}";
-                    $params = array(
-                    	array($fid, SQLSRV_PARAM_IN)
-                    );
-                    $objQuery = sqlsrv_query($conn, $tsql, $params);
+                    if($_POST['hdnCmd2']=='Search'){
+						?>
+						<script>
+							document.getElementById("btnReset").style="display:inline-block;";
+						</script>
+						<?php
+						$tsql = "{CALL dbo.Search_BFLOOR(?, ?)}";
+						$params = array(
+							array($_POST['keyword'], SQLSRV_PARAM_IN),
+							array($fid, SQLSRV_PARAM_IN)
+						);
+						$objQuery = sqlsrv_query($conn, $tsql, $params);
+					} 
+					else if($_POST['hdnCmd1']=='AdvSearch'){
+						?>
+						<script>
+							document.getElementById("btnReset").style="display:inline-block;";
+						</script>
+						<?php
+						$tsql = "{CALL dbo.Advanced_Search_BFLOOR(?,?,?,?)}";
+						$params = array(
+							array($_POST['FloorID1'], SQLSRV_PARAM_IN),
+							array($_POST['FloorZ1'], SQLSRV_PARAM_IN),
+							array($_POST['Summary1'], SQLSRV_PARAM_IN),
+							array($fid, SQLSRV_PARAM_IN)
+						);
+						$objQuery = sqlsrv_query($conn, $tsql, $params);
+					} 
+					else {
+						$tsql = "{CALL dbo.Q4_SelectFloorOfBuilding(?)}";
+										$params = array(
+											array($fid, SQLSRV_PARAM_IN)
+										);
+										$objQuery = sqlsrv_query($conn, $tsql, $params);
+					}
 
                     while ($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC)) {
                     ?>

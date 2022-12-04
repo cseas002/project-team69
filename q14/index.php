@@ -144,7 +144,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 		
 	<form name="frmInsert" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
 	<input type="hidden" name="hdn" />
-			<h3>Select a fingerprint</h3>
+			<h3>Select a Number (k)</h3>
 			<label>Number:</label>
 			<input maxlength="40" type="text" name="num" /><br/>
 			

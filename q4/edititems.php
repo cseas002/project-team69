@@ -9,14 +9,23 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	$fid = $_GET["fid"];
 	
 
-	if ($userType == '2') {
+	if ($userType == '3') {
 ?>
 <script>
-	alert("Simple users can't insert/modify/delete fingerprints.");
+	alert("Simple users can't insert/modify/delete items.");
 </script>
 <?php
 		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 
+	}
+
+	if(!isset($_GET["fid"])){
+		?>
+<script>
+	alert("Fingerprint ID is not set. Redirecting you back to menu page.");
+</script>
+<?php
+		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 	}
 
 } else {

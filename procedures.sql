@@ -374,7 +374,7 @@ BEGIN
 	SET NOCOUNT ON
 	CREATE TABLE #Temp(POI1 INT, POI2 INT, Distance DECIMAL(15, 12));
 
-	INSERT INTO #Temp SELECT TOP (@k) p.POIID AS [POI1], p2.POIID AS [POI2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
+	INSERT INTO #Temp SELECT TOP (@k) p.POIID AS [POI1], p2.POIID AS [POI2], CAST(dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS NVARCHAR) AS Distance
 	FROM dbo.POI p, dbo.POI p2
 	WHERE p.FloorID = @floorID AND p2.FloorID = @floorID -- They belong to the same floor
 	AND p.POIID != p2.POIID -- And they are not the same	
@@ -400,7 +400,7 @@ GO
 
 
 CREATE PROCEDURE dbo.Q20_N
-@FloorID INT,
+@floorID INT,
 @k INT
 AS
 BEGIN
@@ -408,9 +408,9 @@ BEGIN
 	SELECT P.POIID, P.x, P.y
 	INTO #TempTab
 	FROM dbo.POI as P
-	WHERE P.FloorID = @FloorID
+	WHERE P.FloorID = @floorID
 
-	SELECT P.POIID as POI1, P1.POIID as POI2, dbo.DISTANCE2D(P.x, P.y, P1.x, P1.y) AS Distance
+	SELECT P.POIID as POI1, P1.POIID as POI2, CAST(dbo.DISTANCE2D(p.x, p.y, p1.x, p1.y) AS NVARCHAR) AS Distance
  	FROM #TempTab as P, #TempTab as P1
 	WHERE P1.POIID IN (
 		SELECT TOP (@k) POIID
@@ -418,14 +418,15 @@ BEGIN
 		WHERE p2.POIID != P.POIID
 		ORDER BY dbo.DISTANCE2D(P.x, P.y, p2.x, p2.y) ASC
 	)
-	ORDER BY POI1 ASC
+	ORDER BY POI1, POI2 ASC
 	SET NOCOUNT OFF
 
-END
+END;
+
 GO
 
 CREATE PROCEDURE dbo.Q20_N2
-@FloorID INT,
+@floorID INT,
 @k INT
 AS
 BEGIN
@@ -433,9 +434,9 @@ BEGIN
 	SELECT P.POIID, P.x, P.y
 	INTO #TempTab
 	FROM dbo.POI as P
-	WHERE P.FloorID = @FloorID
+	WHERE P.FloorID = @floorID
 
-	SELECT P.POIID as POI1, P1.POIID as POI2, dbo.DISTANCE2D(P.x, P.y, P1.x, P1.y) AS Dis
+	SELECT P.POIID as POI1, P1.POIID as POI2, dbo.DISTANCE2D(P.x, P.y, P1.x, P1.y) AS Distance
 	INTO #TempTab2
 	FROM #TempTab as P, #TempTab as P1
 	WHERE P1.POIID IN (
@@ -445,14 +446,14 @@ BEGIN
 		ORDER BY dbo.DISTANCE2D(P.x, P.y, p2.x, p2.y) ASC
 	)
 
-	SELECT t.POIID, t2.POIID, dbo.DISTANCE2D(t.x, t.y, t2.x, t2.y) as Distance
+	SELECT t.POIID AS POI1, t2.POIID AS POI2, CAST(dbo.DISTANCE2D(t.x, t.y, t2.x, t2.y) AS NVARCHAR) as Distance
 	FROM #TempTab t, #TempTab t2
 	WHERE t.POIID != t2.POIID AND dbo.DISTANCE2D(t.x, t.y, t2.x, t2.y) IN 
-	(SELECT tt2.Dis FROM #TempTab2 tt2 WHERE tt2.POI1 = t.POIID)
-	ORDER BY t.POIID, Distance
+	(SELECT tt2.Distance FROM #TempTab2 tt2 WHERE tt2.POI1 = t.POIID)
+	ORDER BY POI1, POI2, Distance
 	SET NOCOUNT OFF
 
-END
+END;
 
 GO
 CREATE PROCEDURE [dbo].[Q21_CTE] 

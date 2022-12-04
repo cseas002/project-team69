@@ -90,12 +90,19 @@
 			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.submit();}}">
 			<form name="f1" method="POST" class="form-container">
 				<h2 style="text-align:center;">Insert parameters</h2>
+				<input type="hidden" name="hdn"/>
                 <label> Floor ID: </label>
 				<input type="text" name="floorID" />
 				<label> Result Amount (k): </label>
 				<input type="text" name="k" />
-				<input type="button" class="btn" value="Go"
-					onclick="if(insertValidation()){f1.submit();}" />
+				<input type="button" class="btn" value="All k"
+					onclick="if(insertValidation()){f1.hdn.value='0';f1.submit();}" />
+				<input type="button" class="btn" value="All k++"
+					onclick="if(insertValidation()){f1.hdn.value='1';f1.submit();}" />
+				<input type="button" class="btn" value="All kn"
+					onclick="if(insertValidation()){f1.hdn.value='3';f1.submit();}" />
+				<input type="button" class="btn" value="All kn++"
+					onclick="if(insertValidation()){f1.hdn.value='4';f1.submit();}" />
 				<button type="button" class="btn cancel"
 					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 			</form>
@@ -116,8 +123,15 @@
 		
 		<?php
 
+		if ($_POST["hdn"] == '0')
+			$strSQL = "{call dbo.Q20(?, ?)}";
+		else if ($_POST["hdn"] == '1')
+			$strSQL = "{call dbo.Q20_2(?, ?)}";
+		else if ($_POST["hdn"] == '3')
+			$strSQL = "{call dbo.Q20_N(?, ?)}";
+		else if ($_POST["hdn"] == '4')
+			$strSQL = "{call dbo.Q20_N2(?, ?)}";
 
-		$strSQL = "{call dbo.Q20(?, ?)}";
 		$params = array(
 			array($_POST["floorID"], SQLSRV_PARAM_IN),
 			array($_POST["k"], SQLSRV_PARAM_IN)

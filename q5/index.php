@@ -107,6 +107,10 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 	<button class="button-20" onclick="document.getElementById('myForm').style.display = 'block';">Insert
 		Building</button>
+	<button class="button-20" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced
+		Search</button>
+	<button class="button-20" onclick="document.getElementById('myForm2').style.display = 'block';">Simple
+		Search</button>
 
 	<div class="form-popup" id="myForm"
 		onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
@@ -127,6 +131,41 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 		</form>
 	</div>
+
+	<div class="form-popup" id="myForm1"
+			onkeypress="if(event.keyCode==13){formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();}">
+			<form name="formAdvS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd1" value="">
+				<h2 style="text-align:center;">Advanced Search</h2>
+				<label> Campus ID: </label>
+				<input type="text" name="CampusID1" value="<?=$_POST['CampusID1']?>"/>
+				<label> CampusName: </label>
+				<input type="text" name="CampusName1" value="<?=$_POST['CampusName1']?>"/>
+				<label> Summary: </label>
+				<input type="text" name="Summary1" value="<?=$_POST['Summary1']?>" />
+				<label> RegDate: </label>
+				<input type="date" name="RegDate1"/>
+				<label> Website: </label>
+				<input type="text" name="Website1" value="<?=$_POST['Website1']?>"/>
+				<input type="button" class="btn" value="AdvSearch"
+					onclick="formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm1').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+		<div class="form-popup" id="myForm2"
+			onkeypress="if(event.keyCode==13){formS.hdnCmd2.value='Search';formS.submit();}">
+			<form name="formS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd2" value="">
+				<h2 style="text-align:center;">Search</h2>
+				<label> Keyword: </label>
+				<input type="text" name="keyword" value="<?=$_POST['keyword']?>"/>
+				<input type="button" class="btn" value="Search"
+					onclick="formS.hdnCmd2.value='Search';formS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm2').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
 	<hr />
 	<div
 		onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
@@ -156,8 +195,33 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 					</th>
 				</tr>
 				<?php
-	$tsql = "{CALL dbo.Q5_SelectCampus()}";
-	$objQuery = sqlsrv_query($conn, $tsql);
+				if ($_POST["hdnCmd1"] == 'AdvSearch'){ // Advanced Search
+					$timeNew = '';
+					if ($_POST["RegDate1"] != '')
+		                $timeNew = $_POST["RegDate1"] . "00";
+
+					$tsql = "{CALL dbo.Advanced_Search_CAMPUS(?, ?, ?, ?, ?)}";
+					$params = array(
+						array($_POST['CampusID1'], SQLSRV_PARAM_IN),
+						array($_POST['CampusName1'], SQLSRV_PARAM_IN),
+						array($_POST['Summary1'], SQLSRV_PARAM_IN),
+						array($timeNew, SQLSRV_PARAM_IN),
+						array($_POST['Website1'], SQLSRV_PARAM_IN)
+					);
+					$objQuery = sqlsrv_query($conn, $tsql, $params);
+				}
+				else if ($_POST["hdnCmd2"] == 'Search')
+				{
+					$tsql = "{CALL dbo.Search_CAMPUS(?)}";
+					$params = array(
+						array($_POST['keyword'], SQLSRV_PARAM_IN)
+					);
+					$objQuery = sqlsrv_query($conn, $tsql, $params);
+				}
+				else {
+					$tsql = "{CALL dbo.Q5_SelectCampus()}";
+					$objQuery = sqlsrv_query($conn, $tsql);
+				}
 
 	while ($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC)) {
 	?>
@@ -324,16 +388,16 @@ if (isset($_POST['disconnect'])) {
 
 <script>
 	function insertValidation() {
-		var bname = f1.Name.value;
+		var Summary = f1.Name.value;
 		var baddress = f1.Website.value;
 		var summary = f1.Summary.value;
 		var RegDate = f1.RegDate.value;
 
-		if (bname.length > 0 && baddress.length > 0 && summary.length > 0 && RegDate.length>0) {
+		if (Summary.length > 0 && baddress.length > 0 && summary.length > 0 && RegDate.length>0) {
 			return true;
 		}
 		var str = "";
-		if (bname.length == 0)
+		if (Summary.length == 0)
 			str += "Campus Name is empty\n";
 		if (baddress.length == 0)
 			str += "Website is empty\n";

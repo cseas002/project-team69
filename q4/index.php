@@ -10,7 +10,7 @@ $userType = $_SESSION["userType"];
 if ($userType == '3') {
 ?>
 <script>
-alert("Simple users can't insert/modify/delete fingerprints.");
+alert("Simple users can't insert/modify/delete buildings.");
 </script>
 <?php
 	die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
@@ -107,6 +107,12 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 	<button class="button-20" onclick="document.getElementById('myForm').style.display = 'block';">Insert
 		Building</button>
+	<button class="button-20" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced
+		Search</button>
+	<button class="button-20" onclick="document.getElementById('myForm2').style.display = 'block';">Simple
+		Search</button>
+		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>
+
 
 	<div class="form-popup" id="myForm"
 		onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
@@ -150,6 +156,52 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 		</form>
 	</div>
+
+	<div class="form-popup" id="myForm1"
+			onkeypress="if(event.keyCode==13){formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();}">
+			<form name="formAdvS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd1" value="">
+				<h2 style="text-align:center;">Advanced Search</h2>
+				<label> BCode: </label>
+				<input type="text" name="BCode1" value="<?=$_POST['BCode1']?>"/>
+				<label> BLDCode: </label>
+				<input type="text" name="BLDCode1" value="<?=$_POST['BLDCode1']?>"/>
+				<label> BName: </label>
+				<input type="text" name="BName1" value="<?=$_POST['BName1']?>" />
+				<label> Summary: </label>
+				<input type="text" name="Summary1" value="<?=$_POST['Summary1']?>"/>
+				<label> BAddress: </label>
+				<input type="text" name="BAddress1" value="<?=$_POST['BAddress1']?>"/>
+				<label> x: </label>
+				<input type="text" name="x1" value="<?=$_POST['x1']?>"/>
+				<label> y: </label>
+				<input type="text" name="y1" value="<?=$_POST['y1']?>"/>
+				<label> Owner: </label>
+				<input type="text" name="BOwner1" value="<?=$_POST['BOwner1']?>"/>
+				<label> RegDate: </label>
+				<input type="date" name="RegDate1"/>
+				<label> CampusID: </label>
+				<input type="text" name="CampusID1" value="<?=$_POST['CampusID1']?>"/>
+				<input type="button" class="btn" value="AdvSearch"
+					onclick="formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm1').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+		<div class="form-popup" id="myForm2"
+			onkeypress="if(event.keyCode==13){formS.hdnCmd2.value='Search';formS.submit();}">
+			<form name="formS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd2" value="">
+				<h2 style="text-align:center;">Search</h2>
+				<label> Keyword: </label>
+				<input type="text" name="keyword" value="<?=$_POST['keyword']?>"/>
+				<input type="button" class="btn" value="Search"
+					onclick="formS.hdnCmd2.value='Search';formS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm2').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+
 	<hr />
 	<div
 		onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
@@ -194,13 +246,49 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 					</th>
 				</tr>
 				<?php
-	$tsql = "{CALL dbo.Q4_SelectBuilding()}";
-	$objQuery = sqlsrv_query($conn, $tsql);
+				if($_POST['hdnCmd2']=='Search'){
+					?>
+	<script>
+		document.getElementById("btnReset").style="display:inline-block;";
+	</script>
+	<?php
+					$tsql = "{CALL dbo.Search_BUILDING(?)}";
+					$params = array(
+						array($_POST['keyword'], SQLSRV_PARAM_IN)
+					);
+					$objQuery = sqlsrv_query($conn, $tsql, $params);
+				} 
+				else if($_POST['hdnCmd1']=='AdvSearch'){
+					?>
+	<script>
+		document.getElementById("btnReset").style="display:inline-block;";
+	</script>
+	<?php
+	                $timeNew = '';
+	                if ($_POST["RegDate1"] != '')
+		                $timeNew = $_POST["RegDate1"] . "00";
+
+					$tsql = "{CALL dbo.Advanced_Search_BUILDING(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+					$params = array(
+						array($_POST['BCode1'], SQLSRV_PARAM_IN),
+						array($_POST['BLDCode1'], SQLSRV_PARAM_IN),
+						array($_POST['BName1'], SQLSRV_PARAM_IN),
+						array($_POST['Summary1'], SQLSRV_PARAM_IN),
+						array($_POST['BAddress1'], SQLSRV_PARAM_IN),
+						array($_POST['x1'], SQLSRV_PARAM_IN),
+						array($_POST['y1'], SQLSRV_PARAM_IN),
+						array($_POST['BOwner1'], SQLSRV_PARAM_IN),
+						array($timeNew, SQLSRV_PARAM_IN),
+						array($_POST['CampusID1'], SQLSRV_PARAM_IN)
+					);
+					$objQuery = sqlsrv_query($conn, $tsql, $params);
+				} else {
+	                $tsql = "{CALL dbo.Q4_SelectBuilding()}";
+	                $objQuery = sqlsrv_query($conn, $tsql);
+                	}
 
 	while ($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC)) {
-	?>
 
-				<?php
 		if ($objResult["BCode"] == $_GET["id"] and $_GET["Action"] == "Edit") {
 	?>
 				<tr>
@@ -300,7 +388,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 					</td>
 					<td align="center">
 							<?= $objResult["RegDate"]; ?>
-						</td>
+					</td>
 					<td align="center" width="8%">
 						<input class="textbtn warning" name="btnEditItems" type="button" id="btnEditItems"
 							value="Edit Floors"
@@ -317,8 +405,6 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 				</tr>
 				<?php
 		}
-	?>
-				<?php
 	}
 	?>
 			</table>

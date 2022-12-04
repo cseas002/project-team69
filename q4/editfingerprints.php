@@ -8,7 +8,7 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	$userType = $_SESSION["userType"];
     $zid = $_GET["zid"];
 
-	if ($userType == '2') {
+	if ($userType == '3') {
 ?>
 <script>
 	alert("Simple users can't insert/modify/delete fingerprints.");
@@ -16,6 +16,15 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 <?php
 		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 
+	}
+
+	if(!isset($_GET["zid"])){
+		?>
+<script>
+	alert("Floor ID is not set. Redirecting you back to menu page.");
+</script>
+<?php
+		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 	}
 
 } else {
@@ -183,6 +192,11 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 
 		<button class="button-20" onclick="document.getElementById('myForm').style.display = 'block';">Insert
 			Fingerprint</button>
+			<button id="btnAdvSearchForm" class="button-20" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
+		<button id="btnSearchForm" class="button-20" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
+		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>
+
+
 
 		<div class="form-popup" id="myForm"
 			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
@@ -200,6 +214,38 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 					onclick="if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}" />
 				<button type="button" class="btn cancel"
 					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+		<div class="form-popup" id="myForm1"
+			onkeypress="if(event.keyCode==13){formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();}">
+			<form name="formAdvS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd1" value="">
+				<h2 style="text-align:center;">Advanced Search</h2>
+				<label> Fingerprint ID: </label>
+				<input type="text" name="FingerprintID1" value="<?=$_POST['FingerprintID1']?>"/>
+				<label> x: </label>
+				<input type="text" name="x1" value="<?=$_POST['x1']?>"/>
+				<label> y: </label>
+				<input type="text" name="y1" value="<?=$_POST['y1']?>" />
+				<label> RegDate: </label>
+				<input type="datetime-local" name="RegDate1"/>
+				<input type="button" class="btn" value="AdvSearch"
+					onclick="formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm1').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+		<div class="form-popup" id="myForm2"
+			onkeypress="if(event.keyCode==13){formS.hdnCmd2.value='Search';formS.submit();}">
+			<form name="formS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd2" value="">
+				<h2 style="text-align:center;">Search</h2>
+				<label> Keyword: </label>
+				<input type="text" name="keyword" value="<?=$_POST['keyword']?>"/>
+				<input type="button" class="btn" value="Search"
+					onclick="formS.hdnCmd2.value='AdvSearch';formS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm2').style.display = 'none';">Cancel</button>
 			</form>
 		</div>
 		<hr />
@@ -229,11 +275,46 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 						</th>
 					</tr>
 					<?php
-        $tsql = "{CALL dbo.Q4_SelectFingerprintsOfFloor(?)}";
-        $params = array(
-	    	array($FloorID, SQLSRV_PARAM_IN)
-	    );
-        $objQuery = sqlsrv_query($conn, $tsql, $params);
+        if($_POST['hdnCmd2']=='Search'){
+			?>
+			<script>
+				document.getElementById("btnReset").style="display:inline-block;";
+			</script>
+			<?php
+			$tsql = "{CALL dbo.Search_FINGERPRINT_OF_FLOOR(?, ?)}";
+			$params = array(
+				array($_POST['keyword'], SQLSRV_PARAM_IN),
+				array($FloorID, SQLSRV_PARAM_IN)
+			);
+			$objQuery = sqlsrv_query($conn, $tsql, $params);
+		} 
+		else if($_POST['hdnCmd1']=='AdvSearch'){
+			?>
+			<script>
+				document.getElementById("btnReset").style="display:inline-block;";
+			</script>
+			<?php
+			$tsql = "{CALL dbo.Advanced_Search_FINGERPRINT_OF_FLOOR(?,?,?,?,?,?)}";
+			$timeNew = '';
+			if($_POST["RegDate1"]!='')
+				$timeNew = $_POST["RegDate1"].":00";
+			$params = array(
+				array($_POST['FingerprintID1'], SQLSRV_PARAM_IN),
+				array($_POST['x1'], SQLSRV_PARAM_IN),
+				array($_POST['y1'], SQLSRV_PARAM_IN),
+				array($FloorZ, SQLSRV_PARAM_IN),
+				array($timeNew, SQLSRV_PARAM_IN),
+				array($FloorID, SQLSRV_PARAM_IN)
+			);
+			$objQuery = sqlsrv_query($conn, $tsql, $params);
+		} 
+		else {
+			$tsql = "{CALL dbo.Q4_SelectFingerprintsOfFloor(?)}";
+				$params = array(
+					array($FloorID, SQLSRV_PARAM_IN)
+				);
+				$objQuery = sqlsrv_query($conn, $tsql, $params);
+		}
 
         while ($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC)) {
         ?>
