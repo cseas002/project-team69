@@ -191,8 +191,8 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 			<label> User Type: </label>
 			<select name="UserType" id="UserType"><br/>
 				<option value=""> </option>
-				<option value="1">Διαχειριστής Λειτουργιών</option>
-				<option value="2">Απλός χρήστης</option>
+				<option value="2">Διαχειριστής Λειτουργιών</option>
+				<option value="3">Απλός χρήστης</option>
 			</select>
 			<label> Password: </label>
 			<input maxlength="30" type="password" name="Password" /><br/>
@@ -200,6 +200,8 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 			<input maxlength="30" type="text" name="FName" /><br/>
 			<label> Last Name: </label>
 			<input maxlength="30" type="text" name="LName" /><br/>
+			<label> GovernmentID: </label>
+			<input maxlength="30" type="text" name="GovID" /><br/>
 			<label> Date of Birth: </label>
 			<input type="date" name="Date_of_Birth" /><br/>
 			<label> Gender: </label>
@@ -228,18 +230,18 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 				echo '<option value="" selected="selected"> </option>';
 			} else
 				echo '<option value=""> </option>';
-			if ($_POST["UserType2"] == "0") {
-				echo '<option value="0" selected="selected">Διαχειριστής Συστήματος</option>';
-			} else
-				echo '<option value="0">Διαχειριστής Συστήματος</option>';
 			if ($_POST["UserType2"] == "1") {
-				echo '<option value="1" selected="selected">Διαχειριστής Λειτουργιών</option>';
+				echo '<option value="1" selected="selected">Διαχειριστής Συστήματος</option>';
 			} else
-				echo '<option value="1">Διαχειριστής Λειτουργιών</option>';
+				echo '<option value="1">Διαχειριστής Συστήματος</option>';
 			if ($_POST["UserType2"] == "2") {
-				echo '<option value="2" selected="selected">Απλός χρήστης</option>';
+				echo '<option value="2" selected="selected">Διαχειριστής Λειτουργιών</option>';
 			} else
-				echo '<option value="2">Απλός χρήστης</option>';
+				echo '<option value="2">Διαχειριστής Λειτουργιών</option>';
+			if ($_POST["UserType2"] == "3") {
+				echo '<option value="3" selected="selected">Απλός χρήστης</option>';
+			} else
+				echo '<option value="3">Απλός χρήστης</option>';
 				?>
 		</select>
 		<label> First Name: </label>
@@ -300,7 +302,7 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 						<th width="9%">
 							<div align="center">UserID </div>
 						</th>
-						<th width="11%">
+						<th width="10%">
 							<div align="center">Username</div>
 						</th>
 						<th width="18%">
@@ -314,6 +316,9 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 						</th>
 						<th width="13%">
 							<div align="center">Date of Birth</div>
+						</th>
+						<th width="10%">
+							<div align="center">GovID</div>
 						</th>
 						<th width="9%">
 							<div align="center">Gender</div>
@@ -381,18 +386,18 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 								style="text-align:center; width:100%; height:100%;" name="txtEditUserType"
 								id="txtEditUserType">
 								<?php
-		                    if ($objResult["UserType"] == "0") {
-			                    echo '<option value="0" selected="selected">Διαχειριστής Συστήματος</option>';
-		                    } else
-			                    echo '<option value="0">Διαχειριστής Συστήματος</option>';
 		                    if ($objResult["UserType"] == "1") {
-			                    echo '<option value="1" selected="selected">Διαχειριστής Λειτουργιών</option>';
+			                    echo '<option value="1" selected="selected">Διαχειριστής Συστήματος</option>';
 		                    } else
-			                    echo '<option value="1">Διαχειριστής Λειτουργιών</option>';
+			                    echo '<option value="1">Διαχειριστής Συστήματος</option>';
 		                    if ($objResult["UserType"] == "2") {
-			                    echo '<option value="2" selected="selected">Απλός χρήστης</option>';
+			                    echo '<option value="2" selected="selected">Διαχειριστής Λειτουργιών</option>';
 		                    } else
-			                    echo '<option value="2">Απλός χρήστης</option>';
+			                    echo '<option value="2">Διαχειριστής Λειτουργιών</option>';
+		                    if ($objResult["UserType"] == "3") {
+			                    echo '<option value="3" selected="selected">Απλός χρήστης</option>';
+		                    } else
+			                    echo '<option value="3">Απλός χρήστης</option>';
                                 ?>
 							</select></td>
 						<td style="height:40px;" align="center"><input
@@ -437,13 +442,13 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 	                    } else {
 		                    $userTypePresent = "";
 		                    switch ($objResult["UserType"]) {
-			                    case 0:
+			                    case 1:
 				                    $userTypePresent = "Διαχειριστής Συστήματος";
 				                    break;
-			                    case 1:
+			                    case 2:
 				                    $userTypePresent = "Διαχειριστής Λειτουργιών";
 				                    break;
-			                    case 2:
+			                    case 3:
 				                    $userTypePresent = "Απλός Χρήστης";
 				                    break;
 		                    }

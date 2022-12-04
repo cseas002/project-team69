@@ -43,7 +43,7 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
     if ($_POST["hdnCmd"] == "Update") {
 	    $strSQL = "{call dbo.Q3_EditFingerprint(?, ?, ?, ?, ?, ?)}";
 
-		$timeNew = $_POST["RegDate"].":00";
+		$timeNew = $_POST["txtEditRegDate"].":00";
 
 	    $params = array(
 	    	array($_POST["hdnEditFingerprintID"], SQLSRV_PARAM_IN),
