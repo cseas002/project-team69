@@ -31,7 +31,7 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 
 //*** Update Condition ***//
 if ($_POST["hdnCmd"] == "Update") {
-	$strSQL = "{call dbo.Q1_Edit_User(?, ?, ?, ?, ?, ?, ?)}";
+	$strSQL = "{call dbo.Q1_Edit_User(?, ?, ?, ?, ?, ?, ?, ?)}";
 	$params = array(
 		array($_POST["txtEditFName"], SQLSRV_PARAM_IN),
 		array($_POST["txtEditLName"], SQLSRV_PARAM_IN),
@@ -80,7 +80,7 @@ if ($_POST["hdnCmd"] == "Delete") {
 
 
 if ($_POST["hdnCmdInsert"] == "insert") {
-	$strSQL = "{call dbo.Q1_Insert_User(?, ?, ?, ?, ?, ?, ?)}";
+	$strSQL = "{call dbo.Q1_Insert_User(?, ?, ?, ?, ?, ?, ?, ?)}";
 	$params = array(
 		array($_POST["FName"], SQLSRV_PARAM_IN),
 		array($_POST["LName"], SQLSRV_PARAM_IN),
@@ -252,6 +252,8 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 		<input maxlength="30" type="text" name="LName2" value="<?=$_POST["LName2"];?>"/><br/>
 		<label> Date of Birth: </label>
 		<input type="date" name="Date_of_Birth2" value="<?=$_POST["Date_of_Birth2"];?>"/><br/>
+		<label> Government ID: </label>
+		<input maxlength="30" type="text" name="GovID2" value="<?=$_POST["GovID2"];?>"/><br/>
 		<label> Gender: </label>
 		<select name="Gender2" id="Gender2"><br/>
 		<?php
@@ -349,7 +351,7 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 									document.getElementById("btnReset").style="display:inline-block;";
 								</script>
 						<?php
-	                    $strSQL = "{call dbo.Q1_Advanced_Select(?, ?, ?, ?, ?, ?, ?)}";
+	                    $strSQL = "{call dbo.Q1_Advanced_Select(?, ?, ?, ?, ?, ?, ?, ?)}";
 	                    $params = array(
 	                    	array($_POST["FName2"], SQLSRV_PARAM_IN),
 	                    	array($_POST["LName2"], SQLSRV_PARAM_IN),
@@ -358,7 +360,7 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 	                    	array($_POST["Gender2"], SQLSRV_PARAM_IN),
 	                    	array($_POST["Username2"], SQLSRV_PARAM_IN),
 	                    	array($_POST["UserType2"], SQLSRV_PARAM_IN),
-							array($_POST["GovID"], SQLSRV_PARAM_IN)
+							array($_POST["GovID2"], SQLSRV_PARAM_IN)
 	                    );
 	                    $objQuery = sqlsrv_query($conn, $strSQL, $params);
 
@@ -409,12 +411,13 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 						<td style="height:40px;" align="center"><input
 								style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
 								name="txtEditLName" value="<?= $objResult["LName"]; ?>"></td>
-						<td style="height:40px;" align="center"><input
-								style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
-								name="txtEditGovID" value="<?= $objResult["GovID"]; ?>"></td>
+						
 						<td style="height:40px;" align="center"><input
 								style="text-align:center; width:100%; height:100%;" type="date" name="txtEditDOB"
 								value="<?= $objResult["Date_of_Birth"]; ?>"></td>
+								<td style="height:40px;" align="center"><input
+								style="text-align:center; width:100%; height:100%;" maxlength="30" type="text"
+								name="txtEditGovID" value="<?= $objResult["GovID"]; ?>"></td>
 						<td style="height:40px;" align="center">
 							<select style="text-align:center; width:100%; height:100%;" name="txtEditGender"
 								id="txtEditGender">
