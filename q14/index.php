@@ -93,7 +93,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 			</tr>
 		</table>
 
-
+		<button id="btnSelectForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Number</button>
+		<hr/>
 	<?php
     
 	//*** When the user types a number ***//
@@ -106,7 +107,10 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 		</tr>  
 		
 		<?php
-		$strSQL = "{call dbo.Q14(?)}";
+		if($_POST['hdn']=='0')
+			$strSQL = "{call dbo.Q14(?)}";
+		else 
+			$strSQL = "{call dbo.Q14_2(?)}";
 		$params = array(
 			array($_POST["num"], SQLSRV_PARAM_IN)
 		);
@@ -127,20 +131,26 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 		if (!$objQuery) {
 			echo "Error [" . sqlsrv_errors() . "]";
 		} 
+
+		?>
+		</table> 
+		</hr>
+		<?php
 	}
  ?>
-	</table> 
- 	<button id="btnSelectForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Number</button>
 	
-	<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.submit();}}"> 
+	
+	<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.hdn.value='0';frmInsert.submit();}}"> 
 		
 	<form name="frmInsert" class="form-container" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+	<input type="hidden" name="hdn" />
 			<h3>Select a fingerprint</h3>
 			<label>Number:</label>
 			<input maxlength="40" type="text" name="num" /><br/>
 			
 
-			<input name="btnInsert" type="button" class="btn" value="Go" onclick="if(insertValidation()){frmInsert.submit();}">
+			<input name="btnInsert" type="button" class="btn" value="Search TOP k" onclick="if(insertValidation()){frmInsert.hdn.value='0';frmInsert.submit();}">
+			<input name="btnInsert" type="button" class="btn" value="Search TOP k++" onclick="if(insertValidation()){frmInsert.hdn.value='1';frmInsert.submit();}">
 			<button type ="button" class = "btn cancel" onclick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 		</form>
 		</div>

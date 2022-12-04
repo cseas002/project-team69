@@ -87,8 +87,9 @@
 	<button id="btnInsertForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Input parameters</button>
 		
 	<div class="form-popup" id="myForm"
-			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.submit();}}">
+			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdn.value='0';f1.submit();}}">
 			<form name="f1" method="POST" class="form-container">
+			<input type="hidden" name="hdn" />
 				<h2 style="text-align:center;">Insert parameters</h2>
                 <label> x: </label>
 				<input type="text" name="x" />
@@ -98,8 +99,10 @@
 				<input type="text" name="z" />
 				<label> k: </label>
 				<input type="text" name="k" />
-				<input type="button" class="btn" value="Go"
-					onclick="if(insertValidation()){f1.submit();}" />
+				<input type="button" class="btn" value="Search TOP k"
+					onclick="if(insertValidation()){f1.hdn.value='0';f1.submit();}" />
+				<input type="button" class="btn" value="Search TOP k++"
+					onclick="if(insertValidation()){f1.hdn.value='1';f1.submit();}" />
 				<button type="button" class="btn cancel"
 					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 			</form>
@@ -110,7 +113,10 @@
 		
 		<?php 
 		if (isset($_POST["x"])) {
-			$strSQL = "{call dbo.Q19(?, ?, ?, ?)}";
+			if($_POST['hdn']=='0')
+				$strSQL = "{call dbo.Q19(?, ?, ?, ?)}";
+			else 
+				$strSQL = "{call dbo.Q19_2(?, ?, ?, ?)}";
 			$params = array(
 				array($_POST["x"], SQLSRV_PARAM_IN),
 				array($_POST["y"], SQLSRV_PARAM_IN),
@@ -120,20 +126,25 @@
 			$objQuery = sqlsrv_query($conn, $strSQL, $params);
 
 
-
-		$objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC);
-	        
-		?>
+			?>
 		<table width="100%" border="1">  
 		<tr>  
 		<th> <div align="center">POI ID</div></th>  
 		<th> <div align="center">POI Name</div></th>
+		<th> <div align="center">Distance</div></th>
 		</tr>  
+		<?php
+
+		
+		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC)){	        
+		?>
 		<tr>
 		<td align="center"><?=$objResult["POIID"];?></td>
 		<td align="center"><?=$objResult["POIName"];?></td>
-		
+		<td align="center"><?=$objResult["Distance"];?></td>
 		</tr>
+
+		<?php } ?>
 		</table>  
 		<hr/>
 

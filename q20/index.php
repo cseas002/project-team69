@@ -127,7 +127,7 @@
 
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
-			$objResult["Distance"] = number_format((float)$objResult["Distance"], 2, '.', '')
+			// $objResult["Distance"] = number_format((float)$objResult["Distance"], 2, '.', '')
 			?>
 			<tr>
 				<td align="center"><?=$objResult["POI1"];?></td>

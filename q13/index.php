@@ -88,13 +88,13 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 		<table cellSpacing=0 cellPadding=5 width="100%" border=0>
 			<tr>
 				<td vAlign=center align=middle>
-					<h2>Select Fingerprint</h2>
+					<h2>Common Item Types</h2>
 				</td>
 			</tr>
 		</table>
 
 		<button id="btnSelectForm" class="button-20" onclick="document.getElementById('myForm').style.display = 'block';" >Select</button>
-
+<hr/>
 	<?php
     
 	//*** When the user searches for a fingerprint ***//
@@ -126,9 +126,14 @@ $conn = sqlsrv_connect($serverName, $connectionOptions); ?>
 		if (!$objQuery) {
 			echo "Error [" . sqlsrv_errors() . "]";
 		} 
+
+		?>
+</table> 
+	<hr/>
+	
+		<?php
 	}
  ?>
-	</table> 
 	
 	<div class="form-popup" id="myForm" onkeypress="if(event.keyCode==13){if(insertValidation()){frmInsert.submit();}}"> 
 		

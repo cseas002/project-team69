@@ -103,10 +103,9 @@ SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_B
 						OR Username LIKE + '%' + @Keyword + '%' OR CAST(Date_of_Birth AS nvarchar) LIKE + '%' + @Keyword + '%';
 
 GO
-CREATE PROCEDURE dbo.Q10
+CREATE PROCEDURE [dbo].[Q10]
 AS 
 BEGIN
-SET NOCOUNT ON
 DECLARE @COUNT1 FLOAT 
 DECLARE @COUNT2 FLOAT 
 DECLARE @RESULT FLOAT
@@ -115,7 +114,7 @@ SET @COUNT1=( SELECT 1.0 * COUNT(p2.POIID)  -- Average POIs amount per floor
 SET @COUNT2=(SELECT  COUNT(b2.FloorID)
 	FROM DBO.BFLOOR b2)
 SET @RESULT = @COUNT1/@COUNT2 
-SELECT p.FloorID , COUNT(p.POIID)
+SELECT p.FloorID , COUNT(p.POIID) AS CountAmnt
 FROM dbo.POI p 
 GROUP BY p.FloorID
 HAVING COUNT(p.POIID) >@RESULT
@@ -134,8 +133,9 @@ BEGIN
 		GROUP BY P.FloorID)
 END;
 
+GO
 
-ALTER PROCEDURE [dbo].[Q12_Test2]
+CREATE PROCEDURE [dbo].[Q12_Test2]
 AS
 BEGIN
 	SET NOCOUNT ON
@@ -194,8 +194,34 @@ SELECT TOP (@num) I.TypeID, COUNT(DISTINCT I.FingerprintID) AS cnt
 FROM dbo.ITEM AS I
 GROUP BY I.TypeID
 ORDER BY cnt asc;
-
 GO
+
+CREATE PROCEDURE dbo.[Q14_2]
+@k int
+AS
+BEGIN
+SET NOCOUNT ON
+CREATE TABLE #Temp(TypeID INT, cnt INT);
+INSERT INTO #Temp SELECT TOP (@k) I.TypeID, COUNT(DISTINCT I.FingerprintID) 
+		FROM dbo.ITEM AS I
+		GROUP BY I.TypeID
+		ORDER BY COUNT(DISTINCT I.FingerprintID) asc; 
+
+	
+SELECT TypeID, cnt 
+FROM #Temp UNION 
+		SELECT I.TypeID, COUNT(DISTINCT I.FingerprintID) AS cnt
+		FROM dbo.ITEM AS I
+		GROUP BY I.TypeID 
+		HAVING COUNT(DISTINCT I.FingerprintID) = (SELECT TOP 1 cnt FROM #Temp ORDER BY cnt DESC) 
+		-- Inserting all the occurences with the same count
+		
+	ORDER BY cnt ASC
+
+SET NOCOUNT OFF
+END
+GO
+
 CREATE PROCEDURE dbo.Q15
 AS
 SET NOCOUNT ON
@@ -250,17 +276,41 @@ END;
 
 --K first not showing more
 GO
-CREATE PROCEDURE [dbo].[Q19]
+CREATE PROCEDURE dbo.Q19
 @x DECIMAL(15, 12),
 @y DECIMAL(15, 12),
 @z int,
 @k int
 AS
 BEGIN
-SET NOCOUNT ON
-	SELECT TOP (@k) p.POIID, p.POIName
+	SELECT TOP (@k) POIID , POIName, CAST (dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) AS NVARCHAR) AS Distance
 	FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID 
-	ORDER BY dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z)
+	ORDER BY dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) ASC
+END;
+
+GO
+CREATE PROCEDURE dbo.Q19_2
+@x DECIMAL(15, 12),
+@y DECIMAL(15, 12),
+@z int,
+@k int
+AS
+BEGIN
+	SET NOCOUNT ON
+	CREATE TABLE #Temp(POIID INT, POIName NVARCHAR(40), dis DECIMAL(15, 12));
+	INSERT INTO #Temp SELECT TOP (@k) p.POIID , p.POIName , dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) 
+	FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID 
+	ORDER BY dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) 
+	
+	
+	SELECT POIID, POIName , CAST(dis AS NVARCHAR) AS Distance
+	FROM #Temp UNION 
+		SELECT p.POIID, p.POIName , dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) AS dis
+		FROM dbo.POI p JOIN dbo.BFLOOR f ON p.FloorID = f.FloorID 
+		WHERE dbo.DISTANCE(p.x, p.y, f.FloorZ, @x, @y, @z) = (SELECT TOP 1 dis FROM #Temp ORDER BY dis DESC)
+	ORDER BY Distance ASC
+	SET NOCOUNT OFF
+	
 END;
 
 
@@ -299,28 +349,110 @@ BEGIN
 SET NOCOUNT ON
 UPDATE dbo.TYPES SET Title = @Title, Model = @Model WHERE TypeID = @TypeID
 END;
-
-
 GO
+
 CREATE PROCEDURE dbo.Q20
---GETS THE NEAREST POI THATS WHY 16-8 BUT NO 8-16 BECAUSE 8-21
-@floorID INT,
+@floorID int,
 @k INT
 AS
 BEGIN
-SET NOCOUNT ON
-	SELECT TOP (@k) p.POIID AS [POI 1], p2.POIID AS [POI 2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
+	SELECT TOP (@k) p.POIID AS [POI1], p2.POIID AS [POI2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
 	FROM dbo.POI p, dbo.POI p2
 	WHERE p.FloorID = @floorID AND p2.FloorID = @floorID -- They belong to the same floor
 	AND p.POIID != p2.POIID -- And they are not the same	
-	AND dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) <= ALL -- The POI with smallest distance from p
-					( SELECT dbo.DISTANCE2D(p.x, p.y, p3.x, p3.y)
-					  FROM dbo.POI p3
-					  WHERE p.FloorID = @floorID AND p3.FloorID = @floorID AND p3.POIID != p.POIID)
+	ORDER BY dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) ASC
 	
 END;
+GO
 
 
+CREATE PROCEDURE dbo.Q20_2
+@floorID int,
+@k INT
+AS
+BEGIN
+	SET NOCOUNT ON
+	CREATE TABLE #Temp(POI1 INT, POI2 INT, Distance DECIMAL(15, 12));
+
+	INSERT INTO #Temp SELECT TOP (@k) p.POIID AS [POI1], p2.POIID AS [POI2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
+	FROM dbo.POI p, dbo.POI p2
+	WHERE p.FloorID = @floorID AND p2.FloorID = @floorID -- They belong to the same floor
+	AND p.POIID != p2.POIID -- And they are not the same	
+	ORDER BY dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) ASC
+					  
+	SELECT * FROM #Temp
+	
+	SELECT POI1, POI2, Distance
+	FROM #Temp 
+	UNION
+	SELECT p.POIID AS [POI1], p2.POIID AS [POI2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
+	FROM dbo.POI p, dbo.POI p2
+	WHERE p.FloorID = @floorID AND p2.FloorID = @floorID -- They belong to the same floor
+	AND p.POIID != p2.POIID -- And they are not the same	
+	AND dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) = (SELECT TOP 1 Distance FROM #Temp ORDER BY Distance DESC)
+	ORDER BY Distance ASC
+	
+	
+	SET NOCOUNT OFF 
+END;
+
+GO
+
+
+CREATE PROCEDURE dbo.Q20_N
+@FloorID INT,
+@k INT
+AS
+BEGIN
+	SET NOCOUNT ON
+	SELECT P.POIID, P.x, P.y
+	INTO #TempTab
+	FROM dbo.POI as P
+	WHERE P.FloorID = @FloorID
+
+	SELECT P.POIID as POI1, P1.POIID as POI2, dbo.DISTANCE2D(P.x, P.y, P1.x, P1.y) AS Distance
+ 	FROM #TempTab as P, #TempTab as P1
+	WHERE P1.POIID IN (
+		SELECT TOP (@k) POIID
+		FROM #TempTab p2
+		WHERE p2.POIID != P.POIID
+		ORDER BY dbo.DISTANCE2D(P.x, P.y, p2.x, p2.y) ASC
+	)
+	ORDER BY POI1 ASC
+	SET NOCOUNT OFF
+
+END
+GO
+
+CREATE PROCEDURE dbo.Q20_N2
+@FloorID INT,
+@k INT
+AS
+BEGIN
+	SET NOCOUNT ON
+	SELECT P.POIID, P.x, P.y
+	INTO #TempTab
+	FROM dbo.POI as P
+	WHERE P.FloorID = @FloorID
+
+	SELECT P.POIID as POI1, P1.POIID as POI2, dbo.DISTANCE2D(P.x, P.y, P1.x, P1.y) AS Dis
+	INTO #TempTab2
+	FROM #TempTab as P, #TempTab as P1
+	WHERE P1.POIID IN (
+		SELECT TOP (@k) POIID
+		FROM #TempTab p2
+		WHERE p2.POIID != P.POIID
+		ORDER BY dbo.DISTANCE2D(P.x, P.y, p2.x, p2.y) ASC
+	)
+
+	SELECT t.POIID, t2.POIID, dbo.DISTANCE2D(t.x, t.y, t2.x, t2.y) as Distance
+	FROM #TempTab t, #TempTab t2
+	WHERE t.POIID != t2.POIID AND dbo.DISTANCE2D(t.x, t.y, t2.x, t2.y) IN 
+	(SELECT tt2.Dis FROM #TempTab2 tt2 WHERE tt2.POI1 = t.POIID)
+	ORDER BY t.POIID, Distance
+	SET NOCOUNT OFF
+
+END
 
 GO
 CREATE PROCEDURE [dbo].[Q21_CTE] 
