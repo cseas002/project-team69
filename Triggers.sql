@@ -58,6 +58,8 @@ BEGIN
   UPDATE dbo.BUILDING SET UserModified = @user, Date_Modified = GETDATE() WHERE BCode IN (SELECT BCode FROM inserted) 
  END
  GO
+
+ 
  CREATE TRIGGER dbo.BFLOOR_Insert ON dbo.BFLOOR AFTER INSERT AS
 BEGIN
   DECLARE @user INT;
