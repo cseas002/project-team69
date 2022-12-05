@@ -26,6 +26,7 @@
 		table tr:nth-child(odd){background:LightYellow}
 		table tr:nth-child(even){background:LightGray}
 	</style>
+
 </head>
 <body>
 
@@ -127,9 +128,7 @@
 			array($_POST["fingerprintID"], SQLSRV_PARAM_IN),
 			array($_POST["distance"], SQLSRV_PARAM_IN)
 		);
-		
 		$objQuery = sqlsrv_query($conn, $strSQL, $params);
-
 		while($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC))
 		{
 			if ($_POST["hdn"] == 1)

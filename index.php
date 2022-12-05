@@ -34,7 +34,8 @@
 
 		$serverName = $_SESSION["serverName"];
 		$connectionOptions = $_SESSION["connectionOptions"];
-		$strSQL = "EXEC dbo.UserLogin @Username='".$sqlUser."', @UPassword='".$sqlPass."';"; 
+		$hashedpass = hash('sha256', $sqlPass);
+		$strSQL = "EXEC dbo.UserLogin @Username='".$sqlUser."', @UPassword='".$hashedpass."';"; 
 		$conn = sqlsrv_connect($serverName, $connectionOptions);
 		$objQuery = sqlsrv_query($conn, $strSQL);
 		$objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC);

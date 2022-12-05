@@ -8,7 +8,7 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	$userType = $_SESSION["userType"];
     $zid = $_GET["zid"];
 
-	if ($userType == '2') {
+	if ($userType == '3') {
 ?>
 <script>
 	alert("Simple users can't insert/modify/delete fingerprints.");
@@ -16,6 +16,15 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 <?php
 		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 
+	}
+
+	if(!isset($_GET["zid"])){
+		?>
+<script>
+	alert("Building ID is not set. Redirecting you back to menu page.");
+</script>
+<?php
+		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 	}
 
 } else {
@@ -130,7 +139,8 @@ $strSQL1 = "{call dbo.Q5_GetDetailsOfFloor(?)}";
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<a href="../q1">Query 1</a>
+		<?php if ($userType == '1') { ?><a href="../log">Log</a><a href="../q1">Query 1</a><?php }?>
+		<?php if ($userType != '3') { ?>
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
 		<a href="../q4">Query 4</a>
@@ -139,6 +149,7 @@ $strSQL1 = "{call dbo.Q5_GetDetailsOfFloor(?)}";
 		<a href="../q5/editbuildings.php?cid=<?=$CampusID?>"> - Edit Buildings</a>
         <a href="../q5/editbfloors.php?fid=<?=$BCode?>"> -- Edit Floors</a>
         <a href="../q5/editfingerprints.php?zid=<?=$zid?>"> --- Edit Fingerprints</a>
+		<?php } ?>
 		<a href="../q6">Query 6</a>
 		<a href="../q7">Query 7</a>
 		<a href="../q8">Query 8</a>
@@ -188,7 +199,7 @@ $strSQL1 = "{call dbo.Q5_GetDetailsOfFloor(?)}";
 			Fingerprint</button>
 			<button id="btnAdvSearchForm" class="button-20" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced Search</button>			
 		<button id="btnSearchForm" class="button-20" onclick="document.getElementById('myForm2').style.display = 'block';">Simple Search</button>			
-		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>';">Reset</button>
+		<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>?zid=<?=$zid?>';">Reset</button>
 
 
 		<div class="form-popup" id="myForm"

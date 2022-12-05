@@ -53,9 +53,10 @@ if ($_POST["hdnCmd"] == "Update") {
 //*** Update Password ***//
 if ($_POST["hdnCmd"] == "ChangePass") {
 	$strSQL = "{call dbo.Q1_Change_Password(?, ?)}";
+	$hashedpass = hash('sha256', $_POST['passwordpass']);
 	$params = array(
 		array($_POST["userIDpass"], SQLSRV_PARAM_IN),
-		array($_POST["passwordpass"], SQLSRV_PARAM_IN)
+		array($hashedpass, SQLSRV_PARAM_IN)
 	);
 	$objQuery = sqlsrv_query($conn, $strSQL, $params);
 	$objRow = sqlsrv_fetch_array($objQuery);
@@ -81,13 +82,14 @@ if ($_POST["hdnCmd"] == "Delete") {
 
 if ($_POST["hdnCmdInsert"] == "insert") {
 	$strSQL = "{call dbo.Q1_Insert_User(?, ?, ?, ?, ?, ?, ?, ?)}";
+	$hashedpass = hash('sha256', $_POST['Password']);
 	$params = array(
 		array($_POST["FName"], SQLSRV_PARAM_IN),
 		array($_POST["LName"], SQLSRV_PARAM_IN),
 		array($_POST["Date_of_Birth"], SQLSRV_PARAM_IN),
 		array($_POST["Gender"], SQLSRV_PARAM_IN),
 		array($_POST["Username"], SQLSRV_PARAM_IN),
-		array($_POST["Password"], SQLSRV_PARAM_IN),
+		array($hashedpass, SQLSRV_PARAM_IN),
 		array($_POST["UserType"], SQLSRV_PARAM_IN),
 		array($_POST["GovID"], SQLSRV_PARAM_IN)
 	);
@@ -555,7 +557,7 @@ if ($_POST["hdnCmdInsert"] == "insert") {
 					text = "Passwords do not match.";
 					alert(text);
 				}
-				if (confirm('Confirm Change of Password?') == true) {
+				if (newpassword == newpasswordconf && confirm('Confirm Change of Password?') == true) {
 					frmMain.userIDpass.value = userID;
 					frmMain.passwordpass.value = newpassword;
 					return true;

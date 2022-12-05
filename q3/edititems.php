@@ -55,12 +55,14 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<a href="../q1">Query 1</a>
+		<?php if ($userType == '1') { ?><a href="../log">Log</a><a href="../q1">Query 1</a><?php }?>
+		<?php if ($userType != '3') { ?>
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
 		<a href="../q3/edititems.php?fid=<?=$fid?>"> - Edit Items</a>
 		<a href="../q4">Query 4</a>
 		<a href="../q5">Query 5</a>
+		<?php } ?>
 		<a href="../q6">Query 6</a>
 		<a href="../q7">Query 7</a>
 		<a href="../q8">Query 8</a>
@@ -112,6 +114,8 @@ $conn = sqlsrv_connect($serverName, $connectionOptions);
 			Search</button>
 		<button class="button-20" onclick="document.getElementById('myForm2').style.display = 'block';">Simple
 			Search</button>
+			<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>?fid=<?=$fid?>';">Reset</button>
+
 
 		<div class="form-popup" id="myForm"
 			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">

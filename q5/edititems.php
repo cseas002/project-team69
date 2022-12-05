@@ -1,7 +1,7 @@
 <?php
 session_start();
 // Get the DB connection info from the session
-if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset($_SESSION["userID"]) && isset($_SESSION["userType"]) && isset($_GET["fid"])) {
+if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset($_SESSION["userID"]) && isset($_SESSION["userType"])) {
 	$serverName = $_SESSION["serverName"];
 	$connectionOptions = $_SESSION["connectionOptions"];
 	$userID = $_SESSION["userID"];
@@ -9,7 +9,7 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 	$fid = $_GET["fid"];
 	
 
-	if ($userType == '2') {
+	if ($userType == '3') {
 ?>
 <script>
 	alert("Simple users can't insert/modify/delete fingerprints.");
@@ -17,6 +17,15 @@ if (isset($_SESSION["userID"]) && isset($_SESSION["connectionOptions"]) && isset
 <?php
 		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 
+	}
+
+	if(!isset($_GET["fid"])){
+		?>
+<script>
+	alert("Building ID is not set. Redirecting you back to menu page.");
+</script>
+<?php
+		die('<meta http-equiv="refresh" content="0; url=../menu.php" />');
 	}
 
 } else {
@@ -66,7 +75,8 @@ $strSQL1 = "{call dbo.Q5_GetDetailsOfFingerprint(?)}";
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<a href="../q1">Query 1</a>
+		<?php if ($userType == '1') { ?><a href="../log">Log</a><a href="../q1">Query 1</a><?php }?>
+		<?php if ($userType != '3') { ?>
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
 		<a href="../q4">Query 4</a>
@@ -76,6 +86,7 @@ $strSQL1 = "{call dbo.Q5_GetDetailsOfFingerprint(?)}";
 		<a href="../q5/editbfloors.php?fid=<?=$bcode?>"> -- Edit Floors</a>
         <a href="../q5/editfingerprints.php?zid=<?=$floorid?>"> --- Edit Fingerprints</a>
 		<a href="../q5/edititems.php?fid=<?=$fid?>"> ---- Edit Items</a>
+		<?php } ?>
 		<a href="../q6">Query 6</a>
 		<a href="../q7">Query 7</a>
 		<a href="../q8">Query 8</a>
@@ -123,6 +134,13 @@ $strSQL1 = "{call dbo.Q5_GetDetailsOfFingerprint(?)}";
 
 		<button class="button-20" onclick="document.getElementById('myForm').style.display = 'block';">Insert
 			Item</button>
+			<button class="button-20" onclick="document.getElementById('myForm1').style.display = 'block';">Advanced
+			Search</button>
+		<button class="button-20" onclick="document.getElementById('myForm2').style.display = 'block';">Simple
+			Search</button>
+			<button id="btnReset" style="display:none;" class="textbtn" onclick="window.location='<?= $_SERVER['PHP_SELF']; ?>?fid=<?=$fid?>';">Reset</button>
+
+
 
 		<div class="form-popup" id="myForm"
 			onkeypress="if(event.keyCode==13){if(insertValidation()){f1.hdnCmd.value='Insert';f1.submit();}}">
@@ -156,6 +174,38 @@ $strSQL1 = "{call dbo.Q5_GetDetailsOfFingerprint(?)}";
 					OnClick="document.getElementById('myForm').style.display = 'none';">Cancel</button>
 			</form>
 		</div>
+		<div class="form-popup" id="myForm1"
+			onkeypress="if(event.keyCode==13){formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();}">
+			<form name="formAdvS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd1" value="">
+				<h2 style="text-align:center;">Advanced Search</h2>
+				<label> ID: </label>
+				<input type="text" name="ID1" value="<?=$_POST['ID1']?>"/>
+				<label> Height: </label>
+				<input type="text" name="Height1" value="<?=$_POST['Height1']?>"/>
+				<label> Width: </label>
+				<input type="text" name="Width1" value="<?=$_POST['Width1']?>" />
+				<label> Type: </label>
+				<input type="text" name="TypeID1" value="<?=$_POST['TypeID1']?>"/>
+				<input type="button" class="btn" value="AdvSearch"
+					onclick="formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm1').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
+		<div class="form-popup" id="myForm2"
+			onkeypress="if(event.keyCode==13){formS.hdnCmd2.value='Search';formS.submit();}">
+			<form name="formS" method="POST" class="form-container">
+				<input type="hidden" name="hdnCmd2" value="">
+				<h2 style="text-align:center;">Search</h2>
+				<label> Keyword: </label>
+				<input type="text" name="keyword" value="<?=$_POST['keyword']?>"/>
+				<input type="button" class="btn" value="Search"
+					onclick="formS.hdnCmd2.value='Search';formS.submit();" />
+				<button type="button" class="btn cancel"
+					OnClick="document.getElementById('myForm2').style.display = 'none';">Cancel</button>
+			</form>
+		</div>
 		<hr />
 		<div
 			onkeypress="if(event.keyCode==13){if(updateValidation()){frmMain.hdnCmd.value='Update';frmMain.submit();}}">
@@ -183,11 +233,42 @@ $strSQL1 = "{call dbo.Q5_GetDetailsOfFingerprint(?)}";
 						</th>
 					</tr>
 					<?php
-                    $tsql = "{CALL dbo.Q3_SelectItemsOfFingerprint(?)}";
-                    $params = array(
-                    	array($fid, SQLSRV_PARAM_IN)
-                    );
-                    $objQuery = sqlsrv_query($conn, $tsql, $params);
+                    if($_POST['hdnCmd2']=='Search'){
+						?>
+				<script>
+					document.getElementById("btnReset").style="display:inline-block;";
+				</script>
+				<?php
+						$tsql = "{CALL dbo.Search_ITEM_OF_FINGERPRINT(?, ?)}";
+						$params = array(
+							array($_POST['keyword'], SQLSRV_PARAM_IN),
+							array($fid, SQLSRV_PARAM_IN)
+						);
+						$objQuery = sqlsrv_query($conn, $tsql, $params);
+					} 
+					else if($_POST['hdnCmd1']=='AdvSearch'){
+						?>
+				<script>
+					document.getElementById("btnReset").style="display:inline-block;";
+				</script>
+				<?php
+						$tsql = "{CALL dbo.Advanced_Search_ITEM_OF_FINGERPRINT(?,?,?,?,?)}";
+						$params = array(
+							array($fid, SQLSRV_PARAM_IN),
+							array($_POST['Height1'], SQLSRV_PARAM_IN),
+							array($_POST['Width1'], SQLSRV_PARAM_IN),
+							array($_POST['TypeID1'], SQLSRV_PARAM_IN),
+							array($_POST['ID1'], SQLSRV_PARAM_IN)
+						);
+						$objQuery = sqlsrv_query($conn, $tsql, $params);
+					} 
+					else {
+						$tsql = "{CALL dbo.Q3_SelectItemsOfFingerprint(?)}";
+						$params = array(
+							array($fid, SQLSRV_PARAM_IN)
+						);
+						$objQuery = sqlsrv_query($conn, $tsql, $params);
+					}
 
                     while ($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC)) {
                     ?>

@@ -75,13 +75,15 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 		<h5>
 			<a style="color: #C68F06;" href="http://www.cs.ucy.ac.cy/">Dept. of Computer Science</a>
 		</h5>
-		<a href="../q1">Query 1</a>
+		<?php if ($userType == '1') { ?><a href="../log">Log</a><a href="../q1">Query 1</a><?php }?>
+		<?php if ($userType != '3') { ?>
 		<a href="../q2">Query 2</a>
 		<a href="../q3">Query 3</a>
 		<a href="../q4">Query 4</a>
         <a href="../q4/editbfloors.php?fid=<?=$BCode?>"> - Edit Floors</a>
         <a href="../q4/editpois.php?zid=<?=$zid?>"> -- Edit POIs</a>
 		<a href="../q5">Query 5</a>
+		<?php } ?>
 		<a href="../q6">Query 6</a>
 		<a href="../q7">Query 7</a>
 		<a href="../q8">Query 8</a>
@@ -169,12 +171,14 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 				<input type="text" name="x1" value="<?=$_POST['x1']?>"/>
 				<label> y: </label>
 				<input type="text" name="y1" value="<?=$_POST['y1']?>" />
-				<label> y: </label>
-				<input type="text" name="y1" value="<?=$_POST['y1']?>" />
-				<label> y: </label>
-				<input type="text" name="y1" value="<?=$_POST['y1']?>" />
-				<label> y: </label>
-				<input type="text" name="y1" value="<?=$_POST['y1']?>" />
+				<label> Name: </label>
+				<input type="text" name="POIName1" value="<?=$_POST['POIName1']?>" />
+				<label> Summary: </label>
+				<input type="text" name="Summary1" value="<?=$_POST['Summary1']?>" />
+				<label> Owner: </label>
+				<input type="text" name="POIOwner1" value="<?=$_POST['POIOwner1']?>" />
+				<label> Type: </label>
+				<input type="text" name="POIType1" value="<?=$_POST['POIType1']?>" />
 				<input type="button" class="btn" value="AdvSearch"
 					onclick="formAdvS.hdnCmd1.value='AdvSearch';formAdvS.submit();" />
 				<button type="button" class="btn cancel"
@@ -230,12 +234,46 @@ $strSQL1 = "{call dbo.Q3_SelectFloorsByID(?)}";
 						</th>
 					</tr>
 					<?php
+
+if($_POST['hdnCmd2']=='Search'){
+	?>
+	<script>
+		document.getElementById("btnReset").style="display:inline-block;";
+	</script>
+	<?php
+	$tsql = "{CALL dbo.Search_POI_OF_FLOOR(?, ?)}";
+	$params = array(
+		array($_POST['keyword'], SQLSRV_PARAM_IN),
+		array($FloorID, SQLSRV_PARAM_IN)
+	);
+	$objQuery = sqlsrv_query($conn, $tsql, $params);
+} 
+else if($_POST['hdnCmd1']=='AdvSearch'){
+	?>
+	<script>
+		document.getElementById("btnReset").style="display:inline-block;";
+	</script>
+	<?php
+	$tsql = "{CALL dbo.Advanced_Search_POI_OF_FLOOR(?,?,?,?,?,?,?,?)}";
+	$params = array(
+		array($_POST['POIID1'], SQLSRV_PARAM_IN),
+		array($_POST['x1'], SQLSRV_PARAM_IN),
+		array($_POST['y1'], SQLSRV_PARAM_IN),
+		array($FloorID, SQLSRV_PARAM_IN),
+		array($_POST['POIName1'], SQLSRV_PARAM_IN),
+		array($_POST['Summary1'], SQLSRV_PARAM_IN),
+		array($_POST['POIOwner1'], SQLSRV_PARAM_IN),
+		array($_POST['POIType1'], SQLSRV_PARAM_IN)
+	);
+	$objQuery = sqlsrv_query($conn, $tsql, $params);
+} 
+else {
         $tsql = "{CALL dbo.Q4_SelectPOIsOfFloor(?)}";
         $params = array(
 	    	array($FloorID, SQLSRV_PARAM_IN)
 	    );
         $objQuery = sqlsrv_query($conn, $tsql, $params);
-
+	}
         while ($objResult = sqlsrv_fetch_array($objQuery, SQLSRV_FETCH_ASSOC)) {
         ?>
 

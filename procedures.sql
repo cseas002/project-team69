@@ -1,9 +1,242 @@
-CREATE TYPE [dbo].[TableType] AS TABLE(
-	[fid] [int] NULL,
-	[cnt] [int] NULL
-)
-GO
+CREATE PROCEDURE [dbo].[Advanced_Search_BFLOOR]
+@FloorID INT,
+@FloorZ NVARCHAR(30),
+@Summary [nvarchar](MAX),
+@BCode INT
+AS
+BEGIN
+SET NOCOUNT ON
+	IF @FloorID = 0 -- empty
+		IF @BCode = 0
+		SELECT FloorID, Summary, TopoPlan, BCode, FloorZ
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND CAST(FloorZ AS NVARCHAR) LIKE '%' + @FloorZ + '%'
+		ELSE
+		SELECT FloorID, Summary, TopoPlan, BCode, FloorZ
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND BCode = @BCode AND CAST(FloorZ AS NVARCHAR) LIKE '%' + @FloorZ + '%'
+	ELSE
+	IF @BCode = 0 -- empty
+	SELECT FloorID, Summary, TopoPlan, BCode, FloorZ
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND FloorID = @FloorID AND CAST(FloorZ AS NVARCHAR) LIKE '%' + @FloorZ + '%'
+	ELSE
+	SELECT FloorID, Summary, TopoPlan, BCode, FloorZ
+		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND FloorID = @FloorID AND BCode = @BCode AND CAST(FloorZ AS NVARCHAR) LIKE '%' + @FloorZ + '%'
+END;
 
+GO
+CREATE PROCEDURE [dbo].[Advanced_Search_BUILDING]
+@BCode NVARCHAR(30), 
+@BLDCode NVARCHAR(30),
+@BName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@BAddress NVARCHAR(30),
+@x NVARCHAR(30),
+@y NVARCHAR(30),
+@BOwner NVARCHAR(30),
+@RegDate VARCHAR(30),
+@CampusID NVARCHAR(30)
+AS
+BEGIN
+SET NOCOUNT ON
+	SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , CAST(RegDate AS NVARCHAR) AS RegDate , CampusID 
+		FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @BCode + '%' AND BLDCode LIKE '%' + @BLDCode
+		+ '%' AND Summary LIKE '%' + @Summary + '%' AND BAddress LIKE '%' + @BAddress + '%' AND CAST(x AS NVARCHAR) 
+		LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND BOwner LIKE '%' + @BOwner + '%' AND 
+		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(ISNULL(CampusID, '') AS NVARCHAR) LIKE '%' + @CampusID + '%'
+SET NOCOUNT OFF
+END;
+
+GO
+CREATE PROCEDURE [dbo].[Advanced_Search_BUILDING_OF_CAMPUS]
+@BCode NVARCHAR(30), 
+@BLDCode NVARCHAR(30),
+@BName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@BAddress NVARCHAR(30),
+@x NVARCHAR(30),
+@y NVARCHAR(30),
+@BOwner NVARCHAR(30),
+@RegDate VARCHAR(30),
+@CampusID INT
+AS
+BEGIN
+SET NOCOUNT ON
+	SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , CAST(RegDate AS NVARCHAR) AS RegDate , CampusID 
+		FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @BCode + '%' AND BLDCode LIKE '%' + @BLDCode
+		+ '%' AND Summary LIKE '%' + @Summary + '%' AND BAddress LIKE '%' + @BAddress + '%' AND CAST(x AS NVARCHAR) 
+		LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND BOwner LIKE '%' + @BOwner + '%' AND 
+		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CampusID= @CampusID
+SET NOCOUNT OFF
+END;
+
+GO
+CREATE PROCEDURE [dbo].[Advanced_Search_CAMPUS]
+@CampusID NVARCHAR(30), 
+@CampusName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@RegDate VARCHAR(30),
+@Website NVARCHAR(2083)
+AS
+BEGIN
+SET NOCOUNT ON
+	SELECT CampusID , CampusName , Summary , RegDate , Website
+		FROM dbo.CAMPUS WHERE CAST(CampusID AS NVARCHAR) LIKE '%' + @CampusID + '%' AND CampusName LIKE '%' + @CampusName
+		+ '%' AND Summary LIKE '%' + @Summary + '%'  AND 
+		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND Website LIKE '%' + @Website + '%'
+END;
+
+GO
+CREATE PROCEDURE [dbo].[Advanced_Search_FINGERPRINT]
+@FingerprintID NVARCHAR(30), 
+@x NVARCHAR(30),
+@y NVARCHAR(30),
+@Level NVARCHAR(30),
+@RegDate VARCHAR(30),
+@FloorID NVARCHAR(30)
+AS
+BEGIN
+SET NOCOUNT ON
+	SELECT FingerprintID , x, y, [Level] , CAST(RegDate AS NVARCHAR) AS RegDate , FloorID 
+	FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) 
+	LIKE '%' + @FingerprintID + '%' AND CAST(x AS NVARCHAR) 
+	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND CAST([Level] AS NVARCHAR) LIKE '%' + @Level + '%' AND 
+	CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(ISNULL(FloorID, '') AS NVARCHAR) LIKE '%' + @FloorID + '%'
+SET NOCOUNT OFF
+END;
+
+GO
+CREATE PROCEDURE [dbo].[Advanced_Search_FINGERPRINT_OF_FLOOR]
+@FingerprintID NVARCHAR(30), 
+@x NVARCHAR(30),
+@y NVARCHAR(30),
+@RegDate VARCHAR(30),
+@FloorID INT
+AS
+BEGIN
+SET NOCOUNT ON
+	SELECT FingerprintID , x, y, [Level] , CAST(RegDate AS NVARCHAR) AS RegDate , FloorID 
+	FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) 
+	LIKE '%' + @FingerprintID + '%' AND CAST(x AS NVARCHAR) 
+	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND 
+	CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND FloorID = @FloorID 
+END;
+
+GO
+CREATE PROCEDURE [dbo].[Advanced_Search_ITEM]
+@FingerprintID NVARCHAR(30), 
+@Height NVARCHAR(30),
+@Width NVARCHAR(30),
+@TypeID NVARCHAR(30),
+@ItemID NVARCHAR(30)
+AS
+BEGIN
+SET NOCOUNT ON
+	SELECT FingerprintID , Height, Width, TypeID , ItemID 
+	FROM dbo.ITEM WHERE CAST(FingerprintID AS NVARCHAR) 
+	LIKE '%' + @FingerprintID + '%' AND CAST(Height AS NVARCHAR) 
+	LIKE '%' + @Height + '%' AND CAST(Width AS NVARCHAR) LIKE '%' + @Width + '%' AND CAST(TypeID AS NVARCHAR) 
+	LIKE '%' + @TypeID + '%' AND CAST(ItemID AS NVARCHAR) LIKE '%' + @ItemID + '%'
+END;
+
+GO
+CREATE PROCEDURE [dbo].[Advanced_Search_ITEM_OF_FINGERPRINT]
+@FingerprintID INT, 
+@Height NVARCHAR(12),
+@Width NVARCHAR(12),
+@TypeID NVARCHAR(12),
+@ItemID NVARCHAR(12)
+AS
+BEGIN
+SET NOCOUNT ON
+	SELECT FingerprintID , Height, Width, TypeID , ItemID 
+	FROM dbo.ITEM WHERE FingerprintID = @FingerprintID AND CAST(Height AS NVARCHAR) 
+	LIKE '%' + @Height + '%' AND CAST(Width AS NVARCHAR) LIKE '%' + @Width + '%' AND CAST(TypeID AS NVARCHAR) 
+	LIKE '%' + @TypeID + '%' AND CAST(ItemID AS NVARCHAR) LIKE '%' + @ItemID + '%'
+END;
+
+GO
+CREATE PROCEDURE [dbo].[Advanced_Search_POI]
+@POIID NVARCHAR(30), 
+@x NVARCHAR(30),
+@y NVARCHAR(30),
+@FloorID NVARCHAR(30),
+@POIName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@POIOwner NVARCHAR(30),
+@POIType NVARCHAR(30)
+AS
+BEGIN
+SET NOCOUNT ON
+	SELECT POIID , x, y, FloorID , POIName, Summary , POIOwner , POIType  
+	FROM dbo.POI WHERE CAST(POIID AS NVARCHAR) 
+	LIKE '%' + @POIID + '%' AND CAST(x AS NVARCHAR) 
+	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND CAST(FloorID AS NVARCHAR) 
+	LIKE '%' + @FloorID + '%' AND POIName LIKE '%' + @POIName + '%' AND Summary LIKE '%' + @Summary + '%'
+	AND POIOwner LIKE '%' + @POIOwner + '%' AND POIType LIKE '%' + @POITYPE + '%'
+END;
+
+GO
+CREATE PROCEDURE [dbo].[Advanced_Search_POI_OF_FLOOR]
+@POIID NVARCHAR(30), 
+@x NVARCHAR(30),
+@y NVARCHAR(30),
+@FloorID INT,
+@POIName NVARCHAR(30),
+@Summary NVARCHAR(MAX),
+@POIOwner NVARCHAR(30) = '',
+@POIType NVARCHAR(30)
+AS
+BEGIN
+SET NOCOUNT ON
+	SELECT POIID , x, y, FloorID , POIName, Summary , POIOwner , POIType  
+	FROM dbo.POI WHERE CAST(POIID AS NVARCHAR) 
+	LIKE '%' + @POIID + '%' AND CAST(x AS NVARCHAR) 
+	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND FloorID = @FloorID AND POIName LIKE '%' + @POIName + '%' AND Summary LIKE '%' + @Summary + '%'
+	AND ISNULL(POIOwner,'') LIKE '%' + @POIOwner + '%' AND POIType LIKE '%' + @POITYPE + '%'
+END;
+
+GO
+CREATE PROCEDURE dbo.BFLOOR_LOG 
+AS
+SET NOCOUNT ON
+SELECT FloorID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
+FROM dbo.BFLOOR;
+
+GO
+CREATE PROCEDURE dbo.BUILDING_LOG 
+AS
+SET NOCOUNT ON
+SELECT BCode AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
+FROM dbo.BUILDING;
+
+GO
+CREATE PROCEDURE dbo.CAMPUS_LOG 
+AS
+SET NOCOUNT ON
+SELECT CampusID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
+FROM dbo.CAMPUS;
+
+GO
+CREATE PROCEDURE dbo.FINGERPRINT_LOG 
+AS
+SET NOCOUNT ON
+SELECT FingerprintID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
+FROM dbo.FINGERPRINT;
+
+GO
+CREATE PROCEDURE dbo.ITEM_LOG 
+AS
+SET NOCOUNT ON
+SELECT ItemID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
+FROM dbo.ITEM;
+
+GO
+CREATE PROCEDURE dbo.POI_LOG 
+AS
+SET NOCOUNT ON
+SELECT POIID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified 
+FROM dbo.POI;
+
+GO
 CREATE PROCEDURE [dbo].[Q1_Advanced_Select]
 @FName [nvarchar](30),
 @LName [nvarchar](30), 
@@ -11,31 +244,33 @@ CREATE PROCEDURE [dbo].[Q1_Advanced_Select]
 @Date_of_Birth [nvarchar](30),
 @Gender [nvarchar](1),
 @Username [nvarchar](30),
-@UserType [nvarchar](1)
+@UserType [nvarchar](1),
+@GovID NVARCHAR(30)
 AS
 BEGIN
 SET NOCOUNT ON
 	IF @UserID = 0 -- empty
 		IF @Date_of_Birth = ''
-		SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType
+		SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType, GovID
 		FROM dbo.USERS WHERE FName LIKE '%' + @FName + '%' AND LName LIKE '%' + @LName + '%' AND Gender LIKE '%' + @Gender 
-								+ '%' AND Username LIKE + '%' + @Username + '%' AND UserType LIKE + '%' + @UserType		
+								+ '%' AND Username LIKE  '%' + @Username + '%' AND UserType LIKE '%' + @UserType + '%'	
+								AND CAST(GovID AS NVARCHAR) LIKE '%' + @GovID + '%'
 		ELSE
-		SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType
+		SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType, GovID
 		FROM dbo.USERS WHERE FName LIKE '%' + @FName + '%' AND LName LIKE '%' + @LName + '%' AND Gender LIKE '%' + @Gender 
-								+ '%' AND Username LIKE + '%' + @Username + '%' AND UserType LIKE + '%' + @UserType
-								AND Date_of_Birth = @Date_of_Birth
+								+ '%' AND Username LIKE  '%' + @Username + '%' AND UserType LIKE + '%' + @UserType
+								AND Date_of_Birth = @Date_of_Birth AND CAST(GovID AS NVARCHAR) LIKE '%' + @GovID + '%'
 	ELSE
 	IF @Date_of_Birth = ''
-	SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType
+	SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType, GovID
 	FROM dbo.USERS WHERE FName LIKE '%' + @FName + '%' AND LName LIKE '%' + @LName + '%' AND Gender LIKE '%' + @Gender 
-							+ '%' AND Username LIKE + '%' + @Username + '%' AND UserType LIKE + '%' + @UserType	
-							AND UserID = @UserID
+							+ '%' AND Username LIKE '%' + @Username + '%' AND UserType LIKE '%' + @UserType	
+							AND UserID = @UserID AND CAST(GovID AS NVARCHAR) LIKE '%' + @GovID + '%'
 	ELSE
-	SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType
+	SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType, GovID
 	FROM dbo.USERS WHERE FName LIKE '%' + @FName + '%' AND LName LIKE '%' + @LName + '%' AND Gender LIKE '%' + @Gender 
-							+ '%' AND Username LIKE + '%' + @Username + '%' AND UserType LIKE + '%' + @UserType	
-							AND UserID = @UserID AND Date_of_Birth = @Date_of_Birth;
+							+ '%' AND Username LIKE  '%' + @Username + '%' AND UserType LIKE + '%' + @UserType	
+							AND UserID = @UserID AND Date_of_Birth = @Date_of_Birth AND CAST(GovID AS NVARCHAR) LIKE '%' + @GovID + '%';
 END;
 
 GO
@@ -63,11 +298,12 @@ CREATE PROCEDURE [dbo].[Q1_Edit_User]
 @Date_of_Birth [nvarchar](30),
 @Gender [nvarchar](1),
 @Username [nvarchar](30),
-@UserType [nvarchar](1)
+@UserType [nvarchar](1),
+@GovID INT
 AS
 BEGIN
 SET NOCOUNT ON
-	UPDATE dbo.USERS SET FName = @FName, LName = @LName, Date_of_Birth = @Date_of_Birth, Gender = @Gender, Username = @Username, UserType = @UserType
+	UPDATE dbo.USERS SET FName = @FName, LName = @LName, Date_of_Birth = @Date_of_Birth, Gender = @Gender, Username = @Username, UserType = @UserType, GovID=@GovID
 	WHERE UserID = @UserID;
 END;
 
@@ -79,28 +315,29 @@ CREATE PROCEDURE [dbo].[Q1_Insert_User]
 @Gender [nvarchar](1),
 @Username [nvarchar](30),
 @UPassword [nvarchar](30),
-@UserType [nvarchar](1)
+@UserType [nvarchar](1),
+@GovID INT
 AS
 BEGIN
 SET NOCOUNT ON
-	INSERT INTO dbo.USERS(FName, LName, Date_of_Birth, Gender, Username, UPassword, UserType) VALUES (@FName, @LName, @Date_of_Birth, 
-							@Gender, @Username, @UPassword, @UserType)
+	INSERT INTO dbo.USERS(FName, LName, Date_of_Birth, Gender, Username, UPassword, UserType, GovID) VALUES (@FName, @LName, @Date_of_Birth, 
+							@Gender, @Username, @UPassword, @UserType, @GovID)
 END;
 
 GO
 CREATE PROCEDURE [dbo].[Q1_Select]
 AS
 SET NOCOUNT ON
-SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType FROM dbo.USERS;
+SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType, GovID FROM dbo.USERS;
 
 GO
-CREATE PROCEDURE dbo.Q1_Simple_Select
+CREATE PROCEDURE [dbo].[Q1_Simple_Select]
 @Keyword nvarchar(30)
 AS
 SET NOCOUNT ON
-SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType FROM dbo.USERS WHERE FName LIKE '%' + @Keyword + '%' OR LName LIKE '%' + @Keyword + '%' OR Gender LIKE '%' + @Keyword 
-						+ '%' OR Username LIKE + '%' + @Keyword + '%' OR UserType LIKE + '%' + @Keyword	
-						OR Username LIKE + '%' + @Keyword + '%' OR CAST(Date_of_Birth AS nvarchar) LIKE + '%' + @Keyword + '%';
+SELECT FName, LName, UserID, Gender, CAST(Date_of_Birth AS varchar) AS Date_of_Birth, Username, UserType, GovID FROM dbo.USERS WHERE FName LIKE '%' + @Keyword + '%' OR LName LIKE '%' + @Keyword + '%' OR Gender LIKE '%' + @Keyword 
+						+ '%' OR Username LIKE + '%' + @Keyword + '%' OR UserType LIKE '%' + @Keyword	+ '%'
+						OR Username LIKE '%' + @Keyword + '%' OR CAST(Date_of_Birth AS nvarchar) LIKE '%' + @Keyword + '%' OR CAST(GovID AS NVARCHAR) LIKE '%' + @Keyword + '%';
 
 GO
 CREATE PROCEDURE [dbo].[Q10]
@@ -134,7 +371,6 @@ BEGIN
 END;
 
 GO
-
 CREATE PROCEDURE [dbo].[Q12_Test2]
 AS
 BEGIN
@@ -163,7 +399,7 @@ BEGIN
 	) 
 	ORDER BY Fingerprint1
 	SET NOCOUNT OFF
-END
+END;
 
 GO
 CREATE PROCEDURE dbo.Q13
@@ -194,8 +430,8 @@ SELECT TOP (@num) I.TypeID, COUNT(DISTINCT I.FingerprintID) AS cnt
 FROM dbo.ITEM AS I
 GROUP BY I.TypeID
 ORDER BY cnt asc;
-GO
 
+GO
 CREATE PROCEDURE dbo.[Q14_2]
 @k int
 AS
@@ -219,9 +455,9 @@ FROM #Temp UNION
 	ORDER BY cnt ASC
 
 SET NOCOUNT OFF
-END
-GO
+END;
 
+GO
 CREATE PROCEDURE dbo.Q15
 AS
 SET NOCOUNT ON
@@ -274,7 +510,8 @@ SET NOCOUNT ON
 					)
 END;
 
---K first not showing more
+--K first not showing more;
+
 GO
 CREATE PROCEDURE dbo.Q19
 @x DECIMAL(15, 12),
@@ -313,7 +550,6 @@ BEGIN
 	
 END;
 
-
 GO
 CREATE PROCEDURE [dbo].[Q2_Delete]
 @TypeID int
@@ -349,23 +585,27 @@ BEGIN
 SET NOCOUNT ON
 UPDATE dbo.TYPES SET Title = @Title, Model = @Model WHERE TypeID = @TypeID
 END;
-GO
 
-CREATE PROCEDURE dbo.Q20
-@floorID int,
+GO
+CREATE PROCEDURE [dbo].[Q20]
+--GETS THE NEAREST POI THATS WHY 16-8 BUT NO 8-16 BECAUSE 8-21
+@floorID INT,
 @k INT
 AS
 BEGIN
-	SELECT TOP (@k) p.POIID AS [POI1], p2.POIID AS [POI2], dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) AS Distance
+SET NOCOUNT ON
+	SELECT TOP (@k) p.POIID AS [POI1], p2.POIID AS [POI2], CAST(dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y)AS NVARCHAR(100)) AS Distance
 	FROM dbo.POI p, dbo.POI p2
 	WHERE p.FloorID = @floorID AND p2.FloorID = @floorID -- They belong to the same floor
 	AND p.POIID != p2.POIID -- And they are not the same	
-	ORDER BY dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) ASC
+	AND dbo.DISTANCE2D(p.x, p.y, p2.x, p2.y) <= ALL -- The POI with smallest distance from p
+					( SELECT dbo.DISTANCE2D(p.x, p.y, p3.x, p3.y)
+					  FROM dbo.POI p3
+					  WHERE p.FloorID = @floorID AND p3.FloorID = @floorID AND p3.POIID != p.POIID)
 	
 END;
+
 GO
-
-
 CREATE PROCEDURE dbo.Q20_2
 @floorID int,
 @k INT
@@ -397,8 +637,6 @@ BEGIN
 END;
 
 GO
-
-
 CREATE PROCEDURE dbo.Q20_N
 @floorID INT,
 @k INT
@@ -424,7 +662,6 @@ BEGIN
 END;
 
 GO
-
 CREATE PROCEDURE dbo.Q20_N2
 @floorID INT,
 @k INT
@@ -497,7 +734,6 @@ BEGIN
 
 	DROP TABLE #FValid
 END;
-
 
 GO
 CREATE PROCEDURE [dbo].[Q21_N2] 
@@ -913,7 +1149,8 @@ HAVING COUNT(DISTINCT i.FingerprintID) =
 				GROUP BY i2.TypeID) AS Fing_amt)
 END;
 --change from previous check again for sure
--- COUNT DISTINCT POI TYPES
+-- COUNT DISTINCT POI TYPES;
+
 GO
 CREATE PROCEDURE [dbo].[Q8]
 AS
@@ -925,7 +1162,6 @@ SET NOCOUNT ON
 	GROUP BY b.FloorID, p.POIType
 	ORDER BY [POI Amount] DESC
 END;
-
 
 GO
 CREATE PROCEDURE [dbo].[Q9]
@@ -942,149 +1178,26 @@ SET NOCOUNT ON
 END;
 
 
--- END OF QUERIES
+-- END OF QUERIES;
 
 GO
-CREATE PROCEDURE [dbo].Advanced_Search_BFLOOR
-@FloorID INT,
-@Summary [nvarchar](MAX), 
-@TopoPlan [nvarchar](MAX),
+CREATE PROCEDURE [dbo].[Search_BFLOOR]
+@Keyword nvarchar(MAX),
 @BCode INT
 AS
-BEGIN
 SET NOCOUNT ON
-	IF @FloorID = 0 -- empty
-		IF @BCode = 0
-		SELECT FloorID, Summary, TopoPlan, BCode
-		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
-		+ '%'
-		ELSE
-		SELECT FloorID, Summary, TopoPlan, BCode
-		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
-		+ '%' AND BCode = @BCode
-	ELSE
-	IF @BCode = 0 -- empty
-	SELECT FloorID, Summary, TopoPlan, BCode
-		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
-		+ '%' AND FloorID = @FloorID
-	ELSE
-	SELECT FloorID, Summary, TopoPlan, BCode
-		FROM dbo.BFLOOR WHERE Summary LIKE '%' + @Summary + '%' AND TopoPlan LIKE '%' + @TopoPlan
-		+ '%' AND FloorID = @FloorID AND BCode = @BCode
-END;
-
-GO
-CREATE PROCEDURE [dbo].Advanced_Search_BUILDING
-@BCode INT, 
-@BLDCode NVARCHAR(30),
-@BName NVARCHAR(30),
-@Summary NVARCHAR(MAX),
-@BAddress NVARCHAR(30),
-@x DECIMAL(15, 12),
-@y DECIMAL(15, 12),
-@BOwner NVARCHAR(30),
-@RegDate VARCHAR(30),
-@CampusID INT
-AS
-BEGIN
-SET NOCOUNT ON
-	SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , RegDate , CampusID 
-		FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @BCode + '%' AND BLDCode LIKE '%' + @BLDCode
-		+ '%' AND Summary LIKE '%' + @Summary + '%' AND BAddress LIKE '%' + @BAddress + '%' AND CAST(x AS NVARCHAR) 
-		LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND BOwner LIKE '%' + @BOwner + '%' AND 
-		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(CampusID AS NVARCHAR) LIKE '%' + @CampusID + '%'
-END;
-
-GO
-CREATE PROCEDURE [dbo].Advanced_Search_CAMPUS
-@CampusID INT, 
-@CampusName NVARCHAR(30),
-@Summary NVARCHAR(MAX),
-@RegDate VARCHAR(30),
-@Website NVARCHAR(2083)
-AS
-BEGIN
-SET NOCOUNT ON
-	SELECT CampusID , CampusName , Summary , RegDate , Website
-		FROM dbo.CAMPUS WHERE CAST(CampusID AS NVARCHAR) LIKE '%' + @CampusID + '%' AND CampusName LIKE '%' + @CampusName
-		+ '%' AND Summary LIKE '%' + @Summary + '%'  AND 
-		CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND Website LIKE '%' + @Website + '%'
-END;
-
-GO
-CREATE PROCEDURE [dbo].Advanced_Search_FINGERPRINT
-@FingerprintID INT, 
-@x DECIMAL(15, 12),
-@y DECIMAL(15, 12),
-@Level INT,
-@RegDate VARCHAR(30),
-@FloorID INT
-AS
-BEGIN
-SET NOCOUNT ON
-	SELECT FingerprintID , x, y, Level , RegDate , FloorID 
-	FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) 
-	LIKE '%' + @FingerprintID + '%' AND CAST(x AS NVARCHAR) 
-	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND CAST(Level AS NVARCHAR) LIKE '%' + @Level + '%' AND 
-	CAST(RegDate AS NVARCHAR) LIKE '%' + @RegDate + '%' AND CAST(FloorID AS NVARCHAR) LIKE '%' + @FloorID + '%'
-END;
-
-GO
-CREATE PROCEDURE [dbo].Advanced_Search_ITEM
-@FingerprintID INT, 
-@Height DECIMAL(6, 3),
-@Width DECIMAL(6, 3),
-@TypeID INT,
-@ItemID INT
-AS
-BEGIN
-SET NOCOUNT ON
-	SELECT FingerprintID , Height, Width, TypeID , ItemID 
-	FROM dbo.ITEM WHERE CAST(FingerprintID AS NVARCHAR) 
-	LIKE '%' + @FingerprintID + '%' AND CAST(Height AS NVARCHAR) 
-	LIKE '%' + @Height + '%' AND CAST(Width AS NVARCHAR) LIKE '%' + @Width + '%' AND CAST(TypeID AS NVARCHAR) 
-	LIKE '%' + @TypeID + '%' AND CAST(ItemID AS NVARCHAR) LIKE '%' + @ItemID + '%'
-END;
-
-GO
-CREATE PROCEDURE [dbo].Advanced_Search_POI
-@POIID INT, 
-@x DECIMAL(15, 12),
-@y DECIMAL(15, 12),
-@FloorID INT,
-@POIName NVARCHAR(30),
-@Summary NVARCHAR(MAX),
-@POIOwner NVARCHAR(30),
-@POIType NVARCHAR(30)
-AS
-BEGIN
-SET NOCOUNT ON
-	SELECT POIID , x, y, FloorID , POIName, Summary , POIOwner , POIType  
-	FROM dbo.POI WHERE CAST(POIID AS NVARCHAR) 
-	LIKE '%' + @POIID + '%' AND CAST(x AS NVARCHAR) 
-	LIKE '%' + @x + '%' AND CAST(y AS NVARCHAR) LIKE '%' + @y + '%' AND CAST(FloorID AS NVARCHAR) 
-	LIKE '%' + @FloorID + '%' AND POIName LIKE '%' + @POIName + '%' AND Summary LIKE '%' + @Summary + '%'
-	AND POIOwner LIKE '%' + @POIOwner + '%' AND POIType LIKE '%' + @POITYPE + '%'
-END;
-
-GO
-CREATE PROCEDURE dbo.Search_BFLOOR
-@Keyword nvarchar(MAX)
-AS
-SET NOCOUNT ON
-SELECT FloorID, Summary, TopoPlan, BCode FROM dbo.BFLOOR WHERE FloorID LIKE '%' + @Keyword + '%' OR Summary LIKE '%' + @Keyword + '%' OR TopoPlan LIKE '%' + @Keyword 
-						+ '%' OR BCode LIKE + '%' + @Keyword + '%';
+SELECT FloorID, Summary, TopoPlan, BCode, FloorZ FROM dbo.BFLOOR WHERE (FloorID LIKE '%' + @Keyword + '%' OR FloorZ LIKE '%' + @Keyword + '%' OR Summary LIKE '%' + @Keyword + '%') AND BCode = @BCode;
 
 GO
 CREATE PROCEDURE dbo.Search_BUILDING
 @Keyword nvarchar(MAX)
 AS
 SET NOCOUNT ON
-SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , RegDate , CampusID
+SELECT BCode , BLDCode , BName , Summary , BAddress , x, y, BOwner , CAST(RegDate AS NVARCHAR) AS RegDate, CampusID
 FROM dbo.BUILDING WHERE CAST(BCode AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(BLDCode AS NVARCHAR) LIKE '%' 
-	+ @Keyword + '%' OR BName LIKE '%' + @Keyword + '%' OR Summary LIKE + '%' + @Keyword + '%' AND BAddress LIKE + 
-	'%' + @Keyword + '%' AND CAST(x AS NVARCHAR) LIKE + '%' + @Keyword + '%' AND CAST(y AS NVARCHAR) LIKE + '%' + 
-	@Keyword + '%' AND BOwner LIKE + '%' + @Keyword + '%' AND RegDate LIKE + '%' + @Keyword + '%' AND 
+	+ @Keyword + '%' OR BName LIKE '%' + @Keyword + '%' OR Summary LIKE + '%' + @Keyword + '%' OR BAddress LIKE + 
+	'%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR CAST(y AS NVARCHAR) LIKE + '%' + 
+	@Keyword + '%' OR BOwner LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR 
 	CAST(CampusID AS NVARCHAR) LIKE + '%' + @Keyword + '%';
 
 GO
@@ -1098,27 +1211,50 @@ OR Summary LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR
 LIKE + '%' + @Keyword + '%';
 
 GO
-CREATE PROCEDURE dbo.Search_FINGERPRINT
+CREATE PROCEDURE [dbo].[Search_FINGERPRINT]
 @Keyword nvarchar(MAX)
 AS
 SET NOCOUNT ON
-SELECT FingerprintID, x, y, Level, RegDate , FloorID
+SELECT FingerprintID, x, y, Level, CAST(RegDate AS VARCHAR) AS RegDate , FloorID
 FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE '%' + @Keyword + '%' 
 OR CAST(y AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR CAST(FloorID AS NVARCHAR)
 LIKE + '%' + @Keyword + '%';
 
 GO
-CREATE PROCEDURE dbo.Search_ITEM
+CREATE PROCEDURE [dbo].[Search_FINGERPRINT_OF_FLOOR]
+@Keyword nvarchar(MAX),
+@fid INT
+AS
+SET NOCOUNT ON
+SELECT FingerprintID, x, y, Level, CAST(RegDate AS VARCHAR) AS RegDate , FloorID
+FROM dbo.FINGERPRINT WHERE CAST(FingerprintID AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE '%' + @Keyword + '%' 
+OR CAST(y AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR RegDate LIKE + '%' + @Keyword + '%' OR FloorID = @fid;
+
+GO
+CREATE PROCEDURE [dbo].[Search_ITEM]
 @Keyword nvarchar(MAX)
 AS
 SET NOCOUNT ON
 SELECT FingerprintID, Height, Width, TypeID, ItemID
 FROM dbo.ITEM WHERE CAST(FingerprintID AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(Height AS NVARCHAR) LIKE '%' + @Keyword + '%' 
 OR CAST(Width AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR CAST(ItemID AS NVARCHAR)
-LIKE + '%' + @Keyword + '%';
+LIKE + '%' + @Keyword + '%' OR CAST(TypeID AS NVARCHAR)
+LIKE '%' + @Keyword + '%';
 
 GO
-CREATE PROCEDURE dbo.Search_POI
+CREATE PROCEDURE [dbo].[Search_ITEM_OF_FINGERPRINT]
+@Keyword nvarchar(MAX),
+@fid INT
+AS
+SET NOCOUNT ON
+SELECT FingerprintID, Height, Width, TypeID, ItemID
+FROM dbo.ITEM WHERE FingerprintID = @fid AND (CAST(Height AS NVARCHAR) LIKE '%' + @Keyword + '%' 
+OR CAST(Width AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(ItemID AS NVARCHAR)
+LIKE '%' + @Keyword + '%' OR CAST(TypeID AS NVARCHAR)
+LIKE '%' + @Keyword + '%');
+
+GO
+CREATE PROCEDURE [dbo].[Search_POI]
 @Keyword nvarchar(MAX)
 AS
 SET NOCOUNT ON
@@ -1127,6 +1263,14 @@ FROM dbo.POI WHERE CAST(FloorID AS NVARCHAR) LIKE + '%' + @Keyword + '%' OR CAST
 '%' + @Keyword + '%' OR CAST(x AS NVARCHAR) LIKE '%' + @Keyword + '%' OR CAST(y AS NVARCHAR) LIKE + '%' + 
 @Keyword + '%' OR POIName LIKE + '%' + @Keyword + '%' OR Summary LIKE + '%' + @Keyword + '%' OR POIOwner 
 LIKE + '%' + @Keyword + '%' OR POIType LIKE + '%' + @Keyword + '%';
+
+
+GO
+CREATE PROCEDURE dbo.TYPES_LOG 
+AS
+SET NOCOUNT ON
+SELECT TypeID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
+FROM dbo.TYPES;
 
 GO
 CREATE PROCEDURE [dbo].[UserLogin]
@@ -1140,53 +1284,4 @@ TRUNCATE TABLE dbo.UserID
 INSERT INTO dbo.UserID SELECT UserID FROM dbo.USERS WHERE Username = @Username AND UPassword = @UPassword
 SET NOCOUNT OFF
 END;
--- LOG PROCEDURES
-
-GO
-CREATE PROCEDURE dbo.BFLOOR_LOG 
-AS
-SET NOCOUNT ON
-SELECT FloorID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
-FROM dbo.BFLOOR  
-
-GO
-CREATE PROCEDURE dbo.BUILDING_LOG 
-AS
-SET NOCOUNT ON
-SELECT BCode AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
-FROM dbo.BUILDING
-
-GO
-CREATE PROCEDURE dbo.CAMPUS_LOG 
-AS
-SET NOCOUNT ON
-SELECT CampusID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
-FROM dbo.CAMPUS
-
-GO
-CREATE PROCEDURE dbo.FINGERPRINT_LOG 
-AS
-SET NOCOUNT ON
-SELECT FingerprintID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
-FROM dbo.FINGERPRINT 
-
-GO
-CREATE PROCEDURE dbo.ITEM_LOG 
-AS
-SET NOCOUNT ON
-SELECT ItemID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
-FROM dbo.ITEM
-
-GO
-CREATE PROCEDURE dbo.POI_LOG 
-AS
-SET NOCOUNT ON
-SELECT POIID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified 
-FROM dbo.POI 
-
-GO
-CREATE PROCEDURE dbo.TYPES_LOG 
-AS
-SET NOCOUNT ON
-SELECT TypeID AS ID, UserAdded , UserModified , CAST(Date_Added AS NVARCHAR) AS DateAdded , CAST(Date_Modified AS NVARCHAR) AS DateModified
-FROM dbo.TYPES
+-- LOG PROCEDURES;
